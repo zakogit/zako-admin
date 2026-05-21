@@ -144,3 +144,34 @@ export const notificationsApi = {
   delete: (id: number) => api.delete(`/admin/notifications/${id}`),
   send: (id: number) => api.post(`/admin/notifications/${id}/send`),
 };
+
+// ── Payments & Orders ─────────────────────────────────
+export const paymentsApi = {
+  // Orders
+  getOrders: (params?: { page?: number; limit?: number; status?: string; product_type?: string; payment_method?: string; search?: string; date_from?: string; date_to?: string }) =>
+    api.get<{ success: boolean; data: { orders: any[]; total: number; page: number; limit: number; totalPages: number } }>('/admin/orders', { params }),
+  getOrderById: (id: number) => 
+    api.get<{ success: boolean; data: any }>(`/admin/orders/${id}`),
+  cancelOrder: (id: number, reason: string) => 
+    api.post(`/admin/orders/${id}/cancel`, { reason }),
+  completeOrder: (id: number, notes?: string) => 
+    api.post(`/admin/orders/${id}/complete`, { notes }),
+  
+  // Statistics
+  getStats: () => api.get<{ success: boolean; data: any[] }>('/admin/payments/stats'),
+  getRevenue: (days?: number) => api.get<{ success: boolean; data: any[] }>('/admin/payments/revenue', { params: { days } }),
+  getTopProducts: (limit?: number) => api.get<{ success: boolean; data: any[] }>('/admin/payments/top-products', { params: { limit } }),
+  
+  // Transactions
+  getTransactions: (limit?: number) => api.get<{ success: boolean; data: any[] }>('/admin/payments/transactions', { params: { limit } }),
+  getFailedPayments: (params?: { page?: number; limit?: number }) =>
+    api.get<{ success: boolean; data: { transactions: any[]; total: number } }>('/admin/payments/failed', { params }),
+  
+  // Webhooks
+  getWebhooks: (params?: { page?: number; limit?: number; provider?: string }) =>
+    api.get<{ success: boolean; data: { webhooks: any[]; page: number; limit: number } }>('/admin/payments/webhooks', { params }),
+  
+  // Testing
+  createTestOrder: (package_id: number, user_id: number) =>
+    api.post('/admin/payments/test', { package_id, user_id }),
+};
