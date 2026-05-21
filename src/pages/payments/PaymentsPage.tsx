@@ -181,12 +181,12 @@ export default function PaymentsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
               {/* Search */}
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
                 <input 
                   value={search} 
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search orders..."
-                  className="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg"
+                  className="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
                 />
               </div>
 
@@ -194,7 +194,7 @@ export default function PaymentsPage() {
               <select 
                 value={filters.status}
                 onChange={(e) => setFilters({...filters, status: e.target.value})}
-                className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg"
+                className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               >
                 <option value="">All Statuses</option>
                 <option value="pending">Pending</option>
@@ -207,7 +207,7 @@ export default function PaymentsPage() {
               <select 
                 value={filters.product_type}
                 onChange={(e) => setFilters({...filters, product_type: e.target.value})}
-                className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg"
+                className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               >
                 <option value="">All Products</option>
                 <option value="coins">Coins</option>
@@ -220,7 +220,7 @@ export default function PaymentsPage() {
                 type="date"
                 value={filters.date_from}
                 onChange={(e) => setFilters({...filters, date_from: e.target.value})}
-                className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg"
+                className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
 
               {/* Date To */}
@@ -228,7 +228,7 @@ export default function PaymentsPage() {
                 type="date"
                 value={filters.date_to}
                 onChange={(e) => setFilters({...filters, date_to: e.target.value})}
-                className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg"
+                className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
 
               {/* Clear Filters */}
@@ -392,16 +392,16 @@ export default function PaymentsPage() {
                   </td>
                   <td className="px-4 py-3">
                     <details className="cursor-pointer">
-                      <summary className="text-sm text-blue-600">View Request</summary>
-                      <pre className="mt-2 text-xs bg-gray-100 p-2 rounded overflow-auto max-h-32">
+                      <summary className="text-sm text-blue-600 dark:text-blue-400">View Request</summary>
+                      <pre className="mt-2 text-xs bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 p-2 rounded overflow-auto max-h-32">
                         {JSON.stringify(webhook.request_body, null, 2)}
                       </pre>
                     </details>
                   </td>
                   <td className="px-4 py-3">
                     <details className="cursor-pointer">
-                      <summary className="text-sm text-blue-600">View Response</summary>
-                      <pre className="mt-2 text-xs bg-gray-100 p-2 rounded overflow-auto max-h-32">
+                      <summary className="text-sm text-blue-600 dark:text-blue-400">View Response</summary>
+                      <pre className="mt-2 text-xs bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 p-2 rounded overflow-auto max-h-32">
                         {JSON.stringify(webhook.response_body, null, 2)}
                       </pre>
                     </details>
@@ -453,20 +453,20 @@ export default function PaymentsPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Order Number</label>
-                <div className="font-mono">{selectedOrder.order_number}</div>
+                <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">Order Number</label>
+                <div className="font-mono text-gray-900 dark:text-white">{selectedOrder.order_number}</div>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Status</label>
+                <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">Status</label>
                 {getStatusBadge(selectedOrder.status)}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Product</label>
+                <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">Product</label>
                 {getProductTypeBadge(selectedOrder.product_type)}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Amount</label>
-                <div>{formatNumber(selectedOrder.amount_som)} so'm</div>
+                <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">Amount</label>
+                <div className="text-gray-900 dark:text-white">{formatNumber(selectedOrder.amount_som)} so'm</div>
               </div>
             </div>
           </div>
@@ -477,11 +477,11 @@ export default function PaymentsPage() {
       <Modal open={cancelModal} onClose={() => setCancelModal(false)} title="Cancel Order">
         <form onSubmit={handleSubmit(handleCancel)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Cancellation Reason</label>
+            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">Cancellation Reason</label>
             <textarea 
               {...register('reason', { required: 'Reason is required' })}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
               placeholder="Enter reason for cancellation..."
             />
           </div>
@@ -500,11 +500,11 @@ export default function PaymentsPage() {
       <Modal open={completeModal} onClose={() => setCompleteModal(false)} title="Complete Order">
         <form onSubmit={handleSubmit(handleComplete)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Notes (Optional)</label>
+            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">Notes (Optional)</label>
             <textarea 
               {...register('notes')}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
               placeholder="Add any notes about manual completion..."
             />
           </div>
@@ -523,22 +523,22 @@ export default function PaymentsPage() {
       <Modal open={testOrderModal} onClose={() => setTestOrderModal(false)} title="Create Test Order">
         <form onSubmit={handleSubmit(handleCreateTestOrder)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Package ID *</label>
+            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">Package ID *</label>
             <input 
               {...register('package_id', { required: 'Package ID is required', valueAsNumber: true })}
               type="number"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               placeholder="Enter package ID (e.g., 1)"
             />
             <p className="text-xs text-gray-500 mt-1">ID of the coin/premium package to test</p>
           </div>
           
           <div>
-            <label className="block text-sm font-medium mb-2">User ID *</label>
+            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">User ID *</label>
             <input 
               {...register('user_id', { required: 'User ID is required', valueAsNumber: true })}
               type="number"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               placeholder="Enter user ID (e.g., 1)"
             />
             <p className="text-xs text-gray-500 mt-1">ID of the user to create order for</p>
