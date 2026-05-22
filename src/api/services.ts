@@ -27,20 +27,6 @@ export const usersApi = {
     api.put(`/admin/users/${id}/ban`, body),
 };
 
-// ── Questions ─────────────────────────────────────────
-export const questionsApi = {
-  getAll: (params?: Record<string, any>) =>
-    api.get<{ success: boolean; data: PaginatedResponse<Question> }>('/admin/questions', { params }),
-  getById: (id: number) =>
-    api.get<{ success: boolean; data: Question }>(`/admin/questions/${id}`),
-  getStats: () => api.get<{ success: boolean; data: any[] }>('/admin/questions/stats'),
-  create: (body: Partial<Question> & { options: any[] }) =>
-    api.post('/admin/questions', body),
-  update: (id: number, body: Partial<Question> & { options?: any[] }) =>
-    api.put(`/admin/questions/${id}`, body),
-  delete: (id: number) => api.delete(`/admin/questions/${id}`),
-};
-
 // ── Subjects ──────────────────────────────────────────
 export const subjectsApi = {
   getAll: (params?: { page?: number; limit?: number; search?: string; include_inactive?: boolean }) =>
@@ -67,6 +53,19 @@ export const topicsApi = {
     api.put('/admin/admin-topics/reorder', { orders }),
   getBySubject: (subjectId: number) =>
     api.get<{ success: boolean; data: Topic[] }>(`/admin/topics/${subjectId}`),
+  getStats: () => api.get<{ success: boolean; data: any[] }>('/admin/admin-topics/stats'),
+};
+
+// ── Questions ─────────────────────────────────────────
+export const questionsApi = {
+  getAll: (params?: { page?: number; limit?: number; search?: string; subject_id?: number; topic_id?: number; difficulty?: string }) =>
+    api.get<{ success: boolean; data: PaginatedResponse<Question> }>('/admin/admin-questions', { params }),
+  getStats: () => api.get<{ success: boolean; data: any[] }>('/admin/admin-questions/stats'),
+  getById: (id: number) => api.get<{ success: boolean; data: Question }>(`/admin/admin-questions/${id}`),
+  create: (body: Partial<Question>) => api.post('/admin/admin-questions', body),
+  update: (id: number, body: Partial<Question>) => api.put(`/admin/admin-questions/${id}`, body),
+  delete: (id: number) => api.delete(`/admin/admin-questions/${id}`),
+  bulkDelete: (ids: number[]) => api.post('/admin/admin-questions/bulk-delete', { ids }),
 };
 
 // ── Cards ─────────────────────────────────────────────
@@ -174,4 +173,10 @@ export const paymentsApi = {
   // Testing
   createTestOrder: (package_id: number, user_id: number) =>
     api.post('/admin/payments/test', { package_id, user_id }),
+    
+  // Payme Integration Testing
+  testPaymeIntegration: () =>
+    api.get<{ success: boolean; data: any }>('/admin/payme/test-integration'),
+  createPaymeTestOrder: (user_id: number, amount: number, description: string) =>
+    api.post('/admin/payme/create-test-order', { user_id, amount, description }),
 };

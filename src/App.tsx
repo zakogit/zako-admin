@@ -18,6 +18,7 @@ const AvatarsPage = lazy(() => import('./pages/avatars/AvatarsPage'));
 const DuelsPage = lazy(() => import('./pages/duels/DuelsPage'));
 const FriendsPage = lazy(() => import('./pages/friends/FriendsPage'));
 const RegionsPage = lazy(() => import('./pages/regions/RegionsPage'));
+const StorePage = lazy(() => import('./pages/store/StorePage'));
 const PaymentsPage = lazy(() => import('./pages/payments/PaymentsPage'));
 const NotificationsPage = lazy(() => import('./pages/notifications/NotificationsPage'));
 const AuditLogsPage = lazy(() => import('./pages/audit/AuditLogsPage'));
@@ -56,6 +57,7 @@ export default function App() {
               <Route path="duels" element={<DuelsPage />} />
               <Route path="friends" element={<FriendsPage />} />
               <Route path="regions" element={<RegionsPage />} />
+              <Route path="store" element={<StorePage />} />
               <Route path="payments" element={<PaymentsPage />} />
               <Route path="notifications" element={<NotificationsPage />} />
               <Route path="audit-logs" element={<AuditLogsPage />} />

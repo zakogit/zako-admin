@@ -67,8 +67,8 @@ export default function CardsPage() {
     onError: () => toast.error('Failed to delete card'),
   });
 
-  const cards: CardType[] = Array.isArray((cardsData as any)?.data) ? (cardsData as any).data : [];
-  const total: number = (cardsData as any)?.total ?? 0;
+  const cards: CardType[] = Array.isArray((cardsData as any)?.data?.data) ? (cardsData as any).data.data : [];
+  const total: number = (cardsData as any)?.data?.total ?? 0;
   const stats = Array.isArray((statsData as any)?.data) ? (statsData as any).data : [];
 
   const openEditModal = (card?: CardType) => {

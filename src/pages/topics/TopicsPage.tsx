@@ -38,14 +38,14 @@ export default function TopicsPage() {
     queryFn: () => topicsApi.getStats().then(r => r.data),
   });
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<any>();
+  const topicForm = useForm<any>();
 
   const createMutation = useMutation({
     mutationFn: topicsApi.create,
     onSuccess: () => {
       toast.success('Topic created successfully');
       setEditModal(false);
-      reset();
+      topicForm.reset();
       qc.invalidateQueries({ queryKey: ['admin-topics'] });
     },
     onError: () => toast.error('Failed to create topic'),
@@ -57,7 +57,7 @@ export default function TopicsPage() {
       toast.success('Topic updated successfully');
       setEditModal(false);
       setSelected(null);
-      reset();
+      topicForm.reset();
       qc.invalidateQueries({ queryKey: ['admin-topics'] });
     },
     onError: () => toast.error('Failed to update topic'),
@@ -82,13 +82,13 @@ export default function TopicsPage() {
   const openEditModal = (topic?: Topic) => {
     setSelected(topic || null);
     if (topic) {
-      setValue('name', topic.name);
-      setValue('description', topic.description);
-      setValue('subject_id', topic.subject_id);
-      setValue('order_index', topic.order_index);
-      setValue('is_active', topic.is_active);
+      topicForm.setValue('name', topic.name);
+      topicForm.setValue('description', topic.description);
+      topicForm.setValue('subject_id', topic.subject_id);
+      topicForm.setValue('order_index', topic.order_index);
+      topicForm.setValue('is_active', topic.is_active);
     } else {
-      reset();
+      topicForm.reset();
     }
     setEditModal(true);
   };
@@ -226,21 +226,21 @@ export default function TopicsPage() {
 
       {/* Edit Modal */}
       <Modal open={editModal} onClose={() => { setEditModal(false); setSelected(null); }} title={selected ? 'Edit Topic' : 'Create Topic'}>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={topicForm.handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-2">Topic Name</label>
               <input 
-                {...register('name', { required: 'Topic name is required' })}
+                {...topicForm.register('name', { required: 'Topic name is required' })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
               />
-              {errors.name && <p className="text-red-500 text-xs mt-1">{String(errors.name.message)}</p>}
+              {topicForm.formState.errors.name && <p className="text-red-500 text-xs mt-1">{String(topicForm.formState.errors.name.message)}</p>}
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-2">Subject</label>
               <select 
-                {...register('subject_id', { required: 'Subject is required' })}
+                {...topicForm.register('subject_id', { required: 'Subject is required' })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
               >
                 <option value="">Select Subject</option>
@@ -248,7 +248,7 @@ export default function TopicsPage() {
                   <option key={subject.id} value={subject.id}>{subject.name}</option>
                 ))}
               </select>
-              {errors.subject_id && <p className="text-red-500 text-xs mt-1">{String(errors.subject_id.message)}</p>}
+              {topicForm.formState.errors.subject_id && <p className="text-red-500 text-xs mt-1">{String(topicForm.formState.errors.subject_id.message)}</p>}
             </div>
           </div>
 

@@ -67,8 +67,8 @@ export default function SubjectsPage() {
     onError: () => toast.error('Failed to delete subject'),
   });
 
-  const subjects: Subject[] = Array.isArray((subjectsData as any)?.data) ? (subjectsData as any).data : [];
-  const total: number = (subjectsData as any)?.total ?? 0;
+  const subjects: Subject[] = Array.isArray((subjectsData as any)?.data?.data) ? (subjectsData as any).data.data : [];
+  const total: number = (subjectsData as any)?.data?.total ?? 0;
   const stats = Array.isArray((statsData as any)?.data) ? (statsData as any).data : [];
 
   const openEditModal = (subject?: Subject) => {

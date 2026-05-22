@@ -26,7 +26,10 @@ export default function PaymentsPage() {
   const [testOrderModal, setTestOrderModal] = useState(false);
   const limit = 20;
 
-  const { register, handleSubmit, reset } = useForm();
+  // Separate forms for each modal
+  const cancelForm = useForm();
+  const completeForm = useForm(); 
+  const testForm = useForm();
 
   // Orders query
   const { data: ordersData, isLoading: ordersLoading } = useQuery({
@@ -69,6 +72,7 @@ export default function PaymentsPage() {
       toast.success('Order cancelled successfully');
       setCancelModal(false);
       setSelectedOrder(null);
+      cancelForm.reset();
       qc.invalidateQueries({ queryKey: ['admin-orders'] });
     },
     onError: () => toast.error('Failed to cancel order')
@@ -80,6 +84,7 @@ export default function PaymentsPage() {
       toast.success('Order completed successfully');
       setCompleteModal(false);
       setSelectedOrder(null);
+      completeForm.reset();
       qc.invalidateQueries({ queryKey: ['admin-orders'] });
     },
     onError: () => toast.error('Failed to complete order')
@@ -90,7 +95,7 @@ export default function PaymentsPage() {
     onSuccess: (data) => {
       toast.success('Test order created successfully');
       setTestOrderModal(false);
-      reset();
+      testForm.reset();
       qc.invalidateQueries({ queryKey: ['admin-orders'] });
       // Test order yaratilgandan keyin payment URL'ini ko'rsatish
       if (data.data?.payment_url) {
@@ -99,6 +104,27 @@ export default function PaymentsPage() {
     },
     onError: (error: any) => {
       const message = error.response?.data?.message || 'Failed to create test order';
+      toast.error(message);
+    }
+  });
+
+  // Payme integration test queries and mutations
+  const { data: paymeTestData, isLoading: paymeTestLoading } = useQuery({
+    queryKey: ['payme-test'],
+    queryFn: () => paymentsApi.testPaymeIntegration().then(r => r.data),
+    enabled: activeTab === 'test'
+  });
+
+  const createPaymeTestOrderMutation = useMutation({
+    mutationFn: ({ user_id, amount, description }: { user_id: number; amount: number; description: string }) => 
+      paymentsApi.createPaymeTestOrder(user_id, amount, description),
+    onSuccess: (data) => {
+      toast.success('Payme test order created successfully');
+      qc.invalidateQueries({ queryKey: ['admin-orders'] });
+      qc.invalidateQueries({ queryKey: ['payme-test'] });
+    },
+    onError: (error: any) => {
+      const message = error.response?.data?.message || 'Failed to create Payme test order';
       toast.error(message);
     }
   });
@@ -126,14 +152,17 @@ export default function PaymentsPage() {
   };
 
   const handleCancel = (data: any) => {
+    console.log('Cancelling order:', data);
     cancelMutation.mutate({ id: selectedOrder.id, reason: data.reason });
   };
 
   const handleComplete = (data: any) => {
+    console.log('Completing order:', data);
     completeMutation.mutate({ id: selectedOrder.id, notes: data.notes });
   };
 
   const handleCreateTestOrder = (data: any) => {
+    console.log('Creating test order with data:', data);
     createTestOrderMutation.mutate({ 
       package_id: data.package_id, 
       user_id: data.user_id 
@@ -421,16 +450,114 @@ export default function PaymentsPage() {
       {/* Test Tab */}
       {activeTab === 'test' && (
         <div className="space-y-6">
+          {/* Payme Integration Status */}
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+            <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Payme Integration Status</h2>
+            
+            {paymeTestLoading ? (
+              <div className="text-center py-4">Loading integration status...</div>
+            ) : paymeTestData ? (
+              <div className="space-y-4">
+                <div className={`p-4 rounded-lg border ${
+                  paymeTestData.overall_status === 'READY' 
+                    ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-700'
+                    : 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-700'
+                }`}>
+                  <h3 className={`font-medium ${
+                    paymeTestData.overall_status === 'READY' 
+                      ? 'text-green-800 dark:text-green-200'
+                      : 'text-red-800 dark:text-red-200'
+                  }`}>
+                    Status: {paymeTestData.overall_status}
+                  </h3>
+                  <p className={`text-sm mt-1 ${
+                    paymeTestData.overall_status === 'READY' 
+                      ? 'text-green-600 dark:text-green-300'
+                      : 'text-red-600 dark:text-red-300'
+                  }`}>
+                    {paymeTestData.overall_status === 'READY' 
+                      ? 'Payme integration is properly configured and ready'
+                      : 'Payme integration needs configuration'
+                    }
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-2">Configuration</h4>
+                    <ul className="text-sm space-y-1">
+                      <li className="flex justify-between">
+                        <span>Merchant ID:</span>
+                        <span className={paymeTestData.config?.merchant_id !== 'NOT_SET' ? 'text-green-600' : 'text-red-600'}>
+                          {paymeTestData.config?.merchant_id !== 'NOT_SET' ? '✓ Set' : '✗ Not Set'}
+                        </span>
+                      </li>
+                      <li className="flex justify-between">
+                        <span>Secret Key:</span>
+                        <span className={paymeTestData.config?.secret_key !== 'NOT_SET' ? 'text-green-600' : 'text-red-600'}>
+                          {paymeTestData.config?.secret_key !== 'NOT_SET' ? '✓ Set' : '✗ Not Set'}
+                        </span>
+                      </li>
+                      <li className="flex justify-between">
+                        <span>Test Mode:</span>
+                        <span>{paymeTestData.config?.test_mode || 'Unknown'}</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-2">Database</h4>
+                    <ul className="text-sm space-y-1">
+                      <li className="flex justify-between">
+                        <span>Orders Table:</span>
+                        <span className={paymeTestData.database?.orders_table_exists ? 'text-green-600' : 'text-red-600'}>
+                          {paymeTestData.database?.orders_table_exists ? '✓ Exists' : '✗ Missing'}
+                        </span>
+                      </li>
+                      <li className="flex justify-between">
+                        <span>Recent Orders (24h):</span>
+                        <span>{paymeTestData.database?.recent_orders_24h || 0}</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          {/* Test Order Creation */}
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
             <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Test Payment Integration</h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Create a test order to verify Payme integration. This will create a real order with Payme payment URL.
+              Create test orders to verify Payme integration. Choose between regular test order or Payme-specific test order.
             </p>
             
-            <Button onClick={() => setTestOrderModal(true)} className="flex items-center gap-2">
-              <TestTube className="w-4 h-4" />
-              Create Test Order
-            </Button>
+            <div className="flex gap-3">
+              <Button onClick={() => setTestOrderModal(true)} className="flex items-center gap-2">
+                <TestTube className="w-4 h-4" />
+                Create Test Order
+              </Button>
+              
+              <Button 
+                onClick={() => {
+                  const userId = prompt('Enter User ID:');
+                  const amount = prompt('Enter Amount (in so\'m):');
+                  if (userId && amount) {
+                    createPaymeTestOrderMutation.mutate({
+                      user_id: parseInt(userId),
+                      amount: parseFloat(amount) * 100, // Convert to tiyin
+                      description: 'Admin Payme Test Order'
+                    });
+                  }
+                }}
+                variant="outline"
+                loading={createPaymeTestOrderMutation.isPending}
+                className="flex items-center gap-2"
+              >
+                <DollarSign className="w-4 h-4" />
+                Create Payme Test
+              </Button>
+            </div>
           </div>
 
           <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-4">
@@ -475,15 +602,18 @@ export default function PaymentsPage() {
 
       {/* Cancel Order Modal */}
       <Modal open={cancelModal} onClose={() => setCancelModal(false)} title="Cancel Order">
-        <form onSubmit={handleSubmit(handleCancel)} className="space-y-4">
+        <form onSubmit={cancelForm.handleSubmit(handleCancel)} className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">Cancellation Reason</label>
             <textarea 
-              {...register('reason', { required: 'Reason is required' })}
+              {...cancelForm.register('reason', { required: 'Reason is required' })}
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
               placeholder="Enter reason for cancellation..."
             />
+            {cancelForm.formState.errors.reason && (
+              <p className="text-xs text-red-500 mt-1">{cancelForm.formState.errors.reason.message}</p>
+            )}
           </div>
           <div className="flex gap-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setCancelModal(false)}>
@@ -498,11 +628,11 @@ export default function PaymentsPage() {
 
       {/* Complete Order Modal */}
       <Modal open={completeModal} onClose={() => setCompleteModal(false)} title="Complete Order">
-        <form onSubmit={handleSubmit(handleComplete)} className="space-y-4">
+        <form onSubmit={completeForm.handleSubmit(handleComplete)} className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">Notes (Optional)</label>
             <textarea 
-              {...register('notes')}
+              {...completeForm.register('notes')}
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
               placeholder="Add any notes about manual completion..."
@@ -521,26 +651,32 @@ export default function PaymentsPage() {
 
       {/* Test Order Modal */}
       <Modal open={testOrderModal} onClose={() => setTestOrderModal(false)} title="Create Test Order">
-        <form onSubmit={handleSubmit(handleCreateTestOrder)} className="space-y-4">
+        <form onSubmit={testForm.handleSubmit(handleCreateTestOrder)} className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">Package ID *</label>
             <input 
-              {...register('package_id', { required: 'Package ID is required', valueAsNumber: true })}
+              {...testForm.register('package_id', { required: 'Package ID is required', valueAsNumber: true })}
               type="number"
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               placeholder="Enter package ID (e.g., 1)"
             />
+            {testForm.formState.errors.package_id && (
+              <p className="text-xs text-red-500 mt-1">{testForm.formState.errors.package_id.message}</p>
+            )}
             <p className="text-xs text-gray-500 mt-1">ID of the coin/premium package to test</p>
           </div>
           
           <div>
             <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">User ID *</label>
             <input 
-              {...register('user_id', { required: 'User ID is required', valueAsNumber: true })}
+              {...testForm.register('user_id', { required: 'User ID is required', valueAsNumber: true })}
               type="number"
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               placeholder="Enter user ID (e.g., 1)"
             />
+            {testForm.formState.errors.user_id && (
+              <p className="text-xs text-red-500 mt-1">{testForm.formState.errors.user_id.message}</p>
+            )}
             <p className="text-xs text-gray-500 mt-1">ID of the user to create order for</p>
           </div>
           

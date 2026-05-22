@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Search, Plus, Edit, Trash2, BarChart3 } from 'lucide-react';
 import { questionsApi, subjectsApi, topicsApi } from '../../api/services';
@@ -6,7 +6,7 @@ import { Table, Badge, Button, Pagination, Modal, EmptyState } from '../../compo
 import { formatDate } from '../../utils/helpers';
 import type { Question, Subject, Topic } from '../../types';
 import toast from 'react-hot-toast';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray, useWatch } from 'react-hook-form';
 
 export default function QuestionsPage() {
   const qc = useQueryClient();
@@ -17,6 +17,7 @@ export default function QuestionsPage() {
   const [selected, setSelected] = useState<Question | null>(null);
   const [editModal, setEditModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
+  const [formSubjectId, setFormSubjectId] = useState<string>('');
   const limit = 20;
 
   const { data: questionsData, isLoading } = useQuery({
@@ -45,19 +46,51 @@ export default function QuestionsPage() {
     enabled: !!subjectFilter,
   });
 
+  const { data: formTopicsData } = useQuery({
+    queryKey: ['form-topics-by-subject', formSubjectId],
+    queryFn: async () => {
+      if (!formSubjectId) return { data: { success: true, data: [] } };
+      const result = await topicsApi.getBySubject(Number(formSubjectId));
+      return result;
+    },
+    enabled: !!formSubjectId,
+  });
+
   const { data: statsData } = useQuery({
     queryKey: ['questions-stats'],
     queryFn: () => questionsApi.getStats().then(r => r.data),
   });
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<any>();
+  const questionForm = useForm<any>({
+    defaultValues: {
+      options: ['', '', '', '']
+    }
+  });
+
+  const { fields, append, remove, update } = useFieldArray({
+    control: questionForm.control,
+    name: 'options'
+  });
+
+  const watchedSubjectId = useWatch({
+    control: questionForm.control,
+    name: 'subject_id'
+  });
+
+  useEffect(() => {
+    if (watchedSubjectId) {
+      setFormSubjectId(String(watchedSubjectId));
+      // Clear topic when subject changes
+      questionForm.setValue('topic_id', '');
+    }
+  }, [watchedSubjectId, questionForm]);
 
   const createMutation = useMutation({
     mutationFn: questionsApi.create,
     onSuccess: () => {
       toast.success('Question created successfully');
       setEditModal(false);
-      reset();
+      questionForm.reset();
       qc.invalidateQueries({ queryKey: ['admin-questions'] });
     },
     onError: () => toast.error('Failed to create question'),
@@ -69,7 +102,7 @@ export default function QuestionsPage() {
       toast.success('Question updated successfully');
       setEditModal(false);
       setSelected(null);
-      reset();
+      questionForm.reset();
       qc.invalidateQueries({ queryKey: ['admin-questions'] });
     },
     onError: () => toast.error('Failed to update question'),
@@ -90,18 +123,24 @@ export default function QuestionsPage() {
   const total: number = (questionsData as any)?.data?.total ?? 0;
   const subjects: Subject[] = Array.isArray((subjectsData as any)?.data) ? (subjectsData as any).data : [];
   const topics: Topic[] = Array.isArray((topicsData as any)?.data?.data) ? (topicsData as any).data.data : [];
+  const formTopics: Topic[] = Array.isArray((formTopicsData as any)?.data?.data) ? (formTopicsData as any).data.data : [];
   const stats = Array.isArray((statsData as any)?.data) ? (statsData as any).data : [];
 
   const openEditModal = (question?: Question) => {
     setSelected(question || null);
     if (question) {
-      setValue('question_text', question.question_text);
-      setValue('topic_id', question.topic_id);
-      setValue('subject_id', question.subject_id);
-      setValue('difficulty', question.difficulty);
-      setValue('options', question.options || []);
+      questionForm.setValue('question_text', question.question_text);
+      questionForm.setValue('topic_id', question.topic_id);
+      questionForm.setValue('subject_id', question.subject_id);
+      questionForm.setValue('difficulty', question.difficulty);
+      questionForm.setValue('correct_answer', question.correct_answer);
+      questionForm.setValue('explanation', question.explanation || '');
+      questionForm.setValue('options', question.options || ['', '', '', '']);
+      setFormSubjectId(String(question.subject_id));
     } else {
-      reset();
+      questionForm.reset();
+      questionForm.setValue('options', ['', '', '', '']);
+      setFormSubjectId('');
     }
     setEditModal(true);
   };
@@ -241,22 +280,22 @@ export default function QuestionsPage() {
 
       {/* Edit Modal */}
       <Modal open={editModal} onClose={() => { setEditModal(false); setSelected(null); }} title={selected ? 'Edit Question' : 'Create Question'}>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={questionForm.handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-2">Question Text</label>
             <textarea 
-              {...register('question_text', { required: 'Question text is required' })}
+              {...questionForm.register('question_text', { required: 'Question text is required' })}
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
             />
-            {errors.question_text && <p className="text-red-500 text-xs mt-1">{String(errors.question_text.message)}</p>}
+            {questionForm.formState.errors.question_text && <p className="text-red-500 text-xs mt-1">{String(questionForm.formState.errors.question_text.message)}</p>}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium mb-2">Subject</label>
               <select 
-                {...register('subject_id', { required: 'Subject is required' })}
+                {...questionForm.register('subject_id', { required: 'Subject is required' })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
               >
                 <option value="">Select Subject</option>
@@ -264,13 +303,28 @@ export default function QuestionsPage() {
                   <option key={subject.id} value={subject.id}>{subject.name}</option>
                 ))}
               </select>
-              {errors.subject_id && <p className="text-red-500 text-xs mt-1">{String(errors.subject_id.message)}</p>}
+              {questionForm.formState.errors.subject_id && <p className="text-red-500 text-xs mt-1">{String(questionForm.formState.errors.subject_id.message)}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Topic</label>
+              <select 
+                {...questionForm.register('topic_id', { required: 'Topic is required' })}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
+                disabled={!formSubjectId}
+              >
+                <option value="">Select Topic</option>
+                {formTopics.map(topic => (
+                  <option key={topic.id} value={topic.id}>{topic.name}</option>
+                ))}
+              </select>
+              {questionForm.formState.errors.topic_id && <p className="text-red-500 text-xs mt-1">{String(questionForm.formState.errors.topic_id.message)}</p>}
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-2">Difficulty</label>
               <select 
-                {...register('difficulty', { required: 'Difficulty is required' })}
+                {...questionForm.register('difficulty', { required: 'Difficulty is required' })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
               >
                 <option value="">Select Difficulty</option>
@@ -278,8 +332,52 @@ export default function QuestionsPage() {
                 <option value="medium">Medium</option>
                 <option value="hard">Hard</option>
               </select>
-              {errors.difficulty && <p className="text-red-500 text-xs mt-1">{String(errors.difficulty.message)}</p>}
+              {questionForm.formState.errors.difficulty && <p className="text-red-500 text-xs mt-1">{String(questionForm.formState.errors.difficulty.message)}</p>}
             </div>
+          </div>
+
+          {/* Answer Options */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Answer Options</label>
+            <div className="space-y-2">
+              {fields.map((field, index) => (
+                <div key={field.id} className="flex gap-2">
+                  <input
+                    {...questionForm.register(`options.${index}`, { required: 'Option is required' })}
+                    placeholder={`Option ${index + 1}`}
+                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
+                  />
+                  {fields.length > 2 && (
+                    <Button type="button" variant="outline" size="sm" onClick={() => remove(index)}>
+                      Remove
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button type="button" variant="outline" size="sm" onClick={() => append('')}>
+                Add Option
+              </Button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Correct Answer</label>
+            <input
+              {...questionForm.register('correct_answer', { required: 'Correct answer is required' })}
+              placeholder="Enter the correct answer"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
+            />
+            {questionForm.formState.errors.correct_answer && <p className="text-red-500 text-xs mt-1">{String(questionForm.formState.errors.correct_answer.message)}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Explanation (Optional)</label>
+            <textarea
+              {...questionForm.register('explanation')}
+              rows={2}
+              placeholder="Optional explanation for the answer"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
+            />
           </div>
 
           <div className="flex gap-3 pt-4">
