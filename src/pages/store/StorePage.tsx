@@ -9,9 +9,9 @@ import { useForm } from 'react-hook-form';
 // Placeholder API - replace with actual store API
 const storeApi = {
   getPackages: () => Promise.resolve({ data: { success: true, data: [] } }),
-  createPackage: (data: any) => Promise.resolve({ data: { success: true } }),
-  updatePackage: (id: number, data: any) => Promise.resolve({ data: { success: true } }),
-  deletePackage: (id: number) => Promise.resolve({ data: { success: true } }),
+  createPackage: (_data: any) => Promise.resolve({ data: { success: true } }),
+  updatePackage: (_id: number, _data: any) => Promise.resolve({ data: { success: true } }),
+  deletePackage: (_id: number) => Promise.resolve({ data: { success: true } }),
 };
 
 export default function StorePage() {

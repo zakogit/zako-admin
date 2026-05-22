@@ -255,7 +255,7 @@ export default function TopicsPage() {
           <div>
             <label className="block text-sm font-medium mb-2">Description</label>
             <textarea 
-              {...register('description')}
+              {...topicForm.register('description')}
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
             />
@@ -266,17 +266,17 @@ export default function TopicsPage() {
               <label className="block text-sm font-medium mb-2">Order Index</label>
               <input 
                 type="number"
-                {...register('order_index', { required: 'Order index is required', min: 1 })}
+                {...topicForm.register('order_index', { required: 'Order index is required', min: 1 })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
               />
-              {errors.order_index && <p className="text-red-500 text-xs mt-1">{String(errors.order_index.message)}</p>}
+              {topicForm.formState.errors.order_index && <p className="text-red-500 text-xs mt-1">{String(topicForm.formState.errors.order_index.message)}</p>}
             </div>
 
             <div className="flex items-center pt-6">
               <label className="flex items-center gap-2">
                 <input 
                   type="checkbox"
-                  {...register('is_active')}
+                  {...topicForm.register('is_active')}
                   className="rounded border-gray-300 dark:border-gray-600"
                 />
                 <span className="text-sm font-medium">Active</span>

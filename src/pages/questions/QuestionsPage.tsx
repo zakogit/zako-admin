@@ -26,8 +26,8 @@ export default function QuestionsPage() {
       page, 
       limit, 
       search: search || undefined,
-      subject_id: subjectFilter || undefined,
-      topic_id: topicFilter || undefined
+      subject_id: subjectFilter ? Number(subjectFilter) : undefined,
+      topic_id: topicFilter ? Number(topicFilter) : undefined
     }).then(r => r.data),
   });
 
@@ -67,7 +67,7 @@ export default function QuestionsPage() {
     }
   });
 
-  const { fields, append, remove, update } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control: questionForm.control,
     name: 'options'
   });

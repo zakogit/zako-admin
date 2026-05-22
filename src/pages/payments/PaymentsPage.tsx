@@ -118,7 +118,7 @@ export default function PaymentsPage() {
   const createPaymeTestOrderMutation = useMutation({
     mutationFn: ({ user_id, amount, description }: { user_id: number; amount: number; description: string }) => 
       paymentsApi.createPaymeTestOrder(user_id, amount, description),
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success('Payme test order created successfully');
       qc.invalidateQueries({ queryKey: ['admin-orders'] });
       qc.invalidateQueries({ queryKey: ['payme-test'] });
@@ -459,23 +459,23 @@ export default function PaymentsPage() {
             ) : paymeTestData ? (
               <div className="space-y-4">
                 <div className={`p-4 rounded-lg border ${
-                  paymeTestData.overall_status === 'READY' 
+                  paymeTestData.data?.overall_status === 'READY' 
                     ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-700'
                     : 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-700'
                 }`}>
                   <h3 className={`font-medium ${
-                    paymeTestData.overall_status === 'READY' 
+                    paymeTestData.data?.overall_status === 'READY' 
                       ? 'text-green-800 dark:text-green-200'
                       : 'text-red-800 dark:text-red-200'
                   }`}>
-                    Status: {paymeTestData.overall_status}
+                    Status: {paymeTestData.data?.overall_status || 'Unknown'}
                   </h3>
                   <p className={`text-sm mt-1 ${
-                    paymeTestData.overall_status === 'READY' 
+                    paymeTestData.data?.overall_status === 'READY' 
                       ? 'text-green-600 dark:text-green-300'
                       : 'text-red-600 dark:text-red-300'
                   }`}>
-                    {paymeTestData.overall_status === 'READY' 
+                    {paymeTestData.data?.overall_status === 'READY' 
                       ? 'Payme integration is properly configured and ready'
                       : 'Payme integration needs configuration'
                     }
@@ -488,19 +488,19 @@ export default function PaymentsPage() {
                     <ul className="text-sm space-y-1">
                       <li className="flex justify-between">
                         <span>Merchant ID:</span>
-                        <span className={paymeTestData.config?.merchant_id !== 'NOT_SET' ? 'text-green-600' : 'text-red-600'}>
-                          {paymeTestData.config?.merchant_id !== 'NOT_SET' ? '✓ Set' : '✗ Not Set'}
+                        <span className={paymeTestData.data?.config?.merchant_id !== 'NOT_SET' ? 'text-green-600' : 'text-red-600'}>
+                          {paymeTestData.data?.config?.merchant_id !== 'NOT_SET' ? '✓ Set' : '✗ Not Set'}
                         </span>
                       </li>
                       <li className="flex justify-between">
                         <span>Secret Key:</span>
-                        <span className={paymeTestData.config?.secret_key !== 'NOT_SET' ? 'text-green-600' : 'text-red-600'}>
-                          {paymeTestData.config?.secret_key !== 'NOT_SET' ? '✓ Set' : '✗ Not Set'}
+                        <span className={paymeTestData.data?.config?.secret_key !== 'NOT_SET' ? 'text-green-600' : 'text-red-600'}>
+                          {paymeTestData.data?.config?.secret_key !== 'NOT_SET' ? '✓ Set' : '✗ Not Set'}
                         </span>
                       </li>
                       <li className="flex justify-between">
                         <span>Test Mode:</span>
-                        <span>{paymeTestData.config?.test_mode || 'Unknown'}</span>
+                        <span>{paymeTestData.data?.config?.test_mode || 'Unknown'}</span>
                       </li>
                     </ul>
                   </div>
@@ -510,13 +510,13 @@ export default function PaymentsPage() {
                     <ul className="text-sm space-y-1">
                       <li className="flex justify-between">
                         <span>Orders Table:</span>
-                        <span className={paymeTestData.database?.orders_table_exists ? 'text-green-600' : 'text-red-600'}>
-                          {paymeTestData.database?.orders_table_exists ? '✓ Exists' : '✗ Missing'}
+                        <span className={paymeTestData.data?.database?.orders_table_exists ? 'text-green-600' : 'text-red-600'}>
+                          {paymeTestData.data?.database?.orders_table_exists ? '✓ Exists' : '✗ Missing'}
                         </span>
                       </li>
                       <li className="flex justify-between">
                         <span>Recent Orders (24h):</span>
-                        <span>{paymeTestData.database?.recent_orders_24h || 0}</span>
+                        <span>{paymeTestData.data?.database?.recent_orders_24h || 0}</span>
                       </li>
                     </ul>
                   </div>
@@ -612,7 +612,7 @@ export default function PaymentsPage() {
               placeholder="Enter reason for cancellation..."
             />
             {cancelForm.formState.errors.reason && (
-              <p className="text-xs text-red-500 mt-1">{cancelForm.formState.errors.reason.message}</p>
+              <p className="text-xs text-red-500 mt-1">{String(cancelForm.formState.errors.reason?.message)}</p>
             )}
           </div>
           <div className="flex gap-3 pt-4">
@@ -661,7 +661,7 @@ export default function PaymentsPage() {
               placeholder="Enter package ID (e.g., 1)"
             />
             {testForm.formState.errors.package_id && (
-              <p className="text-xs text-red-500 mt-1">{testForm.formState.errors.package_id.message}</p>
+              <p className="text-xs text-red-500 mt-1">{String(testForm.formState.errors.package_id?.message)}</p>
             )}
             <p className="text-xs text-gray-500 mt-1">ID of the coin/premium package to test</p>
           </div>
@@ -675,7 +675,7 @@ export default function PaymentsPage() {
               placeholder="Enter user ID (e.g., 1)"
             />
             {testForm.formState.errors.user_id && (
-              <p className="text-xs text-red-500 mt-1">{testForm.formState.errors.user_id.message}</p>
+              <p className="text-xs text-red-500 mt-1">{String(testForm.formState.errors.user_id?.message)}</p>
             )}
             <p className="text-xs text-gray-500 mt-1">ID of the user to create order for</p>
           </div>

@@ -53,7 +53,6 @@ export const topicsApi = {
     api.put('/admin/admin-topics/reorder', { orders }),
   getBySubject: (subjectId: number) =>
     api.get<{ success: boolean; data: Topic[] }>(`/admin/topics/${subjectId}`),
-  getStats: () => api.get<{ success: boolean; data: any[] }>('/admin/admin-topics/stats'),
 };
 
 // ── Questions ─────────────────────────────────────────

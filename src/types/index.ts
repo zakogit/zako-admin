@@ -71,6 +71,7 @@ export interface Question {
   difficulty: 'easy' | 'medium' | 'hard';
   explanation?: string;
   image_url?: string;
+  correct_answer?: string;
   is_active: boolean;
   created_at: string;
   options?: QuestionOption[];
