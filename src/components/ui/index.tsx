@@ -157,5 +157,5 @@ export function Pagination({ page, total, limit, onChange }: PaginationProps) {
   );
 }
 
-// Export LazyImage component
+// Export LazyImage component  
 export { LazyImage } from './LazyImage';
