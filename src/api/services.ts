@@ -89,16 +89,6 @@ export const avatarsApi = {
   delete: (id: number) => api.delete(`/admin/avatars/${id}`),
 };
 
-// ── Regions ───────────────────────────────────────────
-export const regionsApi = {
-  getAll: (params?: { page?: number; limit?: number; search?: string }) => 
-    api.get<{ success: boolean; data: PaginatedResponse<Region> }>('/admin/regions-admin', { params }),
-  getStats: () => api.get<{ success: boolean; data: any[] }>('/admin/regions-admin/stats'),
-  create: (body: { name: string }) => api.post('/admin/regions-admin', body),
-  update: (id: number, body: { name: string }) => api.put(`/admin/regions-admin/${id}`, body),
-  delete: (id: number) => api.delete(`/admin/regions-admin/${id}`),
-};
-
 // ── Duels ─────────────────────────────────────────────
 export const duelsApi = {
   getAll: (params?: { page?: number; limit?: number; search?: string; status?: string; subject_id?: number }) =>
@@ -184,4 +174,14 @@ export const paymentsApi = {
     api.get<{ success: boolean; data: any }>('/admin/click/test-integration'),
   createClickTestOrder: (user_id: number, amount: number, description: string) =>
     api.post('/admin/click/create-test-order', { user_id, amount, description }),
+};
+
+// ── Regions ───────────────────────────────────────────
+export const regionsApi = {
+  getAll: (params?: { page?: number; limit?: number; search?: string }) =>
+    api.get<{ success: boolean; data: { data: Region[]; total: number; page: number; limit: number } }>('/admin/regions-admin', { params }),
+  getStats: () => api.get<{ success: boolean; data: any[] }>('/admin/regions-admin/stats'),
+  create: (body: { name: string }) => api.post('/admin/regions-admin', body),
+  update: (id: number, body: { name: string }) => api.put(`/admin/regions-admin/${id}`, body),
+  delete: (id: number) => api.delete(`/admin/regions-admin/${id}`),
 };

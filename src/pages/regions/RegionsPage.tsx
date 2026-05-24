@@ -67,8 +67,8 @@ export default function RegionsPage() {
     onError: () => toast.error('Failed to delete region'),
   });
 
-  const regions: Region[] = Array.isArray((regionsData as any)?.data) ? (regionsData as any).data : [];
-  const total: number = (regionsData as any)?.total ?? 0;
+  const regions: Region[] = Array.isArray((regionsData as any)?.data?.data) ? (regionsData as any).data.data : [];
+  const total: number = (regionsData as any)?.data?.total ?? 0;
   const stats = Array.isArray((statsData as any)?.data) ? (statsData as any).data : [];
 
   const openEditModal = (region?: Region) => {

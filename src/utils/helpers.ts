@@ -51,12 +51,25 @@ export function getStaticFileUrl(relativePath: string): string {
     return relativePath;
   }
   
+  // Backend should already return /uploads/... paths
+  // But if it doesn't, normalize it
+  let normalizedPath = relativePath;
+  if (!normalizedPath.startsWith('/uploads/')) {
+    if (normalizedPath.startsWith('/')) {
+      // Already starts with /, just prepend uploads
+      normalizedPath = `/uploads${normalizedPath}`;
+    } else {
+      // No leading /, add both / and uploads/
+      normalizedPath = `/uploads/${normalizedPath}`;
+    }
+  }
+  
   // In development, proxy handles /uploads paths
   if (import.meta.env.DEV) {
-    return relativePath;
+    return normalizedPath;
   }
   
   // In production, prepend backend URL
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
-  return `${backendUrl}${relativePath}`;
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://api.zakoapp.uz';
+  return `${backendUrl}${normalizedPath}`;
 }
