@@ -29,8 +29,8 @@ export default function UsersPage() {
     onError: () => toast.error('Failed to update balance'),
   });
 
-  const users: User[] = (data as any)?.data ?? [];
-  const total: number = (data as any)?.total ?? 0;
+  const users: User[] = Array.isArray((data as any)?.data?.data) ? (data as any).data.data : [];
+  const total: number = (data as any)?.data?.total ?? 0;
 
   return (
     <div className="space-y-4 animate-fade-in">
