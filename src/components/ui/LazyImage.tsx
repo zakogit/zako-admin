@@ -40,6 +40,11 @@ export function LazyImage({
       {isLoading && (
         <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
       )}
+      {hasError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800 text-gray-400 text-xs">
+          Error
+        </div>
+      )}
       <img
         src={imgSrc}
         alt={alt}
@@ -56,7 +61,6 @@ export function LazyImage({
         onLoad={handleLoad}
         onError={handleError}
         style={{
-          // Progressive JPEG loading for better perceived performance
           filter: isLoading ? 'blur(5px)' : 'none'
         }}
       />
