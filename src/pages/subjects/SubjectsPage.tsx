@@ -150,7 +150,14 @@ export default function SubjectsPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       {subject.icon ? (
-                        <img src={getStaticFileUrl(subject.icon)} alt={subject.name} className="w-8 h-8 rounded object-cover" referrerPolicy="no-referrer-when-downgrade" />
+                        <img 
+                          src={getStaticFileUrl(subject.icon)} 
+                          alt={subject.name} 
+                          className="w-8 h-8 rounded object-cover" 
+                          loading="lazy"
+                          decoding="async"
+                          referrerPolicy="no-referrer-when-downgrade" 
+                        />
                       ) : (
                         <BookOpen className="w-8 h-8 text-primary-500" />
                       )}
