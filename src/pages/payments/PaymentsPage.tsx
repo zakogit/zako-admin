@@ -129,6 +129,42 @@ export default function PaymentsPage() {
     }
   });
 
+  // Click.uz integration test queries and mutations
+  const { data: clickTestData, isLoading: clickTestLoading } = useQuery({
+    queryKey: ['click-test'],
+    queryFn: () => paymentsApi.testClickIntegration().then(r => r.data),
+    enabled: activeTab === 'test'
+  });
+
+  const createClickTestOrderMutation = useMutation({
+    mutationFn: ({ user_id, amount, description }: { user_id: number; amount: number; description: string }) => 
+      paymentsApi.createClickTestOrder(user_id, amount, description),
+    onSuccess: (data) => {
+      toast.success('Click.uz test order created successfully');
+      qc.invalidateQueries({ queryKey: ['admin-orders'] });
+      qc.invalidateQueries({ queryKey: ['click-test'] });
+      
+      // Test order yaratilgandan keyin payment URL'larini ko'rsatish
+      if (data.data?.payment_urls) {
+        const { click_button_url, click_card_url } = data.data.payment_urls;
+        const confirmResult = window.confirm(
+          'Test order yaratildi! Payment URL\'larini ochishni xohlaysizmi?\n\n' +
+          'OK - Click Button URL\nCancel - Click Pay by Card URL'
+        );
+        
+        if (confirmResult) {
+          window.open(click_button_url, '_blank');
+        } else {
+          window.open(click_card_url, '_blank');
+        }
+      }
+    },
+    onError: (error: any) => {
+      const message = error.response?.data?.message || 'Failed to create Click.uz test order';
+      toast.error(message);
+    }
+  });
+
   const orders = ordersData?.data?.orders || [];
   const total = ordersData?.data?.total || 0;
 
@@ -571,6 +607,137 @@ export default function PaymentsPage() {
               <li>6. Verify order status changes to "paid"</li>
             </ol>
           </div>
+        </div>
+      )}
+
+      {/* Click.uz Integration Test Tab (if needed) */}
+      {activeTab === 'test' && (
+        <div>
+        {/* Click.uz Integration Section */}
+        <div className="space-y-6">
+          {/* Click.uz Integration Status */}
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+            <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Click.uz Integration Status</h2>
+            
+            {clickTestLoading ? (
+              <div className="text-center py-4">Loading integration status...</div>
+            ) : clickTestData?.data ? (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Service ID</label>
+                    <p className="text-sm font-mono text-gray-900 dark:text-white">
+                      <span className={clickTestData.data?.config?.service_id !== 'NOT_SET' ? 'text-green-600' : 'text-red-600'}>
+                        {clickTestData.data?.config?.service_id !== 'NOT_SET' ? '✓ Set' : '✗ Not Set'}
+                      </span>
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Merchant ID</label>
+                    <p className="text-sm font-mono text-gray-900 dark:text-white">
+                      <span className={clickTestData.data?.config?.merchant_id !== 'NOT_SET' ? 'text-green-600' : 'text-red-600'}>
+                        {clickTestData.data?.config?.merchant_id !== 'NOT_SET' ? '✓ Set' : '✗ Not Set'}
+                      </span>
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Secret Key</label>
+                    <p className="text-sm font-mono text-gray-900 dark:text-white">
+                      <span className={clickTestData.data?.config?.secret_key !== 'NOT_SET' ? 'text-green-600' : 'text-red-600'}>
+                        {clickTestData.data?.config?.secret_key !== 'NOT_SET' ? '✓ Set' : '✗ Not Set'}
+                      </span>
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Database</label>
+                    <p className="text-sm text-gray-900 dark:text-white">
+                      <span className={clickTestData.data?.database_status === 'Connected' ? 'text-green-600' : 'text-red-600'}>
+                        {clickTestData.data?.database_status === 'Connected' ? '✓ Connected' : '✗ Disconnected'}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                    Integration Status: {' '}
+                    <span className={
+                      clickTestData.data?.config?.service_id !== 'NOT_SET' && 
+                      clickTestData.data?.config?.merchant_id !== 'NOT_SET' &&
+                      clickTestData.data?.config?.secret_key !== 'NOT_SET'
+                      ? 'text-green-600' 
+                      : 'text-amber-600'
+                    }>
+                      {clickTestData.data?.config?.service_id !== 'NOT_SET' && 
+                       clickTestData.data?.config?.merchant_id !== 'NOT_SET' &&
+                       clickTestData.data?.config?.secret_key !== 'NOT_SET'
+                        ? 'Click.uz integration is properly configured and ready'
+                        : 'Click.uz integration needs configuration'
+                      }
+                    </span>
+                  </p>
+                </div>
+
+                {/* Integration Recommendations */}
+                {clickTestData.data?.recommendations && (
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+                    <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">Recommendations:</h4>
+                    <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+                      {clickTestData.data.recommendations.map((rec: string, index: number) => (
+                        <li key={index}>• {rec}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-4 text-red-600">Failed to load integration status</div>
+            )}
+          </div>
+
+          {/* Click.uz Test Payment Section */}
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+            <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Test Click.uz Integration</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Create test orders to verify Click.uz integration. This will create both Click Button and Click Pay by Card URLs.
+            </p>
+            
+            <div className="flex gap-3">
+              <Button
+                onClick={() => {
+                  const userId = prompt('Foydalanuvchi ID kiriting:');
+                  const amount = prompt('Miqdor kiriting (so\'mda):');
+                  if (userId && amount) {
+                    createClickTestOrderMutation.mutate({
+                      user_id: parseInt(userId),
+                      amount: parseFloat(amount),
+                      description: 'Admin Click.uz Test Order'
+                    });
+                  }
+                }}
+                variant="outline"
+                loading={createClickTestOrderMutation.isPending}
+                className="flex items-center gap-2"
+              >
+                <DollarSign className="w-4 h-4" />
+                Create Click.uz Test
+              </Button>
+            </div>
+          </div>
+
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-4">
+            <h3 className="font-medium text-amber-800 dark:text-amber-200 mb-2">Click.uz Test Instructions:</h3>
+            <ol className="text-sm text-amber-700 dark:text-amber-300 space-y-1">
+              <li>1. Click "Create Click.uz Test" button</li>
+              <li>2. Fill in user ID and amount (in som)</li>
+              <li>3. System will create order and show payment URL options</li>
+              <li>4. Choose between Click Button URL or Click Pay by Card URL</li>
+              <li>5. Complete payment in Click.uz test environment</li>
+              <li>6. Check callback logs to verify payment flow</li>
+              <li>7. Verify order status changes to "paid"</li>
+            </ol>
+          </div>
+        </div>
         </div>
       )}
 

@@ -178,4 +178,10 @@ export const paymentsApi = {
     api.get<{ success: boolean; data: any }>('/admin/payme/test-integration'),
   createPaymeTestOrder: (user_id: number, amount: number, description: string) =>
     api.post('/admin/payme/create-test-order', { user_id, amount, description }),
+    
+  // Click.uz Integration Testing
+  testClickIntegration: () =>
+    api.get<{ success: boolean; data: any }>('/admin/click/test-integration'),
+  createClickTestOrder: (user_id: number, amount: number, description: string) =>
+    api.post('/admin/click/create-test-order', { user_id, amount, description }),
 };
