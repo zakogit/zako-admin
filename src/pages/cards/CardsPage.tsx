@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Search, Plus, Edit, Trash2, BarChart3 } from 'lucide-react';
 import { cardsApi } from '../../api/services';
 import { Table, Badge, Button, Pagination, Modal, EmptyState } from '../../components/ui';
-import { formatDate, formatNumber } from '../../utils/helpers';
+import { formatDate, formatNumber, getStaticFileUrl } from '../../utils/helpers';
 import type { CardType } from '../../types';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
@@ -151,9 +151,32 @@ export default function CardsPage() {
                 <tr key={card.id}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      {card.icon && (
-                        <img src={card.icon} alt={card.name} className="w-8 h-8 rounded object-cover" />
-                      )}
+                      <div className="flex gap-2">
+                        {card.icon && (
+                          <div className="relative group">
+                            <img 
+                              src={getStaticFileUrl(card.icon)} 
+                              alt={`${card.name} icon`} 
+                              className="w-8 h-8 rounded object-cover border border-gray-200 dark:border-gray-700" 
+                            />
+                            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                              Icon
+                            </div>
+                          </div>
+                        )}
+                        {card.image && (
+                          <div className="relative group">
+                            <img 
+                              src={getStaticFileUrl(card.image)} 
+                              alt={`${card.name} image`} 
+                              className="w-8 h-8 rounded object-cover border border-gray-200 dark:border-gray-700" 
+                            />
+                            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                              Image
+                            </div>
+                          </div>
+                        )}
+                      </div>
                       <div>
                         <div className="font-medium">{card.name}</div>
                         <div className="text-sm text-gray-500 truncate max-w-xs">{card.description}</div>

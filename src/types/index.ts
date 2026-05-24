@@ -113,6 +113,7 @@ export interface CardType {
   price_coins: number;
   duration_duels: number;
   icon?: string;
+  image?: string;
   is_active: boolean;
   total_sold?: number;
   created_at: string;

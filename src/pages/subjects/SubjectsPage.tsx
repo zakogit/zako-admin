@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Search, Plus, Edit, Trash2, BookOpen, BarChart3 } from 'lucide-react';
 import { subjectsApi } from '../../api/services';
 import { Table, Badge, Button, Pagination, Modal, EmptyState } from '../../components/ui';
-import { formatDate } from '../../utils/helpers';
+import { formatDate, getStaticFileUrl } from '../../utils/helpers';
 import type { Subject } from '../../types';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
@@ -150,7 +150,7 @@ export default function SubjectsPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       {subject.icon ? (
-                        <img src={subject.icon} alt={subject.name} className="w-8 h-8 rounded object-cover" />
+                        <img src={getStaticFileUrl(subject.icon)} alt={subject.name} className="w-8 h-8 rounded object-cover" />
                       ) : (
                         <BookOpen className="w-8 h-8 text-primary-500" />
                       )}

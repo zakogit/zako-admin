@@ -39,3 +39,24 @@ export function formatDuration(startDate: Date, endDate: Date): string {
     return `${diffInMinutes}m`;
   }
 }
+
+/**
+ * Convert relative URL to absolute URL for static files
+ * In development: uses proxy (relative URLs work)
+ * In production: uses VITE_BACKEND_URL environment variable
+ */
+export function getStaticFileUrl(relativePath: string): string {
+  // If already absolute URL, return as is
+  if (relativePath.startsWith('http://') || relativePath.startsWith('https://')) {
+    return relativePath;
+  }
+  
+  // In development, proxy handles /uploads paths
+  if (import.meta.env.DEV) {
+    return relativePath;
+  }
+  
+  // In production, prepend backend URL
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
+  return `${backendUrl}${relativePath}`;
+}

@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Edit, Trash2, User, BarChart3 } from 'lucide-react';
 import { avatarsApi } from '../../api/services';
 import { Table, Badge, Button, Pagination, Modal, EmptyState } from '../../components/ui';
-import { formatDate } from '../../utils/helpers';
+import { formatDate, getStaticFileUrl } from '../../utils/helpers';
 import type { Avatar } from '../../types';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
@@ -186,7 +186,7 @@ export default function AvatarsPage() {
               {avatars.map((avatar) => (
                 <tr key={avatar.id}>
                   <td className="px-4 py-3">
-                    <img src={avatar.url} alt="Avatar" className="w-12 h-12 rounded-full object-cover" />
+                    <img src={getStaticFileUrl(avatar.url)} alt="Avatar" className="w-12 h-12 rounded-full object-cover" />
                   </td>
                   <td className="px-4 py-3">
                     <div className="max-w-xs truncate" title={avatar.url}>
@@ -297,7 +297,7 @@ export default function AvatarsPage() {
           <p>Are you sure you want to delete this avatar? This action cannot be undone.</p>
           {selected && (
             <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded">
-              <img src={selected.url} alt="Avatar" className="w-12 h-12 rounded-full object-cover" />
+              <img src={getStaticFileUrl(selected.url)} alt="Avatar" className="w-12 h-12 rounded-full object-cover" />
               <div>
                 <p className="text-sm truncate">{selected.url}</p>
                 <p className="text-xs text-gray-500">{selected.gender} • {selected.is_premium ? 'Premium' : 'Free'}</p>
