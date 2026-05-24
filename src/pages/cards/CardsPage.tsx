@@ -157,7 +157,8 @@ export default function CardsPage() {
                             <img 
                               src={getStaticFileUrl(card.icon)} 
                               alt={`${card.name} icon`} 
-                              className="w-8 h-8 rounded object-cover border border-gray-200 dark:border-gray-700" 
+                              className="w-8 h-8 rounded object-cover border border-gray-200 dark:border-gray-700"
+                              referrerPolicy="no-referrer-when-downgrade"
                             />
                             <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                               Icon
@@ -169,7 +170,8 @@ export default function CardsPage() {
                             <img 
                               src={getStaticFileUrl(card.image)} 
                               alt={`${card.name} image`} 
-                              className="w-8 h-8 rounded object-cover border border-gray-200 dark:border-gray-700" 
+                              className="w-8 h-8 rounded object-cover border border-gray-200 dark:border-gray-700"
+                              referrerPolicy="no-referrer-when-downgrade"
                             />
                             <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                               Image
