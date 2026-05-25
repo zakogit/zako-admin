@@ -140,6 +140,29 @@ export interface Region {
   updated_at: string;
 }
 
+// Product Package
+export interface ProductPackage {
+  id: number;
+  product_type: 'coins' | 'premium' | 'cards';
+  name: string;
+  description?: string;
+  price_som: number;
+  discount_percent?: number;
+  package_data: {
+    coins?: number;
+    bonus?: number;
+    duration_days?: number;
+    features?: string[];
+    card_type?: string;
+    quantity?: number;
+  };
+  is_active: boolean;
+  is_featured: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
 // Duel
 export interface Duel {
   id: number;

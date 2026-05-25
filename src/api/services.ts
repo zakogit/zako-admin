@@ -185,3 +185,25 @@ export const regionsApi = {
   update: (id: number, body: { name: string }) => api.put(`/admin/regions-admin/${id}`, body),
   delete: (id: number) => api.delete(`/admin/regions-admin/${id}`),
 };
+
+export const storeApi = {
+  getPackages: () => api.get<{ success: boolean; data: ProductPackage[] }>('/admin/store-packages'),
+  createPackage: (body: {
+    name: string;
+    description?: string;
+    product_type: 'coins' | 'premium' | 'cards';
+    price_som: number;
+    package_data?: any;
+    is_active?: boolean;
+  }) => api.post('/admin/store-packages', body),
+  updatePackage: (id: number, body: {
+    name?: string;
+    description?: string;
+    product_type?: 'coins' | 'premium' | 'cards';
+    price_som?: number;
+    package_data?: any;
+    is_active?: boolean;
+  }) => api.put(`/admin/store-packages/${id}`, body),
+  deletePackage: (id: number) => api.delete(`/admin/store-packages/${id}`),
+  getStats: () => api.get<{ success: boolean; data: any[] }>('/admin/store-packages/stats'),
+};

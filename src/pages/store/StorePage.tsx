@@ -5,20 +5,14 @@ import { Table, Badge, Button, Modal, EmptyState } from '../../components/ui';
 import { formatNumber } from '../../utils/helpers';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
-
-// Placeholder API - replace with actual store API
-const storeApi = {
-  getPackages: () => Promise.resolve({ data: { success: true, data: [] } }),
-  createPackage: (_data: any) => Promise.resolve({ data: { success: true } }),
-  updatePackage: (_id: number, _data: any) => Promise.resolve({ data: { success: true } }),
-  deletePackage: (_id: number) => Promise.resolve({ data: { success: true } }),
-};
+import { storeApi } from '../../api/services';
+import type { ProductPackage } from '../../types';
 
 export default function StorePage() {
   const qc = useQueryClient();
   const [createModal, setCreateModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
-  const [selectedPackage, setSelectedPackage] = useState<any>(null);
+  const [selectedPackage, setSelectedPackage] = useState<ProductPackage | null>(null);
 
   const createForm = useForm();
   const editForm = useForm();
@@ -66,14 +60,16 @@ export default function StorePage() {
     createMutation.mutate(data);
   };
 
-  const handleEdit = (packageItem: any) => {
+  const handleEdit = (packageItem: ProductPackage) => {
     setSelectedPackage(packageItem);
     editForm.reset(packageItem);
     setEditModal(true);
   };
 
   const handleUpdate = (data: any) => {
-    updateMutation.mutate({ id: selectedPackage.id, ...data });
+    if (selectedPackage) {
+      updateMutation.mutate({ id: selectedPackage.id, ...data });
+    }
   };
 
   const handleDelete = (id: number) => {
@@ -91,7 +87,7 @@ export default function StorePage() {
     }
   };
 
-  const packages = packagesData?.data || [];
+  const packages: ProductPackage[] = Array.isArray(packagesData?.data) ? packagesData.data : [];
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -118,7 +114,7 @@ export default function StorePage() {
           <div className="p-8 text-center">Loading packages...</div>
         ) : packages.length > 0 ? (
           <Table headers={['Package', 'Type', 'Price', 'Content', 'Status', 'Actions']}>
-            {packages.map((pkg: any) => (
+            {packages.map((pkg: ProductPackage) => (
               <tr key={pkg.id}>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
@@ -141,9 +137,9 @@ export default function StorePage() {
                   </div>
                 </td>
                 <td className="px-4 py-3 text-gray-900 dark:text-white">
-                  {pkg.product_type === 'coins' && `${pkg.data?.coins || 0} coins`}
-                  {pkg.product_type === 'premium' && `${pkg.data?.duration_days || 0} days`}
-                  {pkg.product_type === 'cards' && `${pkg.data?.card_count || 0} cards`}
+                  {pkg.product_type === 'coins' && `${pkg.package_data?.coins || 0} coins`}
+                  {pkg.product_type === 'premium' && `${pkg.package_data?.duration_days || 0} days`}
+                  {pkg.product_type === 'cards' && `${pkg.package_data?.quantity || 0} cards`}
                 </td>
                 <td className="px-4 py-3">
                   <Badge color={pkg.is_active ? 'green' : 'gray'}>
