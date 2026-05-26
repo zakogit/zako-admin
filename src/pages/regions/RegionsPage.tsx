@@ -160,7 +160,7 @@ export default function RegionsPage() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    {region.avg_rating ? (
+                    {region.avg_rating && typeof region.avg_rating === 'number' ? (
                       <Badge color="purple">{region.avg_rating.toFixed(1)}</Badge>
                     ) : (
                       <span className="text-gray-400">-</span>

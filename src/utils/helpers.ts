@@ -64,12 +64,7 @@ export function getStaticFileUrl(relativePath: string): string {
     }
   }
   
-  // In development, proxy handles /uploads paths
-  if (import.meta.env.DEV) {
-    return normalizedPath;
-  }
-  
-  // In production, prepend backend URL
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://api.zakoapp.uz';
+  // Always use backend URL for uploads
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
   return `${backendUrl}${normalizedPath}`;
 }

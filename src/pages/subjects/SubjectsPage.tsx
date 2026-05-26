@@ -18,12 +18,8 @@ export default function SubjectsPage() {
   const limit = 20;
 
   const { data: subjectsData, isLoading } = useQuery({
-    queryKey: ['admin-subjects', page, search],
-    queryFn: () => subjectsApi.getAll({ 
-      page, 
-      limit, 
-      search: search || undefined
-    }).then(r => r.data),
+    queryKey: ['admin-subjects'],
+    queryFn: () => subjectsApi.getAll({}).then(r => r.data),
   });
 
   const { data: statsData } = useQuery({
@@ -67,8 +63,22 @@ export default function SubjectsPage() {
     onError: () => toast.error('Failed to delete subject'),
   });
 
-  const subjects: Subject[] = Array.isArray((subjectsData as any)?.data?.data) ? (subjectsData as any).data.data : [];
-  const total: number = (subjectsData as any)?.data?.total ?? 0;
+  // Filter subjects by search and paginate on frontend
+  let allSubjects: Subject[] = Array.isArray((subjectsData as any)?.data) ? (subjectsData as any).data : [];
+  
+  // Apply search filter
+  if (search) {
+    allSubjects = allSubjects.filter(subject => 
+      subject.name.toLowerCase().includes(search.toLowerCase()) ||
+      subject.slug.toLowerCase().includes(search.toLowerCase()) ||
+      (subject.description && subject.description.toLowerCase().includes(search.toLowerCase()))
+    );
+  }
+  
+  // Apply pagination
+  const total = allSubjects.length;
+  const startIndex = (page - 1) * limit;
+  const subjects = allSubjects.slice(startIndex, startIndex + limit);
   const stats = Array.isArray((statsData as any)?.data) ? (statsData as any).data : [];
 
   const openEditModal = (subject?: Subject) => {

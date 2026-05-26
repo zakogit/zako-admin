@@ -39,11 +39,11 @@ export default function QuestionsPage() {
   const { data: topicsData } = useQuery({
     queryKey: ['topics-by-subject', subjectFilter],
     queryFn: async () => {
-      if (!subjectFilter) return { data: { success: true, data: [] } };
+      if (!subjectFilter || subjectFilter === '') return { data: { success: true, data: [] } };
       const result = await topicsApi.getBySubject(Number(subjectFilter));
       return result;
     },
-    enabled: !!subjectFilter,
+    enabled: !!(subjectFilter && subjectFilter !== ''),
   });
 
   const { data: formTopicsData } = useQuery({
@@ -122,9 +122,28 @@ export default function QuestionsPage() {
   const questions: Question[] = Array.isArray((questionsData as any)?.data?.data) ? (questionsData as any).data.data : [];
   const total: number = (questionsData as any)?.data?.total ?? 0;
   const subjects: Subject[] = Array.isArray((subjectsData as any)?.data) ? (subjectsData as any).data : [];
-  const topics: Topic[] = Array.isArray((topicsData as any)?.data?.data) ? (topicsData as any).data.data : [];
-  const formTopics: Topic[] = Array.isArray((formTopicsData as any)?.data?.data) ? (formTopicsData as any).data.data : [];
+  // Parse topics with proper type conversion
+  const rawTopics = (topicsData as any)?.data?.data;
+  const topicsArray = rawTopics?.data || rawTopics; // Handle both structures
+  const topics: Topic[] = Array.isArray(topicsArray) ? topicsArray.map((topic: any) => ({
+    ...topic,
+    id: Number(topic.id),
+    subject_id: Number(topic.subject_id),
+    order_index: Number(topic.order_index)
+  })) : [];
+
+  const rawFormTopics = (formTopicsData as any)?.data?.data;  
+  const formTopicsArray = rawFormTopics?.data || rawFormTopics;
+  const formTopics: Topic[] = Array.isArray(formTopicsArray) ? formTopicsArray.map((topic: any) => ({
+    ...topic,
+    id: Number(topic.id),
+    subject_id: Number(topic.subject_id), 
+    order_index: Number(topic.order_index)
+  })) : [];
+
   const stats = Array.isArray((statsData as any)?.data) ? (statsData as any).data : [];
+
+
 
   const openEditModal = (question?: Question) => {
     setSelected(question || null);
@@ -182,7 +201,11 @@ export default function QuestionsPage() {
           {/* Filters */}
           <select 
             value={subjectFilter} 
-            onChange={e => setSubjectFilter(e.target.value)}
+            onChange={e => {
+              setSubjectFilter(e.target.value);
+              setTopicFilter(''); // Topic filterni tozala
+              setPage(1);
+            }}
             className="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 min-w-40"
           >
             <option value="">All Subjects</option>

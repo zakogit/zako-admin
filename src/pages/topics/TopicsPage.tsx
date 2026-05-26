@@ -74,8 +74,18 @@ export default function TopicsPage() {
     onError: () => toast.error('Failed to delete topic'),
   });
 
-  const topics: Topic[] = Array.isArray((topicsData as any)?.data) ? (topicsData as any).data : [];
-  const total: number = (topicsData as any)?.total ?? 0;
+  // Parse topics data with proper structure handling
+  const rawTopicsData = (topicsData as any)?.data;
+  const topicsArray = rawTopicsData?.data || [];
+  const topics: Topic[] = Array.isArray(topicsArray) ? topicsArray.map((topic: any) => ({
+    ...topic,
+    id: Number(topic.id),
+    subject_id: Number(topic.subject_id),
+    order_index: Number(topic.order_index || 0),
+    question_count: Number(topic.question_count || 0)
+  })) : [];
+  
+  const total: number = rawTopicsData?.total ?? 0;
   const subjects: Subject[] = Array.isArray((subjectsData as any)?.data) ? (subjectsData as any).data : [];
   const stats = Array.isArray((statsData as any)?.data) ? (statsData as any).data : [];
 

@@ -30,13 +30,13 @@ export const usersApi = {
 // ── Subjects ──────────────────────────────────────────
 export const subjectsApi = {
   getAll: (params?: { page?: number; limit?: number; search?: string; include_inactive?: boolean }) =>
-    api.get<{ success: boolean; data: PaginatedResponse<Subject> }>('/admin/admin-subjects', { params }),
+    api.get<{ success: boolean; data: Subject[] }>('/admin/admin-subjects', { params }),
   getStats: () => api.get<{ success: boolean; data: any[] }>('/admin/admin-subjects/stats'),
   getById: (id: number) => api.get<{ success: boolean; data: Subject }>(`/admin/admin-subjects/${id}`),
   create: (body: Partial<Subject>) => api.post('/admin/admin-subjects', body),
   update: (id: number, body: Partial<Subject>) => api.put(`/admin/admin-subjects/${id}`, body),
   delete: (id: number) => api.delete(`/admin/admin-subjects/${id}`),
-  getAllForDropdown: () => api.get<{ success: boolean; data: Subject[] }>('/admin/subjects'),
+  getAllForDropdown: () => api.get<{ success: boolean; data: Subject[] }>('/admin/admin-subjects'),
 };
 
 // ── Topics ────────────────────────────────────────────
@@ -52,7 +52,7 @@ export const topicsApi = {
   reorder: (orders: { id: number; order_index: number }[]) =>
     api.put('/admin/admin-topics/reorder', { orders }),
   getBySubject: (subjectId: number) =>
-    api.get<{ success: boolean; data: Topic[] }>(`/admin/topics/${subjectId}`),
+    api.get<{ success: boolean; data: PaginatedResponse<Topic> }>(`/admin/admin-topics?subject_id=${subjectId}`),
 };
 
 // ── Questions ─────────────────────────────────────────
