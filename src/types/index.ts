@@ -204,3 +204,76 @@ export interface AuditLog {
   ip_address?: string;
   created_at: string;
 }
+
+// Seasons & Badges
+export interface Season {
+  id: number;
+  title: string;
+  description?: string;
+  start_date: string;
+  end_date: string;
+  status: 'upcoming' | 'active' | 'completed' | 'cancelled';
+  banner_image?: string;
+  total_participants: number;
+  max_participants?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SeasonReward {
+  id: number;
+  season_id: number;
+  day_number: number;
+  reward_type: 'coins' | 'avatar' | 'shield' | 'badge' | 'premium_access';
+  reward_value: number;
+  reward_data?: any;
+  is_special_reward: boolean;
+  created_at: string;
+}
+
+export interface SeasonStats {
+  total_participants: number;
+  active_participants: number;
+  total_rewards_claimed: number;
+  completion_rate: number;
+}
+
+export interface BadgeType {
+  id: number;
+  name: string;
+  title: string;
+  description?: string;
+  icon_path?: string;
+  rank_min: number;
+  rank_max?: number;
+  badge_color?: string;
+  is_active: boolean;
+}
+
+export interface UserBadge {
+  id: number;
+  user_id: number;
+  username: string;
+  first_name?: string;
+  last_name?: string;
+  avatar?: string;
+  badge_name: string;
+  badge_title: string;
+  badge_icon_path?: string;
+  badge_color?: string;
+  rank_position?: number;
+  season_title?: string;
+  earned_at: string;
+}
+
+export interface LeaderboardEntry {
+  user_id: number;
+  username: string;
+  first_name?: string;
+  last_name?: string;
+  avatar?: string;
+  total_points: number;
+  days_completed: number;
+  achievements_count: number;
+  rank_position: number;
+}

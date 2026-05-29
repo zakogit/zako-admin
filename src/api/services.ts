@@ -1,5 +1,5 @@
 import api from './client';
-import type { AuthState, DashboardStats, User, Question, Subject, Topic, CardType, Avatar, Region, Duel, Friendship, AuditLog, PaginatedResponse, ProductPackage } from '../types';
+import type { AuthState, DashboardStats, User, Question, Subject, Topic, CardType, Avatar, Region, Duel, Friendship, AuditLog, PaginatedResponse, ProductPackage, Season, SeasonReward, SeasonStats, UserBadge, LeaderboardEntry } from '../types';
 
 // ── Auth ──────────────────────────────────────────────
 export const authApi = {
@@ -206,4 +206,59 @@ export const storeApi = {
   }) => api.put(`/admin/store-packages/${id}`, body),
   deletePackage: (id: number) => api.delete(`/admin/store-packages/${id}`),
   getStats: () => api.get<{ success: boolean; data: any[] }>('/admin/store-packages/stats'),
+};
+
+// ── Seasons ───────────────────────────────────────
+export const seasonsApi = {
+  // Get all seasons
+  getAll: (params?: { page?: number; limit?: number; status?: string }) =>
+    api.get<{ success: boolean; data: Season[] }>('/admin/seasons', { params }),
+    
+  // Get season by ID with details
+  getById: (id: number) =>
+    api.get<{ success: boolean; data: { season: Season; rewards: SeasonReward[]; stats: SeasonStats } }>(`/admin/seasons/${id}`),
+    
+  // Create new season
+  create: (body: {
+    title: string;
+    description?: string;
+    start_date: string;
+    end_date: string;
+    banner_image?: string;
+    max_participants?: number;
+    rewards: Array<{
+      day_number: number;
+      reward_type: 'coins' | 'avatar' | 'shield' | 'badge' | 'premium_access';
+      reward_value: number;
+      reward_data?: any;
+      is_special_reward?: boolean;
+    }>;
+  }) => api.post('/admin/seasons', body),
+  
+  // Update season status
+  updateStatus: (id: number, status: 'upcoming' | 'active' | 'completed' | 'cancelled') =>
+    api.patch(`/admin/seasons/${id}/status`, { status }),
+    
+  // Delete season
+  delete: (id: number) => api.delete(`/admin/seasons/${id}`),
+  
+  // Complete season and distribute badges
+  complete: (id: number, notes?: string) =>
+    api.post(`/admin/seasons/${id}/complete`, { notes }),
+    
+  // Get season leaderboard
+  getLeaderboard: (id: number, limit: number = 50) =>
+    api.get<{ success: boolean; data: LeaderboardEntry[] }>(`/admin/seasons/${id}/leaderboard?limit=${limit}`),
+    
+  // Get season statistics
+  getStats: (id: number) =>
+    api.get<{ success: boolean; data: SeasonStats }>(`/admin/seasons/${id}/stats`),
+    
+  // Get season badges
+  getBadges: (id: number) =>
+    api.get<{ success: boolean; data: UserBadge[] }>(`/admin/seasons/${id}/badges`),
+    
+  // Check completion status
+  getCompletionStatus: (id: number) =>
+    api.get<{ success: boolean; data: { is_completed: boolean; badges_distributed: boolean } }>(`/admin/seasons/${id}/completion-status`),
 };
