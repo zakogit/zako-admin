@@ -262,3 +262,57 @@ export const seasonsApi = {
   getCompletionStatus: (id: number) =>
     api.get<{ success: boolean; data: { is_completed: boolean; badges_distributed: boolean } }>(`/admin/seasons/${id}/completion-status`),
 };
+
+// ── Ads ───────────────────────────────────────────
+export const adsApi = {
+  // Get ads settings
+  getSettings: () =>
+    api.get<{ success: boolean; data: {
+      daily_limit: number;
+      coins_per_ad: number;
+      ads_enabled: boolean;
+      admob_app_id: string;
+      rewarded_unit_id: string;
+      test_mode: boolean;
+    } }>('/admin/ads/settings'),
+    
+  // Update ads setting
+  updateSetting: (setting_key: string, setting_value: string) =>
+    api.patch<{ success: boolean; message: string }>('/admin/ads/settings', { setting_key, setting_value }),
+    
+  // Get analytics
+  getAnalytics: (params?: { limit?: number }) =>
+    api.get<{ success: boolean; data: {
+      top_viewers: Array<{
+        username: string;
+        first_name?: string;
+        last_name?: string;
+        total_ads_watched: number;
+        total_coins_earned: number;
+      }>;
+      daily_stats: Array<{
+        view_date: string;
+        total_views: number;
+        total_coins_given: number;
+        unique_users: number;
+      }>;
+      total_stats: {
+        total_ad_views: number;
+        total_coins_distributed: number;
+        total_unique_users: number;
+      };
+    } }>('/admin/ads/analytics', { params }),
+    
+  // Get user stats
+  getUserStats: () =>
+    api.get<{ success: boolean; data: Array<{
+      username: string;
+      first_name?: string;
+      last_name?: string;
+      avatar?: string;
+      active_days: number;
+      total_views: number;
+      total_coins_earned: number;
+      last_active_date: string;
+    }> }>('/admin/ads/users'),
+};

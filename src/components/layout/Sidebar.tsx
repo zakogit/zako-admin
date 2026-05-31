@@ -5,7 +5,7 @@ import { cn } from '../../utils/helpers';
 import {
   LayoutDashboard, Users, HelpCircle, BookOpen, List, Layers,
   Image, Swords, UserCheck, MapPin, Bell, ClipboardList,
-  ChevronLeft, Zap, LogOut, CreditCard, Coins, Trophy,
+  ChevronLeft, Zap, LogOut, CreditCard, Coins, Trophy, Smartphone,
 } from 'lucide-react';
 
 const nav = [
@@ -25,6 +25,7 @@ const nav = [
   { label: 'Regions', icon: MapPin, to: '/regions' },
   { section: 'System' },
   { label: 'Payments', icon: CreditCard, to: '/payments' },
+  { label: 'Ads', icon: Smartphone, to: '/ads' },
   { label: 'Notifications', icon: Bell, to: '/notifications' },
   { label: 'Audit Logs', icon: ClipboardList, to: '/audit-logs' },
 ];
