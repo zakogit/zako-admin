@@ -52,7 +52,8 @@ const AdsPage: React.FC = () => {
     },
   });
 
-  const settings = settingsResponse?.data as AdsSettings | undefined;
+  const settings = settingsResponse?.data?.data as AdsSettings | undefined;
+  
   const analytics = analyticsResponse?.data as any;
   const userStats = userStatsResponse?.data as any;
 
@@ -291,8 +292,8 @@ const AdsPage: React.FC = () => {
                       <input
                         type="text"
                         value={selectedPlatform === 'android' 
-                          ? (editingSettings.admob_app_id_android ?? settings.admob_app_id_android) 
-                          : (editingSettings.admob_app_id_ios ?? settings.admob_app_id_ios)
+                          ? (editingSettings.admob_app_id_android ?? settings?.admob_app_id_android ?? settings?.admob_app_id) 
+                          : (editingSettings.admob_app_id_ios ?? settings?.admob_app_id_ios ?? settings?.admob_app_id)
                         }
                         onChange={(e) => setEditingSettings(prev => ({ 
                           ...prev, 
@@ -323,8 +324,8 @@ const AdsPage: React.FC = () => {
                       <input
                         type="text"
                         value={selectedPlatform === 'android' 
-                          ? (editingSettings.rewarded_unit_id_android ?? settings.rewarded_unit_id_android) 
-                          : (editingSettings.rewarded_unit_id_ios ?? settings.rewarded_unit_id_ios)
+                          ? (editingSettings.rewarded_unit_id_android ?? settings?.rewarded_unit_id_android ?? settings?.rewarded_unit_id) 
+                          : (editingSettings.rewarded_unit_id_ios ?? settings?.rewarded_unit_id_ios ?? settings?.rewarded_unit_id)
                         }
                         onChange={(e) => setEditingSettings(prev => ({ 
                           ...prev, 

@@ -273,6 +273,10 @@ export const adsApi = {
       ads_enabled: boolean;
       admob_app_id: string;
       rewarded_unit_id: string;
+      admob_app_id_android: string;
+      admob_app_id_ios: string;
+      rewarded_unit_id_android: string;
+      rewarded_unit_id_ios: string;
       test_mode: boolean;
     } }>('/admin/ads/settings'),
     
