@@ -9,11 +9,16 @@ interface AdsSettings {
   ads_enabled: boolean;
   admob_app_id: string;
   rewarded_unit_id: string;
+  admob_app_id_android: string;
+  admob_app_id_ios: string;
+  rewarded_unit_id_android: string;
+  rewarded_unit_id_ios: string;
   test_mode: boolean;
 }
 
 const AdsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'settings' | 'analytics' | 'users'>('settings');
+  const [selectedPlatform, setSelectedPlatform] = useState<'android' | 'ios'>('android');
   const [editingSettings, setEditingSettings] = useState<Partial<AdsSettings>>({});
   const queryClient = useQueryClient();
 
@@ -165,7 +170,27 @@ const AdsPage: React.FC = () => {
           {/* Settings Tab */}
           {activeTab === 'settings' && (
             <div className="space-y-6">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Reklama Sozlamalari</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Reklama Sozlamalari</h3>
+                <div className="flex space-x-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+                  {[
+                    { key: 'android', label: 'Android' },
+                    { key: 'ios', label: 'iOS' },
+                  ].map(({ key, label }) => (
+                    <button
+                      key={key}
+                      onClick={() => setSelectedPlatform(key as 'android' | 'ios')}
+                      className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                        selectedPlatform === key
+                          ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow'
+                          : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
               
               {settingsLoading ? (
                 <div className="animate-pulse space-y-4">
@@ -261,21 +286,28 @@ const AdsPage: React.FC = () => {
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        AdMob App ID
+                        AdMob App ID ({selectedPlatform === 'android' ? 'Android' : 'iOS'})
                       </label>
                       <input
                         type="text"
-                        value={editingSettings.admob_app_id ?? settings.admob_app_id}
+                        value={selectedPlatform === 'android' 
+                          ? (editingSettings.admob_app_id_android ?? settings.admob_app_id_android) 
+                          : (editingSettings.admob_app_id_ios ?? settings.admob_app_id_ios)
+                        }
                         onChange={(e) => setEditingSettings(prev => ({ 
                           ...prev, 
-                          admob_app_id: e.target.value 
+                          [selectedPlatform === 'android' ? 'admob_app_id_android' : 'admob_app_id_ios']: e.target.value 
                         }))}
                         className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         placeholder="ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX"
                       />
-                      {editingSettings.admob_app_id !== undefined && editingSettings.admob_app_id !== settings.admob_app_id && (
+                      {((selectedPlatform === 'android' && editingSettings.admob_app_id_android !== undefined && editingSettings.admob_app_id_android !== settings.admob_app_id_android) ||
+                        (selectedPlatform === 'ios' && editingSettings.admob_app_id_ios !== undefined && editingSettings.admob_app_id_ios !== settings.admob_app_id_ios)) && (
                         <button
-                          onClick={() => handleSettingUpdate('admob_app_id', editingSettings.admob_app_id!)}
+                          onClick={() => handleSettingUpdate(
+                            selectedPlatform === 'android' ? 'admob_app_id_android' : 'admob_app_id_ios',
+                            selectedPlatform === 'android' ? editingSettings.admob_app_id_android! : editingSettings.admob_app_id_ios!
+                          )}
                           disabled={updateSettingMutation.isPending}
                           className="mt-2 text-sm bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-3 py-1 rounded disabled:opacity-50"
                         >
@@ -286,21 +318,28 @@ const AdsPage: React.FC = () => {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Rewarded Ad Unit ID
+                        Rewarded Ad Unit ID ({selectedPlatform === 'android' ? 'Android' : 'iOS'})
                       </label>
                       <input
                         type="text"
-                        value={editingSettings.rewarded_unit_id ?? settings.rewarded_unit_id}
+                        value={selectedPlatform === 'android' 
+                          ? (editingSettings.rewarded_unit_id_android ?? settings.rewarded_unit_id_android) 
+                          : (editingSettings.rewarded_unit_id_ios ?? settings.rewarded_unit_id_ios)
+                        }
                         onChange={(e) => setEditingSettings(prev => ({ 
                           ...prev, 
-                          rewarded_unit_id: e.target.value 
+                          [selectedPlatform === 'android' ? 'rewarded_unit_id_android' : 'rewarded_unit_id_ios']: e.target.value 
                         }))}
                         className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         placeholder="ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX"
                       />
-                      {editingSettings.rewarded_unit_id !== undefined && editingSettings.rewarded_unit_id !== settings.rewarded_unit_id && (
+                      {((selectedPlatform === 'android' && editingSettings.rewarded_unit_id_android !== undefined && editingSettings.rewarded_unit_id_android !== settings.rewarded_unit_id_android) ||
+                        (selectedPlatform === 'ios' && editingSettings.rewarded_unit_id_ios !== undefined && editingSettings.rewarded_unit_id_ios !== settings.rewarded_unit_id_ios)) && (
                         <button
-                          onClick={() => handleSettingUpdate('rewarded_unit_id', editingSettings.rewarded_unit_id!)}
+                          onClick={() => handleSettingUpdate(
+                            selectedPlatform === 'android' ? 'rewarded_unit_id_android' : 'rewarded_unit_id_ios',
+                            selectedPlatform === 'android' ? editingSettings.rewarded_unit_id_android! : editingSettings.rewarded_unit_id_ios!
+                          )}
                           disabled={updateSettingMutation.isPending}
                           className="mt-2 text-sm bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-3 py-1 rounded disabled:opacity-50"
                         >
