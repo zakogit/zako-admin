@@ -320,3 +320,107 @@ export const adsApi = {
       last_active_date: string;
     }> }>('/admin/ads/users'),
 };
+
+// ── Season Flexible Rewards ─────────────────────────────────────────
+export const seasonFlexibleApi = {
+  // Get seasons list
+  getSeasons: () =>
+    api.get<{ success: boolean; data: Array<{
+      id: number;
+      title: string;
+      description?: string;
+      status: 'upcoming' | 'active' | 'completed' | 'cancelled';
+      start_date: string;
+      end_date: string;
+      total_participants: number;
+      premium_pass_price?: number;
+      premium_pass_discount_price?: number;
+    }> }>('/admin/seasons'),
+
+  // Get season rewards calendar
+  getSeasonRewardsCalendar: (seasonId: number) =>
+    api.get<{ success: boolean; data: { [day: number]: Array<{
+      id: number;
+      day_number: number;
+      reward_type: string;
+      reward_value: number;
+      gift_type: 'simple' | 'premium' | 'legendary' | 'exclusive';
+      gift_rarity: 'common' | 'rare' | 'epic' | 'legendary';
+      gift_category: string;
+      gift_icon: string;
+      gift_color: string;
+      gift_animation: string;
+      display_order: number;
+      is_active: boolean;
+      is_special_reward: boolean;
+    }> } }>(`/admin/seasons/${seasonId}/rewards/calendar`),
+
+  // Add flexible rewards
+  addFlexibleRewards: (seasonId: number, rewards: Array<{
+    day_number: number;
+    reward_type: string;
+    reward_value: number;
+    gift_type?: string;
+    gift_rarity?: string;
+    gift_category?: string;
+    display_order?: number;
+    is_special_reward?: boolean;
+  }>) =>
+    api.post<{ success: boolean; message: string; data: any[] }>
+      (`/admin/seasons/${seasonId}/rewards/flexible`, { rewards }),
+
+  // Update reward status
+  updateRewardStatus: (rewardId: number, is_active: boolean) =>
+    api.patch<{ success: boolean; message: string }>
+      (`/admin/seasons/rewards/${rewardId}/status`, { is_active }),
+
+  // Auto-assign gift type
+  autoAssignGiftType: (rewardId: number) =>
+    api.post<{ success: boolean; message: string; data: any }>
+      (`/admin/seasons/rewards/${rewardId}/auto-assign-type`),
+
+  // Get gift type configurations
+  getGiftTypes: () =>
+    api.get<{ success: boolean; data: Array<{
+      id: number;
+      type_name: string;
+      display_name: string;
+      description: string;
+      default_color: string;
+      default_icon: string;
+      default_animation: string;
+      min_rarity: string;
+      is_active: boolean;
+    }> }>('/admin/seasons/gift-types'),
+
+  // Update gift type configuration
+  updateGiftType: (id: number, config: any) =>
+    api.put<{ success: boolean; message: string }>(`/admin/gift-types/${id}`, config),
+
+  // Get rewards by type
+  getRewardsByType: (seasonId: number, giftType: string) =>
+    api.get<{ success: boolean; data: any[] }>
+      (`/admin/seasons/${seasonId}/rewards/type/${giftType}`),
+
+  // Get rewards by category
+  getRewardsByCategory: (seasonId: number, category: string) =>
+    api.get<{ success: boolean; data: any[] }>
+      (`/admin/seasons/${seasonId}/rewards/category/${category}`),
+
+  // Create reward with gift type
+  createRewardWithType: (seasonId: number, rewardData: any) =>
+    api.post<{ success: boolean; message: string; data: any }>
+      (`/admin/seasons/${seasonId}/rewards/with-type`, rewardData),
+
+  // Delete reward
+  deleteReward: (rewardId: number) =>
+    api.delete<{ success: boolean; message: string }>(`/admin/seasons/rewards/${rewardId}`),
+
+  // Update reward status (activate/deactivate)
+  updateRewardStatus: (rewardId: number, isActive: boolean) =>
+    api.patch<{ success: boolean; message: string }>(`/admin/seasons/rewards/${rewardId}/status`, { is_active: isActive }),
+
+  // Update reward
+  updateReward: (seasonId: number, rewardId: number, rewardData: any) =>
+    api.patch<{ success: boolean; message: string; data: any }>(`/admin/seasons/${seasonId}/rewards/${rewardId}`, rewardData),
+};

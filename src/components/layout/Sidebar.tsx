@@ -6,6 +6,7 @@ import {
   LayoutDashboard, Users, HelpCircle, BookOpen, List, Layers,
   Image, Swords, UserCheck, MapPin, Bell, ClipboardList,
   ChevronLeft, Zap, LogOut, CreditCard, Coins, Trophy, Smartphone,
+  Gift, Diamond, ChevronDown, ChevronRight,
 } from 'lucide-react';
 
 const nav = [
@@ -20,6 +21,7 @@ const nav = [
   { label: 'Avatars', icon: Image, to: '/avatars' },
   { label: 'Store', icon: Coins, to: '/store' },
   { label: 'Seasons', icon: Trophy, to: '/seasons' },
+  { label: 'Premium Obuna', icon: Diamond, to: '/subscriptions' },
   { label: 'Duels', icon: Swords, to: '/duels' },
   { label: 'Friends', icon: UserCheck, to: '/friends' },
   { label: 'Regions', icon: MapPin, to: '/regions' },
