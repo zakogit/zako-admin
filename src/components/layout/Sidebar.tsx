@@ -5,8 +5,7 @@ import { cn } from '../../utils/helpers';
 import {
   LayoutDashboard, Users, HelpCircle, BookOpen, List, Layers,
   Image, Swords, UserCheck, MapPin, Bell, ClipboardList,
-  ChevronLeft, Zap, LogOut, CreditCard, Coins, Trophy, Smartphone,
-  Gift, Diamond, ChevronDown, ChevronRight,
+  ChevronLeft, Zap, LogOut, CreditCard, Coins, Trophy, Smartphone, Diamond,
 } from 'lucide-react';
 
 const nav = [

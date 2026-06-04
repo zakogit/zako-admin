@@ -8,8 +8,6 @@ import {
   Edit3,
   Save,
   X,
-  Palette,
-  Eye,
   Settings
 } from 'lucide-react';
 

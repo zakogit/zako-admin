@@ -5,13 +5,10 @@ import {
   Users, 
   TrendingUp, 
   Calendar, 
-  Plus,
   Search,
-  Filter,
   CheckCircle,
   XCircle,
   Clock,
-  CreditCard,
   Gift,
   Eye,
   UserCheck
@@ -33,22 +30,12 @@ interface PremiumSubscription {
   created_at: string;
 }
 
-interface SubscriptionStats {
-  total_subscribers: number;
-  active_subscribers: number;
-  monthly_revenue: number;
-  yearly_revenue: number;
-  cancellation_rate: number;
-  new_this_month: number;
-}
 
 const SubscriptionsPage: React.FC = () => {
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [planFilter, setPlanFilter] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [selectedSubscription, setSelectedSubscription] = useState<PremiumSubscription | null>(null);
 
   // Real API calls
   const { data: subscriptionsData, isLoading } = useQuery({
@@ -90,18 +77,6 @@ const SubscriptionsPage: React.FC = () => {
     },
   });
 
-  const cancelMutation = useMutation({
-    mutationFn: ({ id, reason }: { id: number; reason: string }) =>
-      subscriptionsApi.cancel(id, { reason, immediate: false }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
-      queryClient.invalidateQueries({ queryKey: ['subscription-stats'] });
-      toast.success('Obuna bekor qilindi');
-    },
-    onError: () => {
-      toast.error('Obunani bekor qilishda xatolik yuz berdi');
-    },
-  });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: any }) =>
@@ -206,7 +181,7 @@ const SubscriptionsPage: React.FC = () => {
         </div>
         <div className="flex items-center space-x-3">
           <button 
-            onClick={() => setShowCreateModal(true)}
+            onClick={() => console.log('Create modal not implemented yet')}
             className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
           >
             <Crown className="h-4 w-4" />
@@ -390,7 +365,7 @@ const SubscriptionsPage: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end space-x-2">
                       <button
-                        onClick={() => setSelectedSubscription(subscription)}
+                        onClick={() => console.log('Subscription details:', subscription)}
                         className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg"
                         title="Ko'rish"
                       >

@@ -416,9 +416,6 @@ export const seasonFlexibleApi = {
   deleteReward: (rewardId: number) =>
     api.delete<{ success: boolean; message: string }>(`/admin/seasons/rewards/${rewardId}`),
 
-  // Update reward status (activate/deactivate)
-  updateRewardStatus: (rewardId: number, isActive: boolean) =>
-    api.patch<{ success: boolean; message: string }>(`/admin/seasons/rewards/${rewardId}/status`, { is_active: isActive }),
 
   // Update reward
   updateReward: (seasonId: number, rewardId: number, rewardData: any) =>

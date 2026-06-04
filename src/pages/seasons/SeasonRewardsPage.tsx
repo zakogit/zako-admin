@@ -1,17 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { 
-  Calendar, 
   Gift, 
   Plus, 
   Trash2, 
   Edit3, 
   Eye, 
   EyeOff,
-  Star,
   Diamond,
-  Trophy,
   Sparkles,
   Save,
   X
@@ -66,20 +63,6 @@ const SeasonRewardsPage: React.FC = () => {
     },
   });
 
-  // Fetch gift type configurations
-  const { data: giftTypes } = useQuery({
-    queryKey: ['gift-types'],
-    queryFn: async () => {
-      const response = await fetch('/api/v1/admin/seasons/gift-types', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
-        },
-      });
-      if (!response.ok) throw new Error('Failed to fetch gift types');
-      const result = await response.json();
-      return result.data;
-    },
-  });
 
   // Add flexible rewards mutation
   const addRewardsMutation = useMutation({
@@ -376,7 +359,6 @@ const SeasonRewardsPage: React.FC = () => {
         <AddRewardModal
           onClose={() => setShowAddReward(false)}
           onSave={(rewards) => addRewardsMutation.mutate(rewards)}
-          giftTypes={giftTypes}
         />
       )}
 
@@ -389,7 +371,6 @@ const SeasonRewardsPage: React.FC = () => {
             rewardId: editingReward.id, 
             rewardData 
           })}
-          giftTypes={giftTypes}
         />
       )}
     </div>
@@ -400,8 +381,7 @@ const SeasonRewardsPage: React.FC = () => {
 const AddRewardModal: React.FC<{
   onClose: () => void;
   onSave: (rewards: any[]) => void;
-  giftTypes: any[];
-}> = ({ onClose, onSave, giftTypes }) => {
+}> = ({ onClose, onSave }) => {
   const [rewards, setRewards] = useState([{
     day_number: 1,
     reward_type: 'coins',
@@ -555,8 +535,7 @@ const EditRewardModal: React.FC<{
   reward: SeasonReward;
   onClose: () => void;
   onSave: (rewardData: any) => void;
-  giftTypes: any[];
-}> = ({ reward, onClose, onSave, giftTypes }) => {
+}> = ({ reward, onClose, onSave }) => {
   const [formData, setFormData] = useState({
     day_number: reward.day_number,
     reward_type: reward.reward_type,
@@ -640,7 +619,7 @@ const EditRewardModal: React.FC<{
             </label>
             <select
               value={formData.gift_type}
-              onChange={(e) => setFormData({ ...formData, gift_type: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, gift_type: e.target.value as "premium" | "simple" })}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
             >
               <option value="simple">Simple (oddiy tangalar, kichik mukofotlar)</option>

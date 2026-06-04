@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   Plus, 
-  Calendar, 
   Users, 
   Trophy, 
   Gift, 
@@ -14,9 +13,7 @@ import {
   Pause,
   CheckCircle,
   XCircle,
-  TrendingUp,
-  Clock,
-  Settings
+  Clock
 } from 'lucide-react';
 import { seasonsApi } from '../../api/services';
 import toast from 'react-hot-toast';
@@ -36,7 +33,6 @@ interface Season {
 const SeasonsPage: React.FC = () => {
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState<string>('');
-  const [selectedSeasons, setSelectedSeasons] = useState<number[]>([]);
   const [showDropdown, setShowDropdown] = useState<number | null>(null);
 
   // Fetch seasons with React Query
