@@ -17,6 +17,7 @@ import {
   UserCheck
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { subscriptionsApi } from '../../api/services';
 
 interface PremiumSubscription {
   id: number;
@@ -46,59 +47,87 @@ const SubscriptionsPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [planFilter, setPlanFilter] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [selectedSubscription, setSelectedSubscription] = useState<PremiumSubscription | null>(null);
 
-  // Mock API calls - implement real ones later
-  const { data: subscriptions = [], isLoading } = useQuery({
+  // Real API calls
+  const { data: subscriptionsData, isLoading } = useQuery({
     queryKey: ['subscriptions', statusFilter, planFilter, searchTerm],
     queryFn: async () => {
-      // Mock data for now
-      const mockData: PremiumSubscription[] = [
-        {
-          id: 1,
-          user_id: 123,
-          user_name: 'Akmal Toshmatov',
-          user_phone: '+998901234567',
-          plan_type: 'monthly',
-          price_som: 19000,
-          start_date: '2026-06-01T00:00:00Z',
-          end_date: '2026-07-01T00:00:00Z',
-          status: 'active',
-          auto_renew: true,
-          created_at: '2026-06-01T00:00:00Z'
-        },
-        {
-          id: 2,
-          user_id: 124,
-          user_name: 'Nilufar Karimova',
-          user_phone: '+998907654321',
-          plan_type: 'monthly',
-          price_som: 19000,
-          start_date: '2026-05-15T00:00:00Z',
-          end_date: '2026-06-15T00:00:00Z',
-          status: 'expired',
-          auto_renew: false,
-          created_at: '2026-05-15T00:00:00Z'
-        }
-      ];
-      return mockData;
+      const params: any = {};
+      if (statusFilter) params.status = statusFilter;
+      if (planFilter) params.plan_type = planFilter;
+      if (searchTerm) params.search = searchTerm;
+      
+      const response = await subscriptionsApi.getAll(params);
+      return response.data;
+    },
+  });
+  
+  const subscriptions = subscriptionsData?.data?.subscriptions || [];
+
+  const { data: statsData } = useQuery({
+    queryKey: ['subscription-stats'],
+    queryFn: async () => {
+      const response = await subscriptionsApi.getStats();
+      return response.data;
+    },
+  });
+  
+  const stats = statsData?.data;
+
+  // Mutations
+  const extendMutation = useMutation({
+    mutationFn: ({ id, additionalDays }: { id: number; additionalDays: number }) =>
+      subscriptionsApi.extend(id, { additional_days: additionalDays, notes: 'Admin tomonidan uzaytirildi' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+      queryClient.invalidateQueries({ queryKey: ['subscription-stats'] });
+      toast.success('Obuna muvaffaqiyatli uzaytirildi');
+    },
+    onError: () => {
+      toast.error('Obunani uzaytirishda xatolik yuz berdi');
     },
   });
 
-  const { data: stats } = useQuery({
-    queryKey: ['subscription-stats'],
-    queryFn: async () => {
-      // Mock stats
-      const mockStats: SubscriptionStats = {
-        total_subscribers: 245,
-        active_subscribers: 198,
-        monthly_revenue: 3762000, // 198 * 19000
-        yearly_revenue: 0,
-        cancellation_rate: 8.5,
-        new_this_month: 42
-      };
-      return mockStats;
+  const cancelMutation = useMutation({
+    mutationFn: ({ id, reason }: { id: number; reason: string }) =>
+      subscriptionsApi.cancel(id, { reason, immediate: false }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+      queryClient.invalidateQueries({ queryKey: ['subscription-stats'] });
+      toast.success('Obuna bekor qilindi');
+    },
+    onError: () => {
+      toast.error('Obunani bekor qilishda xatolik yuz berdi');
     },
   });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) =>
+      subscriptionsApi.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+      queryClient.invalidateQueries({ queryKey: ['subscription-stats'] });
+      toast.success('Obuna yangilandi');
+    },
+    onError: () => {
+      toast.error('Obunani yangilashda xatolik yuz berdi');
+    },
+  });
+
+  // Helper functions
+  const handleExtendSubscription = (subscription: PremiumSubscription) => {
+    const additionalDays = 30; // Default extend by 30 days
+    extendMutation.mutate({ id: subscription.id, additionalDays });
+  };
+
+  const handleToggleAutoRenew = (subscription: PremiumSubscription) => {
+    updateMutation.mutate({
+      id: subscription.id,
+      data: { auto_renew: !subscription.auto_renew }
+    });
+  };
 
   const getStatusBadge = (status: PremiumSubscription['status']) => {
     const configs = {
@@ -176,7 +205,10 @@ const SubscriptionsPage: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center space-x-3">
-          <button className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+          <button 
+            onClick={() => setShowCreateModal(true)}
+            className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+          >
             <Crown className="h-4 w-4" />
             <span>Manual Premium Berish</span>
           </button>
@@ -358,18 +390,38 @@ const SubscriptionsPage: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end space-x-2">
                       <button
+                        onClick={() => setSelectedSubscription(subscription)}
                         className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg"
                         title="Ko'rish"
                       >
                         <Eye className="h-4 w-4" />
                       </button>
                       
-                      <button
-                        className="p-2 text-purple-600 hover:text-purple-800 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg"
-                        title="Uzaytirish"
-                      >
-                        <Calendar className="h-4 w-4" />
-                      </button>
+                      {subscription.status === 'active' && (
+                        <button
+                          onClick={() => handleExtendSubscription(subscription)}
+                          disabled={extendMutation.isPending}
+                          className="p-2 text-purple-600 hover:text-purple-800 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg disabled:opacity-50"
+                          title="Uzaytirish"
+                        >
+                          <Calendar className="h-4 w-4" />
+                        </button>
+                      )}
+                      
+                      {subscription.status === 'active' && (
+                        <button
+                          onClick={() => handleToggleAutoRenew(subscription)}
+                          disabled={updateMutation.isPending}
+                          className={`p-2 rounded-lg disabled:opacity-50 ${
+                            subscription.auto_renew 
+                              ? 'text-red-600 hover:text-red-800 hover:bg-red-50 dark:hover:bg-red-900/20' 
+                              : 'text-green-600 hover:text-green-800 hover:bg-green-50 dark:hover:bg-green-900/20'
+                          }`}
+                          title={subscription.auto_renew ? "Avto yangilanishni o'chirish" : "Avto yangilanishni yoqish"}
+                        >
+                          <Gift className="h-4 w-4" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

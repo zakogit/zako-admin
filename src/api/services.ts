@@ -424,3 +424,27 @@ export const seasonFlexibleApi = {
   updateReward: (seasonId: number, rewardId: number, rewardData: any) =>
     api.patch<{ success: boolean; message: string; data: any }>(`/admin/seasons/${seasonId}/rewards/${rewardId}`, rewardData),
 };
+
+// ── Subscriptions ─────────────────────────────────────
+export const subscriptionsApi = {
+  getAll: (params?: { page?: number; limit?: number; search?: string; status?: string; plan_type?: string }) =>
+    api.get<{ success: boolean; data: { subscriptions: any[]; total: number; page: number; limit: number } }>('/admin/subscriptions', { params }),
+  
+  getStats: () => 
+    api.get<{ success: boolean; data: any }>('/admin/subscriptions/stats'),
+  
+  getById: (id: number) => 
+    api.get<{ success: boolean; data: any }>(`/admin/subscriptions/${id}`),
+  
+  create: (body: { user_id: number; plan_type: 'monthly' | 'yearly'; duration_days: number; notes?: string }) =>
+    api.post<{ success: boolean; data: any }>('/admin/subscriptions', body),
+  
+  update: (id: number, body: { status?: string; auto_renew?: boolean; end_date?: string; notes?: string }) =>
+    api.patch<{ success: boolean; data: any }>(`/admin/subscriptions/${id}`, body),
+  
+  extend: (id: number, body: { additional_days: number; notes?: string }) =>
+    api.post<{ success: boolean; data: any }>(`/admin/subscriptions/${id}/extend`, body),
+  
+  cancel: (id: number, body: { reason: string; immediate?: boolean }) =>
+    api.post<{ success: boolean; data: any }>(`/admin/subscriptions/${id}/cancel`, body),
+};
