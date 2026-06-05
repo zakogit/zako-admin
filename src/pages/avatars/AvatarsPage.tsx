@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Edit, Trash2, User, BarChart3 } from 'lucide-react';
+import { Plus, Edit, Trash2, User, BarChart3, Upload, FolderOpen } from 'lucide-react';
 import { avatarsApi } from '../../api/services';
 import { Table, Badge, Button, Pagination, Modal, EmptyState, LazyImage } from '../../components/ui';
 import { formatDate, getStaticFileUrl } from '../../utils/helpers';
@@ -16,6 +16,8 @@ export default function AvatarsPage() {
   const [selected, setSelected] = useState<Avatar | null>(null);
   const [editModal, setEditModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
+  const [uploadModal, setUploadModal] = useState(false);
+  const [manageModal, setManageModal] = useState(false);
   const limit = 20;
 
   const { data: avatarsData, isLoading } = useQuery({
@@ -59,6 +61,19 @@ export default function AvatarsPage() {
     onError: () => toast.error('Failed to update avatar'),
   });
 
+  const uploadMutation = useMutation({
+    mutationFn: avatarsApi.upload,
+    onSuccess: () => {
+      toast.success('Avatar yuklandi va qo\'shildi');
+      setUploadModal(false);
+      qc.invalidateQueries({ queryKey: ['admin-avatars'] });
+      qc.invalidateQueries({ queryKey: ['avatars-summary'] });
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Avatar yuklashda xatolik');
+    },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: (id: number) => avatarsApi.delete(id),
     onSuccess: () => {
@@ -73,6 +88,31 @@ export default function AvatarsPage() {
   const avatars: Avatar[] = Array.isArray((avatarsData as any)?.data?.data) ? (avatarsData as any).data.data : [];
   const total: number = (avatarsData as any)?.data?.total ?? 0;
   const summary = (summaryData as any)?.data ?? {};
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>, category: string, gender: string, isPremium: boolean) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Faqat rasm fayllari qabul qilinadi');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Fayl hajmi 5MB dan oshmasligi kerak');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('category', category);
+    formData.append('gender', gender);
+    formData.append('is_premium', isPremium.toString());
+
+    uploadMutation.mutate(formData);
+  };
 
   const openEditModal = (avatar?: Avatar) => {
     setSelected(avatar || null);
@@ -167,7 +207,17 @@ export default function AvatarsPage() {
             <option value="false">Free</option>
           </select>
 
-          <Button onClick={() => openEditModal()} className="whitespace-nowrap">
+          <Button onClick={() => setUploadModal(true)} className="whitespace-nowrap">
+            <Upload className="w-4 h-4 mr-2" />
+            Avatar Yuklash
+          </Button>
+          
+          <Button onClick={() => setManageModal(true)} variant="outline" className="whitespace-nowrap">
+            <FolderOpen className="w-4 h-4 mr-2" />
+            Fayllar
+          </Button>
+
+          <Button onClick={() => openEditModal()} variant="outline" className="whitespace-nowrap">
             <Plus className="w-4 h-4 mr-2" />
             Add Avatar
           </Button>
@@ -323,6 +373,138 @@ export default function AvatarsPage() {
               loading={deleteMutation.isPending}
             >
               Delete
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Avatar Upload Modal */}
+      <Modal open={uploadModal} onClose={() => setUploadModal(false)} title="Avatar Yuklash" size="lg">
+        <div className="space-y-6">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">Avatar kategoriyalari:</h4>
+            <p className="text-sm text-blue-800 dark:text-blue-200">
+              Avatar fayllarini to'g'ri papkaga yuklang. Har bir kategoriya uchun alohida yuklash kerak.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Free Male Avatars */}
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+              <h5 className="font-medium text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                <User className="w-4 h-4" />
+                Bepul Erkak Avatarlari
+              </h5>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleFileUpload(e, 'Free', 'Male', false)}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+            </div>
+
+            {/* Free Female Avatars */}
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+              <h5 className="font-medium text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                <User className="w-4 h-4" />
+                Bepul Ayol Avatarlari
+              </h5>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleFileUpload(e, 'Free', 'Female', false)}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
+              />
+            </div>
+
+            {/* Premium Male Avatars */}
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 border border-yellow-200 dark:border-yellow-800">
+              <h5 className="font-medium text-yellow-900 dark:text-yellow-100 mb-3 flex items-center gap-2">
+                <User className="w-4 h-4" />
+                👑 Premium Erkak Avatarlari
+              </h5>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleFileUpload(e, 'Premium', 'Male', true)}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100"
+              />
+            </div>
+
+            {/* Premium Female Avatars */}
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 border border-yellow-200 dark:border-yellow-800">
+              <h5 className="font-medium text-yellow-900 dark:text-yellow-100 mb-3 flex items-center gap-2">
+                <User className="w-4 h-4" />
+                👑 Premium Ayol Avatarlari
+              </h5>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleFileUpload(e, 'Premium', 'Female', true)}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100"
+              />
+            </div>
+          </div>
+
+          <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
+            <h5 className="font-medium text-gray-900 dark:text-gray-100 mb-2">📋 Talablar:</h5>
+            <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+              <li>• Faqat rasm fayllari (PNG, JPG, JPEG)</li>
+              <li>• Maksimal fayl hajmi: 5MB</li>
+              <li>• Tavsiya etilgan o'lcham: 512x512px</li>
+              <li>• Fayl avtomatik nomlandi va papkaga joylashadi</li>
+            </ul>
+          </div>
+
+          <div className="flex gap-3">
+            <Button 
+              variant="outline" 
+              onClick={() => setUploadModal(false)} 
+              className="flex-1"
+            >
+              Yopish
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* File Management Modal */}
+      <Modal open={manageModal} onClose={() => setManageModal(false)} title="Avatar Fayllari Boshqaruvi" size="lg">
+        <div className="space-y-4">
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+            <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Mavjud avatar fayllari:</h4>
+            
+            <div className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-white dark:bg-gray-700 rounded-lg p-3 border">
+                  <h5 className="font-medium text-gray-900 dark:text-gray-100 mb-2">🆓 Bepul Avatarlar</h5>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    <p>📂 Free/Male/: 8 ta fayl</p>
+                    <p>📂 Free/Female/: 8 ta fayl</p>
+                  </div>
+                </div>
+                
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-3 border border-yellow-200 dark:border-yellow-800">
+                  <h5 className="font-medium text-yellow-900 dark:text-yellow-100 mb-2">👑 Premium Avatarlar</h5>
+                  <div className="text-sm text-yellow-800 dark:text-yellow-200">
+                    <p>📂 Premium/Male/: 8 ta fayl</p>
+                    <p>📂 Premium/Female/: 8 ta fayl</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                <p className="text-sm text-blue-800 dark:text-blue-200">
+                  💡 <strong>Eslatma:</strong> Fayl boshqaruvi va o'chirish funksiyalari keyingi versiyada qo'shiladi. 
+                  Hozircha fayllar `/uploads/Avatars/` papkasida saqlanadi.
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={() => setManageModal(false)} className="flex-1">
+              Yopish
             </Button>
           </div>
         </div>

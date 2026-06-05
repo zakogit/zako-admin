@@ -19,12 +19,65 @@ export const dashboardApi = {
 
 // ── Users ─────────────────────────────────────────────
 export const usersApi = {
-  getAll: (params: { page?: number; limit?: number; search?: string }) =>
+  getAll: (params: { 
+    page?: number; 
+    limit?: number; 
+    search?: string;
+    is_verified?: string;
+    is_banned?: string;
+    is_premium?: string;
+    region_id?: string;
+    date_from?: string;
+    date_to?: string;
+    is_online?: string;
+  }) =>
     api.get<{ success: boolean; data: User[] }>('/admin/users', { params }),
+  getById: (id: number) =>
+    api.get<{ success: boolean; data: any }>(`/admin/users/${id}`),
+  getTransactions: (id: number, params?: { page?: number; limit?: number }) =>
+    api.get<{ success: boolean; data: any }>(`/admin/users/${id}/transactions`, { params }),
+  getStats: () =>
+    api.get<{ success: boolean; data: any }>('/admin/users-stats'),
+  create: (body: {
+    username: string;
+    phone_number: string;
+    password: string;
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+    region_id?: number;
+    is_verified?: boolean;
+  }) => api.post('/admin/users', body),
+  update: (id: number, body: {
+    username?: string;
+    phone_number?: string;
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+    region_id?: number;
+    birthday?: string;
+  }) => api.put(`/admin/users/${id}`, body),
+  resetPassword: (id: number, body: { new_password: string }) =>
+    api.put(`/admin/users/${id}/reset-password`, body),
   updateBalance: (id: number, body: { amount: number; description: string }) =>
     api.put(`/admin/users/${id}/balance`, body),
   ban: (id: number, body: { reason: string }) =>
     api.put(`/admin/users/${id}/ban`, body),
+  unban: (id: number) =>
+    api.put(`/admin/users/${id}/unban`),
+  verify: (id: number) =>
+    api.put(`/admin/users/${id}/verify`),
+  unverify: (id: number) =>
+    api.put(`/admin/users/${id}/unverify`),
+  delete: (id: number) =>
+    api.delete(`/admin/users/${id}`),
+  bulkImport: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post('/admin/users/bulk-import', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
 };
 
 // ── Subjects ──────────────────────────────────────────
@@ -76,6 +129,9 @@ export const cardsApi = {
   create: (body: Partial<CardType>) => api.post('/admin/cards', body),
   update: (id: number, body: Partial<CardType>) => api.put(`/admin/cards/${id}`, body),
   delete: (id: number) => api.delete(`/admin/cards/${id}`),
+  upload: (formData: FormData) => api.post<{ success: boolean; data: any }>('/admin/cards/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
 };
 
 // ── Avatars ───────────────────────────────────────────
@@ -87,6 +143,11 @@ export const avatarsApi = {
   add: (body: { url: string; gender: string; is_premium: boolean }) => api.post('/admin/avatars', body),
   update: (id: number, body: Partial<Avatar>) => api.put(`/admin/avatars/${id}`, body),
   delete: (id: number) => api.delete(`/admin/avatars/${id}`),
+  upload: (formData: FormData) => api.post<{ success: boolean; data: any }>('/admin/avatars/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  getFileStructure: () => api.get<{ success: boolean; data: any }>('/admin/avatars/files'),
+  deleteFile: (filePath: string) => api.delete<{ success: boolean }>(`/admin/avatars/files`, { data: { path: filePath } }),
 };
 
 // ── Duels ─────────────────────────────────────────────
@@ -124,13 +185,47 @@ export const auditApi = {
 
 // ── Notifications ─────────────────────────────────────
 export const notificationsApi = {
-  getAll: (params?: { page?: number; limit?: number; search?: string; status?: string }) =>
+  getAll: (params?: { page?: number; limit?: number; search?: string; type?: string }) =>
     api.get<{ success: boolean; data: PaginatedResponse<any> }>('/admin/notifications', { params }),
-  getStats: () => api.get<{ success: boolean; data: any[] }>('/admin/notifications/stats'),
-  create: (body: any) => api.post('/admin/notifications', body),
-  update: (id: number, body: any) => api.put(`/admin/notifications/${id}`, body),
-  delete: (id: number) => api.delete(`/admin/notifications/${id}`),
-  send: (id: number) => api.post(`/admin/notifications/${id}/send`),
+  getStats: () => 
+    api.get<{ success: boolean; data: any }>('/admin/notifications/stats'),
+  create: (body: {
+    title: string;
+    message: string;
+    type: string;
+    target_type: 'all' | 'verified' | 'premium' | 'specific';
+    target_users?: number[];
+    data?: any;
+  }) => api.post('/admin/notifications', body),
+  broadcast: (body: {
+    title: string;
+    message: string;
+    type: string;
+    data?: any;
+    filters?: {
+      verified_only?: boolean;
+      premium_only?: boolean;
+      exclude_banned?: boolean;
+    };
+  }) => api.post('/admin/notifications/broadcast', body),
+  sendToUsers: (body: {
+    user_ids: number[];
+    title: string;
+    message: string;
+    type: string;
+    data?: any;
+  }) => api.post('/admin/notifications/send-to-users', body),
+  getTemplates: () =>
+    api.get<{ success: boolean; data: any[] }>('/admin/notifications/templates'),
+  updateTemplate: (type: string, body: {
+    template_title?: string;
+    template_message?: string;
+    is_active?: boolean;
+  }) => api.put(`/admin/notifications/templates/${type}`, body),
+  getDeliveryReport: (id: number, params?: { page?: number; limit?: number }) =>
+    api.get<{ success: boolean; data: any }>(`/admin/notifications/${id}/delivery-report`, { params }),
+  delete: (id: number) => 
+    api.delete(`/admin/notifications/${id}`),
 };
 
 // ── Payments & Orders ─────────────────────────────────

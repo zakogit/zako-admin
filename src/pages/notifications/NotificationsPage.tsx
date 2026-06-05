@@ -1,24 +1,40 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Search, Plus, Edit, Trash2, Bell, BarChart3, Send, Clock, Check } from 'lucide-react';
+import { 
+  Search, 
+  Trash2, 
+  Bell, 
+  Users,
+  UserCheck,
+  Crown,
+  Target,
+  Calendar,
+  TrendingUp,
+  AlertCircle,
+  Eye,
+  Plus,
+  Send,
+  Settings
+} from 'lucide-react';
 import { notificationsApi } from '../../api/services';
-import { Table, Badge, Button, Pagination, Modal, EmptyState } from '../../components/ui';
-import { formatDate } from '../../utils/helpers';
-import toast from 'react-hot-toast';
+import { Table, Badge, Button, Pagination, Modal, EmptyState, Input } from '../../components/ui';
 import { useForm } from 'react-hook-form';
+import { formatDate, formatNumber } from '../../utils/helpers';
+import toast from 'react-hot-toast';
 
 interface Notification {
   id: number;
   title: string;
   message: string;
-  type: 'info' | 'warning' | 'error' | 'success';
-  target: 'all' | 'specific' | 'region';
-  status: 'draft' | 'sent' | 'scheduled';
-  sent_at?: string;
-  scheduled_at?: string;
+  type: string;
+  target_type: 'all' | 'verified' | 'premium' | 'specific';
+  target_users?: number[];
+  sent_count?: number;
   created_at: string;
-  updated_at: string;
-  recipient_count?: number;
+  recipient_username?: string;
+  created_by_username?: string;
+  status: 'read' | 'unread';
+  data?: any;
 }
 
 export default function NotificationsPage() {
@@ -27,9 +43,11 @@ export default function NotificationsPage() {
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState('');
   const [selected, setSelected] = useState<Notification | null>(null);
-  const [editModal, setEditModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
-  const [sendModal, setSendModal] = useState(false);
+  const [deliveryModal, setDeliveryModal] = useState(false);
+  const [createModal, setCreateModal] = useState(false);
+  const [broadcastModal, setBroadcastModal] = useState(false);
+  const [templatesModal, setTemplatesModal] = useState(false);
   const limit = 20;
 
   const { data: notificationsData, isLoading } = useQuery({
@@ -38,372 +56,711 @@ export default function NotificationsPage() {
       page, 
       limit, 
       search: search || undefined,
-      status: statusFilter || undefined
+      type: statusFilter || undefined
     }).then(r => r.data),
   });
 
   const { data: statsData } = useQuery({
     queryKey: ['notifications-stats'],
-    queryFn: () => notificationsApi.getStats().then(r => r.data),
+    queryFn: () => notificationsApi.getStats().then(r => r.data.data),
   });
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<any>();
+  const { data: deliveryData } = useQuery({
+    queryKey: ['delivery-report', selected?.id],
+    queryFn: () => selected ? notificationsApi.getDeliveryReport(selected.id).then(r => r.data.data) : null,
+    enabled: !!selected && deliveryModal,
+  });
+
+  const { data: templatesData } = useQuery({
+    queryKey: ['notification-templates'],
+    queryFn: () => notificationsApi.getTemplates().then(r => r.data.data),
+  });
+
+  // Form hooks
+  const { register: regCreate, handleSubmit: submitCreate, reset: resetCreate, watch, setValue, formState: { errors: errCreate } } = useForm();
+  const { register: regBroadcast, handleSubmit: submitBroadcast, reset: resetBroadcast } = useForm();
 
   const createMutation = useMutation({
     mutationFn: notificationsApi.create,
     onSuccess: () => {
-      toast.success('Notification created successfully');
-      setEditModal(false);
-      reset();
+      toast.success('Notification yuborildi');
+      setCreateModal(false);
+      resetCreate();
       qc.invalidateQueries({ queryKey: ['admin-notifications'] });
+      qc.invalidateQueries({ queryKey: ['notifications-stats'] });
     },
-    onError: () => toast.error('Failed to create notification'),
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Notification yuborishda xatolik');
+    },
   });
 
-  const updateMutation = useMutation({
-    mutationFn: (data: any) => notificationsApi.update(selected!.id, data),
+  const broadcastMutation = useMutation({
+    mutationFn: notificationsApi.broadcast,
     onSuccess: () => {
-      toast.success('Notification updated successfully');
-      setEditModal(false);
-      setSelected(null);
-      reset();
+      toast.success('Broadcast yuborildi');
+      setBroadcastModal(false);
+      resetBroadcast();
       qc.invalidateQueries({ queryKey: ['admin-notifications'] });
+      qc.invalidateQueries({ queryKey: ['notifications-stats'] });
     },
-    onError: () => toast.error('Failed to update notification'),
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Broadcast yuborishda xatolik');
+    },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => notificationsApi.delete(id),
     onSuccess: () => {
-      toast.success('Notification deleted successfully');
+      toast.success('Notification o\'chirildi');
       setDeleteModal(false);
       setSelected(null);
       qc.invalidateQueries({ queryKey: ['admin-notifications'] });
+      qc.invalidateQueries({ queryKey: ['notifications-stats'] });
     },
-    onError: () => toast.error('Failed to delete notification'),
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Notification o\'chirishda xatolik');
+    },
   });
 
-  const sendMutation = useMutation({
-    mutationFn: (id: number) => notificationsApi.send(id),
-    onSuccess: () => {
-      toast.success('Notification sent successfully');
-      setSendModal(false);
-      setSelected(null);
-      qc.invalidateQueries({ queryKey: ['admin-notifications'] });
-    },
-    onError: () => toast.error('Failed to send notification'),
-  });
+  const notifications: Notification[] = Array.isArray((notificationsData as any)?.data?.data) ? (notificationsData as any).data.data : [];
+  const total: number = (notificationsData as any)?.data?.total ?? 0;
+  const stats = statsData || {};
 
-  const notifications: Notification[] = Array.isArray((notificationsData as any)?.data) ? (notificationsData as any).data : [];
-  const total: number = (notificationsData as any)?.total ?? 0;
-  const stats = Array.isArray((statsData as any)?.data) ? (statsData as any).data : [];
+  // Watch target_type to show/hide specific user inputs
+  const watchedTargetType = watch('target_type');
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'draft': return 'gray';
-      case 'sent': return 'green';
-      case 'scheduled': return 'blue';
-      default: return 'gray';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'draft': return <Edit className="w-4 h-4" />;
-      case 'sent': return <Check className="w-4 h-4" />;
-      case 'scheduled': return <Clock className="w-4 h-4" />;
-      default: return null;
-    }
+  // Helper function to fill form from template
+  const useTemplate = (template: any) => {
+    setValue('title', template.template_title);
+    setValue('message', template.template_message);
+    setValue('type', template.type);
   };
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'info': return 'blue';
-      case 'warning': return 'yellow';
-      case 'error': return 'red';
-      case 'success': return 'green';
-      default: return 'gray';
+      case 'WELCOME': return 'green';
+      case 'BIRTHDAY_GIFT': return 'purple';
+      case 'ADMIN_MESSAGE': return 'blue';
+      case 'BROADCAST': return 'orange';
+      case 'SYSTEM': return 'gray';
+      default: return 'blue';
     }
   };
 
-  const openEditModal = (notification?: Notification) => {
-    setSelected(notification || null);
-    if (notification) {
-      setValue('title', notification.title);
-      setValue('message', notification.message);
-      setValue('type', notification.type);
-      setValue('target', notification.target);
-      setValue('scheduled_at', notification.scheduled_at);
-    } else {
-      reset();
+  const getTargetIcon = (targetType: string) => {
+    switch (targetType) {
+      case 'all': return <Users className="w-4 h-4" />;
+      case 'verified': return <UserCheck className="w-4 h-4" />;
+      case 'premium': return <Crown className="w-4 h-4" />;
+      case 'specific': return <Target className="w-4 h-4" />;
+      default: return <Users className="w-4 h-4" />;
     }
-    setEditModal(true);
   };
 
-  const onSubmit = (data: any) => {
-    if (selected) {
-      updateMutation.mutate(data);
-    } else {
-      createMutation.mutate(data);
+  const getTargetLabel = (targetType: string) => {
+    switch (targetType) {
+      case 'all': return 'Barcha foydalanuvchilar';
+      case 'verified': return 'Tasdiqlangan foydalanuvchilar';
+      case 'premium': return 'Premium foydalanuvchilar';
+      case 'specific': return 'Tanlangan foydalanuvchilar';
+      default: return targetType;
     }
   };
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Stats */}
-      {stats.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {stats.map((stat: any, idx: number) => (
-            <div key={idx} className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{stat.label}</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
-                </div>
-                <BarChart3 className="w-8 h-8 text-primary-500" />
+      {/* Stats Cards */}
+      {stats && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Jami Notifications</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
+                  {formatNumber(stats.total_notifications || 0)}
+                </p>
+              </div>
+              <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                <Bell className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               </div>
             </div>
-          ))}
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">O'qilmagan</p>
+                <p className="text-3xl font-bold text-orange-600 dark:text-orange-400 mt-2">
+                  {formatNumber(stats.unread_notifications || 0)}
+                </p>
+              </div>
+              <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
+                <AlertCircle className="w-8 h-8 text-orange-600 dark:text-orange-400" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Bugungi</p>
+                <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">
+                  {formatNumber(stats.notifications_today || 0)}
+                </p>
+              </div>
+              <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                <Calendar className="w-8 h-8 text-green-600 dark:text-green-400" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Haftalik</p>
+                <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-2">
+                  {formatNumber(stats.notifications_this_week || 0)}
+                </p>
+              </div>
+              <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                <TrendingUp className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Toolbar */}
-      <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-          Notifications <span className="text-gray-400 font-normal text-base">({total})</span>
-        </h2>
+      {/* Header & Actions */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              📢 Notification Boshqaruvi
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              Barcha foydalanuvchilar uchun notification yuborish va boshqarish
+              <span className="ml-2 text-sm font-medium">({formatNumber(total)} ta notification)</span>
+            </p>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <Button 
+              onClick={() => setCreateModal(true)}
+              className="flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Yangi Notification
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => setBroadcastModal(true)}
+              className="flex items-center gap-2"
+            >
+              <Send className="w-4 h-4" />
+              Broadcast
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => setTemplatesModal(true)}
+              className="flex items-center gap-2"
+            >
+              <Settings className="w-4 h-4" />
+              Templatelar
+            </Button>
+          </div>
+        </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-          {/* Filters */}
-          <select 
-            value={statusFilter} 
-            onChange={e => setStatusFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-          >
-            <option value="">All Status</option>
-            <option value="draft">Draft</option>
-            <option value="sent">Sent</option>
-            <option value="scheduled">Scheduled</option>
-          </select>
-
-          {/* Search */}
-          <div className="relative flex-1 lg:w-64">
+        {/* Search and Filters */}
+        <div className="flex flex-col sm:flex-row gap-3 mt-6">
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input 
               value={search} 
               onChange={e => { setSearch(e.target.value); setPage(1); }}
-              placeholder="Search notifications..."
-              className="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
+              placeholder="Notification qidiring (sarlavha yoki matn bo'yicha)..."
+              className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
             />
           </div>
-
-          <Button onClick={() => openEditModal()} className="whitespace-nowrap">
-            <Plus className="w-4 h-4 mr-2" />
-            Create Notification
-          </Button>
+          
+          <div className="flex gap-2">
+            <select 
+              value={statusFilter} 
+              onChange={e => setStatusFilter(e.target.value)}
+              className="px-3 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">🏷️ Barcha turlar</option>
+              <option value="WELCOME">🎉 Xush kelibsiz</option>
+              <option value="BIRTHDAY_GIFT">🎂 Tug'ilgan kun</option>
+              <option value="ADMIN_MESSAGE">👤 Admin xabari</option>
+              <option value="BROADCAST">📢 Broadcast</option>
+              <option value="SYSTEM">⚙️ Tizim</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-        {isLoading ? (
-          <div className="p-8 text-center">Loading...</div>
-        ) : notifications.length === 0 ? (
-          <EmptyState message="No notifications found" />
-        ) : (
-          <>
-            <Table headers={['Notification', 'Type', 'Target', 'Status', 'Recipients', 'Created', '']}>
-              {notifications.map((notification) => (
-                <tr key={notification.id}>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <Bell className="w-8 h-8 text-blue-500" />
-                      <div>
-                        <div className="font-medium">{notification.title}</div>
-                        <div className="text-sm text-gray-500 truncate max-w-xs">{notification.message}</div>
-                      </div>
+      {/* Notifications Table */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <Table 
+          headers={['📬 Notification', '🏷️ Turi', '🎯 Maqsad', '📊 Qabul qilinganlar', '📅 Yaratilgan', '⚡ Amallar']} 
+          loading={isLoading}
+        >
+          {notifications.length === 0 && !isLoading ? (
+            <tr><td colSpan={6}>
+              <EmptyState 
+                message="Hech qanday notification topilmadi" 
+              />
+            </td></tr>
+          ) : notifications.map((notification) => (
+            <tr key={notification.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+              <td className="px-6 py-4">
+                <div className="flex items-start gap-4">
+                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex-shrink-0">
+                    <Bell className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-sm leading-5">
+                      {notification.title}
+                    </h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                      {notification.message}
+                    </p>
+                    {notification.recipient_username && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Qabul qiluvchi: {notification.recipient_username}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </td>
+              <td className="px-6 py-4">
+                <Badge color={getTypeColor(notification.type)}>
+                  {notification.type === 'WELCOME' && '🎉 Xush kelibsiz'}
+                  {notification.type === 'BIRTHDAY_GIFT' && '🎂 Tug\'ilgan kun'}
+                  {notification.type === 'ADMIN_MESSAGE' && '👤 Admin'}
+                  {notification.type === 'BROADCAST' && '📢 Broadcast'}
+                  {notification.type === 'SYSTEM' && '⚙️ Tizim'}
+                  {!['WELCOME', 'BIRTHDAY_GIFT', 'ADMIN_MESSAGE', 'BROADCAST', 'SYSTEM'].includes(notification.type) && notification.type}
+                </Badge>
+              </td>
+              <td className="px-6 py-4">
+                <div className="flex items-center gap-2">
+                  {getTargetIcon(notification.target_type)}
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    {getTargetLabel(notification.target_type)}
+                  </span>
+                </div>
+              </td>
+              <td className="px-6 py-4">
+                <div className="text-center">
+                  <span className="text-lg font-semibold text-blue-600 dark:text-blue-400">
+                    {formatNumber(notification.sent_count || 0)}
+                  </span>
+                  <p className="text-xs text-gray-500">foydalanuvchi</p>
+                </div>
+              </td>
+              <td className="px-6 py-4">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  <div>{formatDate(notification.created_at)}</div>
+                  {notification.created_by_username && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      {notification.created_by_username} tomonidan
                     </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge color={getTypeColor(notification.type)}>
-                      {notification.type}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge color="purple">{notification.target}</Badge>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      {getStatusIcon(notification.status)}
-                      <Badge color={getStatusColor(notification.status)}>
-                        {notification.status}
-                      </Badge>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="text-sm">{notification.recipient_count || 0}</span>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-500">
-                    {formatDate(notification.created_at)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2">
-                      {notification.status === 'draft' && (
-                        <Button 
-                          size="sm" 
-                          variant="primary" 
-                          onClick={() => { setSelected(notification); setSendModal(true); }}
-                        >
-                          <Send className="w-4 h-4" />
-                        </Button>
-                      )}
-                      <Button size="sm" variant="outline" onClick={() => openEditModal(notification)}>
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="danger" 
-                        onClick={() => { setSelected(notification); setDeleteModal(true); }}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </Table>
+                  )}
+                </div>
+              </td>
+              <td className="px-6 py-4">
+                <div className="flex gap-1">
+                  <button 
+                    onClick={() => {setSelected(notification); setDeliveryModal(true);}} 
+                    title="Delivery hisoboti"
+                    className="p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 text-green-600 dark:text-green-400 transition"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </button>
+                  <button 
+                    onClick={() => { setSelected(notification); setDeleteModal(true); }} 
+                    title="O'chirish"
+                    className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </Table>
 
+        {total > 0 && (
+          <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
             <Pagination 
               page={page} 
               total={total} 
               limit={limit} 
               onChange={setPage} 
             />
-          </>
+          </div>
         )}
       </div>
 
-      {/* Edit Modal */}
-      <Modal open={editModal} onClose={() => { setEditModal(false); setSelected(null); }} title={selected ? 'Edit Notification' : 'Create Notification'}>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Title</label>
-            <input 
-              {...register('title', { required: 'Title is required' })}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
-            />
-            {errors.title && <p className="text-red-500 text-xs mt-1">{String(errors.title.message)}</p>}
-          </div>
+      {/* Delivery Report Modal */}
+      <Modal 
+        open={deliveryModal} 
+        onClose={() => setDeliveryModal(false)} 
+        title={`📊 Delivery Hisoboti - ${selected?.title}`}
+        size="lg"
+      >
+        <div className="space-y-6">
+          {deliveryData ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-blue-600">{formatNumber(deliveryData.total)}</p>
+                    <p className="text-sm text-blue-700">Jami</p>
+                  </div>
+                </div>
+                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-green-600">{formatNumber(deliveryData.delivered)}</p>
+                    <p className="text-sm text-green-700">Yetkazildi</p>
+                  </div>
+                </div>
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-yellow-600">{formatNumber(deliveryData.read)}</p>
+                    <p className="text-sm text-yellow-700">O'qildi</p>
+                  </div>
+                </div>
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-purple-600">
+                      {deliveryData.total > 0 ? Math.round((deliveryData.read / deliveryData.total) * 100) : 0}%
+                    </p>
+                    <p className="text-sm text-purple-700">O'qilish foizi</p>
+                  </div>
+                </div>
+              </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-2">Message</label>
-            <textarea 
-              {...register('message', { required: 'Message is required' })}
-              rows={4}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
-            />
-            {errors.message && <p className="text-red-500 text-xs mt-1">{String(errors.message.message)}</p>}
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Type</label>
-              <select 
-                {...register('type', { required: 'Type is required' })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
-              >
-                <option value="">Select Type</option>
-                <option value="info">Info</option>
-                <option value="warning">Warning</option>
-                <option value="error">Error</option>
-                <option value="success">Success</option>
-              </select>
-              {errors.type && <p className="text-red-500 text-xs mt-1">{String(errors.type.message)}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Target</label>
-              <select 
-                {...register('target', { required: 'Target is required' })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
-              >
-                <option value="">Select Target</option>
-                <option value="all">All Users</option>
-                <option value="specific">Specific Users</option>
-                <option value="region">By Region</option>
-              </select>
-              {errors.target && <p className="text-red-500 text-xs mt-1">{String(errors.target.message)}</p>}
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Schedule (Optional)</label>
-            <input 
-              type="datetime-local"
-              {...register('scheduled_at')}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
-            />
-          </div>
-
-          <div className="flex gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setEditModal(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" loading={createMutation.isPending || updateMutation.isPending}>
-              {selected ? 'Update' : 'Create'}
-            </Button>
-          </div>
-        </form>
-      </Modal>
-
-      {/* Send Modal */}
-      <Modal open={sendModal} onClose={() => setSendModal(false)} title="Send Notification">
-        <div className="space-y-4">
-          <p>Are you sure you want to send this notification?</p>
-          {selected && (
-            <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded">
-              <p className="font-medium">{selected.title}</p>
-              <p className="text-sm text-gray-500">{selected.message}</p>
-              <p className="text-sm text-gray-500 mt-2">Target: {selected.target}</p>
+              {deliveryData.data && deliveryData.data.length > 0 && (
+                <div>
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Qabul qiluvchilar ro'yxati</h4>
+                  <div className="max-h-64 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <table className="w-full">
+                      <thead className="bg-gray-50 dark:bg-gray-800">
+                        <tr>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Foydalanuvchi</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Holati</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Vaqt</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {deliveryData.data.map((item: any, idx: number) => (
+                          <tr key={idx} className="border-t border-gray-200 dark:border-gray-700">
+                            <td className="px-4 py-2 text-sm">{item.username}</td>
+                            <td className="px-4 py-2">
+                              <Badge color={item.is_read ? 'green' : 'yellow'}>
+                                {item.is_read ? 'O\'qildi' : 'O\'qilmagan'}
+                              </Badge>
+                            </td>
+                            <td className="px-4 py-2 text-sm text-gray-500">{formatDate(item.created_at)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
           )}
-          
-          <div className="flex gap-3 pt-4">
-            <Button variant="outline" onClick={() => setSendModal(false)}>
-              Cancel
-            </Button>
-            <Button 
-              variant="primary" 
-              onClick={() => selected && sendMutation.mutate(selected.id)}
-              loading={sendMutation.isPending}
-            >
-              Send Now
+
+          <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
+            <Button onClick={() => setDeliveryModal(false)}>
+              ✅ Yopish
             </Button>
           </div>
         </div>
       </Modal>
 
       {/* Delete Modal */}
-      <Modal open={deleteModal} onClose={() => setDeleteModal(false)} title="Delete Notification">
+      <Modal open={deleteModal} onClose={() => setDeleteModal(false)} title="🗑️ Notification O'chirish">
         <div className="space-y-4">
-          <p>Are you sure you want to delete this notification? This action cannot be undone.</p>
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertCircle className="w-5 h-5 text-red-600" />
+              <h3 className="font-medium text-red-900 dark:text-red-100">Ogoh bo'ling!</h3>
+            </div>
+            <p className="text-sm text-red-700 dark:text-red-300">
+              Bu amalni qaytarib bo'lmaydi. Notification butunlay o'chirib tashlanadi.
+            </p>
+          </div>
+
           {selected && (
-            <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded">
-              <p className="font-medium">{selected.title}</p>
-              <p className="text-sm text-gray-500">{selected.message}</p>
+            <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <h4 className="font-medium text-gray-900 dark:text-gray-100">{selected.title}</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{selected.message}</p>
+              <p className="text-xs text-gray-500 mt-2">
+                Yaratilgan: {formatDate(selected.created_at)} | 
+                Yuborilgan: {formatNumber(selected.sent_count || 0)} ta foydalanuvchiga
+              </p>
             </div>
           )}
           
           <div className="flex gap-3 pt-4">
-            <Button variant="outline" onClick={() => setDeleteModal(false)}>
-              Cancel
+            <Button variant="outline" onClick={() => setDeleteModal(false)} className="flex-1">
+              ❌ Bekor qilish
             </Button>
             <Button 
-              variant="danger" 
               onClick={() => selected && deleteMutation.mutate(selected.id)}
               loading={deleteMutation.isPending}
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white"
             >
-              Delete
+              🗑️ O'chirish
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Create Notification Modal */}
+      <Modal open={createModal} onClose={() => setCreateModal(false)} title="Yangi Notification Yaratish" size="lg">
+        <form onSubmit={submitCreate(d => createMutation.mutate(d as any))} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input 
+              label="Sarlavha" 
+              placeholder="Notification sarlavhasi"
+              {...regCreate('title', { required: 'Sarlavha majburiy' })} 
+              error={errCreate.title?.message as string}
+            />
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Turi
+              </label>
+              <select 
+                {...regCreate('type', { required: 'Turi majburiy' })}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">Turni tanlang</option>
+                <option value="ADMIN_MESSAGE">Admin Xabari</option>
+                <option value="BROADCAST">Broadcast</option>
+                <option value="SYSTEM">Tizim</option>
+                <option value="ANNOUNCEMENT">E'lon</option>
+                <option value="MAINTENANCE">Texnik Ishlar</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Xabar matni
+            </label>
+            <textarea 
+              {...regCreate('message', { required: 'Xabar majburiy' })}
+              rows={4}
+              placeholder="Notification xabari..."
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            {errCreate.message && (
+              <p className="text-sm text-red-600 dark:text-red-400">{String(errCreate.message.message)}</p>
+            )}
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Kimga yuborish
+            </label>
+            <select 
+              {...regCreate('target_type', { required: 'Target majburiy' })}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">Targetni tanlang</option>
+              <option value="all">🌍 Barchaga</option>
+              <option value="verified">✅ Tasdiqlanganlarga</option>
+              <option value="premium">👑 Premium foydalanuvchilarga</option>
+              <option value="specific">🎯 Aniq foydalanuvchilarga</option>
+            </select>
+          </div>
+
+          {watchedTargetType === 'specific' && (
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Foydalanuvchi ID'lari (vergul bilan ajrating)
+              </label>
+              <input 
+                type="text"
+                {...regCreate('target_users')}
+                placeholder="1, 2, 3, 4"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <p className="text-xs text-gray-500">Masalan: 1, 2, 3, 4</p>
+            </div>
+          )}
+
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Rejalashtirilgan vaqt (ixtiyoriy)
+            </label>
+            <input 
+              type="datetime-local"
+              {...regCreate('scheduled_at')}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          {/* Template Buttons */}
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-3">Templatelar:</h4>
+            <div className="flex flex-wrap gap-2">
+              {templatesData?.map((template: any) => (
+                <button
+                  key={template.type}
+                  type="button"
+                  onClick={() => useTemplate(template)}
+                  className="px-3 py-1 bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-200 rounded-lg text-sm hover:bg-blue-200 dark:hover:bg-blue-700 transition"
+                >
+                  {template.type}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <Button type="button" variant="outline" onClick={() => setCreateModal(false)} className="flex-1">
+              Bekor qilish
+            </Button>
+            <Button type="submit" loading={createMutation.isPending} className="flex-1">
+              <Send className="w-4 h-4 mr-2" />
+              Yuborish
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Broadcast Modal */}
+      <Modal open={broadcastModal} onClose={() => setBroadcastModal(false)} title="Broadcast Yuborish" size="lg">
+        <form onSubmit={submitBroadcast(d => broadcastMutation.mutate(d as any))} className="space-y-4">
+          <Input 
+            label="Sarlavha" 
+            placeholder="Broadcast sarlavhasi"
+            {...regBroadcast('title', { required: true })} 
+          />
+          
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Xabar matni
+            </label>
+            <textarea 
+              {...regBroadcast('message', { required: true })}
+              rows={4}
+              placeholder="Broadcast xabari..."
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Turi
+            </label>
+            <select 
+              {...regBroadcast('type', { required: true })}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="BROADCAST">Broadcast</option>
+              <option value="ANNOUNCEMENT">E'lon</option>
+              <option value="EMERGENCY">Favqulodda</option>
+            </select>
+          </div>
+
+          <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
+            <h4 className="font-medium text-orange-900 dark:text-orange-100 mb-2">Filtrlar:</h4>
+            <div className="space-y-2">
+              <label className="flex items-center">
+                <input 
+                  type="checkbox"
+                  {...regBroadcast('filters.verified_only')}
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <span className="ml-2 text-sm text-orange-800 dark:text-orange-200">
+                  Faqat tasdiqlanganlarga
+                </span>
+              </label>
+              <label className="flex items-center">
+                <input 
+                  type="checkbox"
+                  {...regBroadcast('filters.premium_only')}
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <span className="ml-2 text-sm text-orange-800 dark:text-orange-200">
+                  Faqat premium userlarga
+                </span>
+              </label>
+              <label className="flex items-center">
+                <input 
+                  type="checkbox"
+                  {...regBroadcast('filters.exclude_banned')}
+                  defaultChecked
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <span className="ml-2 text-sm text-orange-800 dark:text-orange-200">
+                  Bloklanganlarga yubormaslik
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <Button type="button" variant="outline" onClick={() => setBroadcastModal(false)} className="flex-1">
+              Bekor qilish
+            </Button>
+            <Button type="submit" loading={broadcastMutation.isPending} className="flex-1 bg-orange-600 hover:bg-orange-700">
+              <Send className="w-4 h-4 mr-2" />
+              Broadcast Yuborish
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Templates Modal */}
+      <Modal open={templatesModal} onClose={() => setTemplatesModal(false)} title="Notification Templatelar" size="lg">
+        <div className="space-y-4">
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              Bu yerda mavjud templatelarni ko'rishingiz va tahrirlashingiz mumkin:
+            </p>
+            
+            {templatesData && templatesData.length > 0 ? (
+              <div className="space-y-3">
+                {templatesData.map((template: any) => (
+                  <div key={template.type} className="bg-white dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-medium text-gray-900 dark:text-gray-100">
+                          {template.type}
+                        </h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          {template.template_title}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {template.template_message}
+                        </p>
+                      </div>
+                      <Badge color={template.is_active ? 'green' : 'red'}>
+                        {template.is_active ? 'Faol' : 'Nofaol'}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyState message="Template topilmadi" />
+            )}
+          </div>
+          
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={() => setTemplatesModal(false)} className="flex-1">
+              Yopish
             </Button>
           </div>
         </div>
