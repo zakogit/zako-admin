@@ -31,7 +31,7 @@ export default function CardsPage() {
     queryFn: () => cardsApi.getStats().then(r => r.data),
   });
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<any>();
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<any>();
 
   const createMutation = useMutation({
     mutationFn: cardsApi.create,
@@ -79,6 +79,10 @@ export default function CardsPage() {
       setValue('effect_type', card.effect_type);
       setValue('effect_value', card.effect_value);
       setValue('price_coins', card.price_coins);
+      setValue('duration_duels', card.duration_duels);
+      setValue('gradient_start', card.gradient_start ?? '');
+      setValue('gradient_end', card.gradient_end ?? '');
+      setValue('border_color', card.border_color ?? '');
       setValue('is_active', card.is_active);
     } else {
       reset();
@@ -181,6 +185,20 @@ export default function CardsPage() {
                               Image
                             </div>
                           </div>
+                        )}
+                        {(card.gradient_start || card.border_color) && (
+                          <div
+                            className="w-8 h-8 rounded"
+                            title="Card colors"
+                            style={{
+                              backgroundImage: card.gradient_start
+                                ? `linear-gradient(to bottom right, ${card.gradient_start}, ${card.gradient_end || card.gradient_start})`
+                                : undefined,
+                              border: card.border_color
+                                ? `1.5px solid ${card.border_color}`
+                                : '1px solid rgb(229 231 235)',
+                            }}
+                          />
                         )}
                       </div>
                       <div>
@@ -309,9 +327,43 @@ export default function CardsPage() {
             </div>
           </div>
 
+          {/* Card colors — rendered as the gradient background + border in the
+              mobile boost carousel. Leave blank to fall back to the default. */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Card Colors</label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <ColorInput
+                label="Gradient Start"
+                name="gradient_start"
+                value={watch('gradient_start')}
+                register={register}
+                setValue={setValue}
+              />
+              <ColorInput
+                label="Gradient End"
+                name="gradient_end"
+                value={watch('gradient_end')}
+                register={register}
+                setValue={setValue}
+              />
+              <ColorInput
+                label="Border Color"
+                name="border_color"
+                value={watch('border_color')}
+                register={register}
+                setValue={setValue}
+              />
+            </div>
+            <CardColorPreview
+              start={watch('gradient_start')}
+              end={watch('gradient_end')}
+              border={watch('border_color')}
+            />
+          </div>
+
           <div>
             <label className="flex items-center gap-2">
-              <input 
+              <input
                 type="checkbox"
                 {...register('is_active')}
                 className="rounded border-gray-300 dark:border-gray-600"
@@ -356,6 +408,63 @@ export default function CardsPage() {
           </div>
         </div>
       </Modal>
+    </div>
+  );
+}
+
+/** Normalise any stored hex (`#RRGGBB`/`#AARRGGBB`/no-hash) to the 7-char form
+ *  that `<input type="color">` requires; alpha is dropped for the picker. */
+function toPickerHex(value?: string): string {
+  if (!value) return '#000000';
+  let s = value.trim().replace(/^#/, '');
+  if (s.length === 8) s = s.slice(2); // #AARRGGBB -> RRGGBB
+  return /^[0-9a-fA-F]{6}$/.test(s) ? `#${s}` : '#000000';
+}
+
+/** A native colour picker paired with a free-text hex field (so the value can
+ *  be cleared to fall back to the app default). Both edit the same RHF field. */
+function ColorInput({ label, name, value, register, setValue }: {
+  label: string;
+  name: string;
+  value?: string;
+  register: any;
+  setValue: any;
+}) {
+  return (
+    <div>
+      <label className="block text-xs font-medium mb-1 text-gray-500 dark:text-gray-400">{label}</label>
+      <div className="flex items-center gap-2">
+        <input
+          type="color"
+          value={toPickerHex(value)}
+          onChange={(e) => setValue(name, e.target.value, { shouldDirty: true })}
+          className="w-10 h-9 shrink-0 rounded border border-gray-300 dark:border-gray-700 bg-transparent cursor-pointer p-0.5"
+        />
+        <input
+          type="text"
+          {...register(name)}
+          placeholder="#RRGGBB"
+          className="flex-1 min-w-0 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 font-mono text-sm"
+        />
+      </div>
+    </div>
+  );
+}
+
+/** Live preview of how the gradient + border render on the mobile card. */
+function CardColorPreview({ start, end, border }: { start?: string; end?: string; border?: string }) {
+  const s = start?.trim() || '#DE5D1E';
+  const e = end?.trim() || '#A12C09';
+  const b = border?.trim();
+  return (
+    <div
+      className="mt-3 h-12 rounded-lg flex items-center px-3 text-white text-sm font-semibold"
+      style={{
+        backgroundImage: `linear-gradient(to right, ${s}, ${e})`,
+        border: b ? `1.5px solid ${b}` : undefined,
+      }}
+    >
+      Preview
     </div>
   );
 }

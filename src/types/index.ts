@@ -114,6 +114,9 @@ export interface CardType {
   duration_duels: number;
   icon?: string;
   image?: string;
+  gradient_start?: string;
+  gradient_end?: string;
+  border_color?: string;
   is_active: boolean;
   total_sold?: number;
   created_at: string;
