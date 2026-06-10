@@ -280,3 +280,16 @@ export interface LeaderboardEntry {
   achievements_count: number;
   rank_position: number;
 }
+
+export interface League {
+  id: number;
+  name: string;
+  description?: string | null;
+  icon_url?: string | null;
+  min_xp: number;
+  max_xp: number;
+  sort_order: number;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
