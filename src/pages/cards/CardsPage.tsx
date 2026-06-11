@@ -26,10 +26,6 @@ export default function CardsPage() {
     }).then(r => r.data),
   });
 
-  const { data: statsData } = useQuery({
-    queryKey: ['cards-stats'],
-    queryFn: () => cardsApi.getStats().then(r => r.data),
-  });
 
   const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<any>();
 
@@ -69,7 +65,6 @@ export default function CardsPage() {
 
   const cards: CardType[] = Array.isArray((cardsData as any)?.data?.data) ? (cardsData as any).data.data : [];
   const total: number = (cardsData as any)?.data?.total ?? 0;
-  const stats = Array.isArray((statsData as any)?.data) ? (statsData as any).data : [];
 
   const openEditModal = (card?: CardType) => {
     setSelected(card || null);
@@ -96,22 +91,6 @@ export default function CardsPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Stats */}
-      {stats.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {stats.map((stat: any, idx: number) => (
-            <div key={idx} className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{stat.label}</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
-                </div>
-                <BarChart3 className="w-8 h-8 text-primary-500" />
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
 
       {/* Toolbar */}
       <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">

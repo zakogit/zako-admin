@@ -26,8 +26,9 @@ const SeasonsPage = lazy(() => import('./pages/seasons/SeasonsPage'));
 const CreateSeasonPage = lazy(() => import('./pages/seasons/CreateSeasonPage'));
 const SeasonDetailsPage = lazy(() => import('./pages/seasons/SeasonDetailsPage'));
 const AdsPage = lazy(() => import('./pages/ads/AdsPage'));
-const SeasonRewardsPage = lazy(() => import('./pages/seasons/SeasonRewardsPage'));
+const SeasonRewardsPage = lazy(() => import('./pages/season-rewards/SeasonRewardsPage'));
 const SubscriptionsPage = lazy(() => import('./pages/subscriptions/SubscriptionsPage'));
+const PremiumAvatarManagement = lazy(() => import('./pages/premium-avatars/PremiumAvatarManagement'));
 
 const qc = new QueryClient({ defaultOptions: { queries: { retry: 1, staleTime: 30_000 } } });
 
@@ -60,6 +61,7 @@ export default function App() {
               <Route path="topics" element={<TopicsPage />} />
               <Route path="cards" element={<CardsPage />} />
               <Route path="avatars" element={<AvatarsPage />} />
+              <Route path="premium-avatars" element={<PremiumAvatarManagement />} />
               <Route path="duels" element={<DuelsPage />} />
               <Route path="friends" element={<FriendsPage />} />
               <Route path="regions" element={<RegionsPage />} />

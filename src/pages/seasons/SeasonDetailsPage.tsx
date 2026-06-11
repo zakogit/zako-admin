@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { seasonsApi } from '../../api/services';
-import type { Season, SeasonReward, SeasonStats, UserBadge, LeaderboardEntry } from '../../types';
+import type { Season, SeasonStats, UserBadge, LeaderboardEntry } from '../../types';
 
 const SeasonDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const seasonId = Number(id);
 
   const [season, setSeason] = useState<Season | null>(null);
-  const [rewards, setRewards] = useState<SeasonReward[]>([]);
   const [stats, setStats] = useState<SeasonStats | null>(null);
   const [badges, setBadges] = useState<UserBadge[]>([]);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'rewards' | 'leaderboard' | 'badges'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'leaderboard' | 'badges'>('overview');
   const [completing, setCompleting] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
 
@@ -27,7 +26,6 @@ const SeasonDetailsPage: React.FC = () => {
       ]);
 
       setSeason(detailsResponse.data.data.season);
-      setRewards(detailsResponse.data.data.rewards);
       setStats(detailsResponse.data.data.stats);
       setIsCompleted(completionResponse.data.data.badges_distributed);
     } catch (err) {
@@ -116,27 +114,6 @@ const SeasonDetailsPage: React.FC = () => {
     );
   };
 
-  const getRewardIcon = (type: SeasonReward['reward_type']) => {
-    const icons = {
-      coins: '🪙',
-      avatar: '👤', 
-      shield: '🛡️',
-      badge: '🏅',
-      premium_access: '⭐'
-    };
-    return icons[type];
-  };
-
-  const getRewardLabel = (type: SeasonReward['reward_type']) => {
-    const labels = {
-      coins: 'Tangalar',
-      avatar: 'Avatar',
-      shield: 'Himoya qalqoni', 
-      badge: 'Nishon',
-      premium_access: 'Premium kirish'
-    };
-    return labels[type];
-  };
 
   const getBadgeIcon = (badgeName: string) => {
     const icons: Record<string, string> = {
@@ -286,7 +263,6 @@ const SeasonDetailsPage: React.FC = () => {
           <nav className="flex space-x-8 px-6">
             {[
               { key: 'overview', label: 'Umumiy Ma\'lumot', icon: '📊' },
-              { key: 'rewards', label: 'Sovg\'alar', icon: '🎁' },
               { key: 'leaderboard', label: 'Reyting', icon: '🏆' },
               { key: 'badges', label: 'Batchlar', icon: '🏅' }
             ].map(tab => (
@@ -336,21 +312,21 @@ const SeasonDetailsPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Sovg'alar Statistikasi</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">Qo'shimcha Ma'lumotlar</h3>
                   <div className="space-y-3 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Jami kunlar:</span>
-                      <span className="font-medium">{rewards.length}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Maxsus sovg'alar:</span>
-                      <span className="font-medium">{rewards.filter(r => r.is_special_reward).length}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Jami tangalar:</span>
+                      <span className="text-gray-600">Mavsum davomiyligi:</span>
                       <span className="font-medium">
-                        {rewards.filter(r => r.reward_type === 'coins').reduce((sum, r) => sum + r.reward_value, 0)}
+                        {Math.ceil((new Date(season.end_date).getTime() - new Date(season.start_date).getTime()) / (1000 * 60 * 60 * 24))} kun
                       </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Holati:</span>
+                      <span className="font-medium">{season.status === 'active' ? 'Faol' : season.status === 'completed' ? 'Yakunlangan' : season.status === 'upcoming' ? 'Rejalashtirilgan' : 'Bekor qilingan'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Oxirgi yangilanish:</span>
+                      <span className="font-medium">{new Date(season.updated_at).toLocaleString('uz-UZ')}</span>
                     </div>
                   </div>
                 </div>
@@ -358,42 +334,6 @@ const SeasonDetailsPage: React.FC = () => {
             </div>
           )}
 
-          {/* Rewards Tab */}
-          {activeTab === 'rewards' && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">Kunlik Sovg'alar</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {rewards.sort((a, b) => a.day_number - b.day_number).map((reward) => (
-                  <div
-                    key={reward.id}
-                    className={`border rounded-lg p-4 ${
-                      reward.is_special_reward
-                        ? 'border-yellow-300 bg-yellow-50'
-                        : 'border-gray-200 bg-white'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-600">
-                        {reward.day_number}-kun
-                      </span>
-                      {reward.is_special_reward && (
-                        <span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded-full">
-                          ⭐ Maxsus
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">{getRewardIcon(reward.reward_type)}</span>
-                      <div>
-                        <p className="font-medium text-gray-900">{getRewardLabel(reward.reward_type)}</p>
-                        <p className="text-sm text-gray-600">{reward.reward_value}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Leaderboard Tab */}
           {activeTab === 'leaderboard' && (

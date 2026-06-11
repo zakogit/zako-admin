@@ -52,7 +52,6 @@ export default function UsersPage() {
   const [createModal, setCreateModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
-  const [importModal, setImportModal] = useState(false);
   const [action, setAction] = useState<'ban' | 'unban' | 'verify' | 'unverify' | 'delete' | null>(null);
   const limit = 20;
 
@@ -158,16 +157,6 @@ export default function UsersPage() {
     onError: () => toast.error('Parol o\'zgartirishda xatolik'),
   });
 
-  const importMutation = useMutation({
-    mutationFn: usersApi.bulkImport,
-    onSuccess: (response: any) => {
-      toast.success(`${response.data.imported || 0} ta foydalanuvchi import qilindi`);
-      setImportModal(false);
-      qc.invalidateQueries({ queryKey: ['users'] });
-      qc.invalidateQueries({ queryKey: ['users-stats'] });
-    },
-    onError: (error: any) => toast.error(error.response?.data?.message || 'Import qilishda xatolik'),
-  });
 
   const actionMutation = useMutation({
     mutationFn: async (actionType: 'unban' | 'verify' | 'unverify' | 'delete') => {
@@ -229,12 +218,6 @@ export default function UsersPage() {
     setEditModal(true);
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      importMutation.mutate(file);
-    }
-  };
 
   const clearFilters = () => {
     setVerificationFilter('');
@@ -271,14 +254,6 @@ export default function UsersPage() {
           >
             <UserPlus className="w-4 h-4" />
             Yangi foydalanuvchi
-          </Button>
-          <Button 
-            variant="outline"
-            onClick={() => setImportModal(true)}
-            className="flex items-center gap-2"
-          >
-            <Upload className="w-4 h-4" />
-            Import (CSV)
           </Button>
           <Button 
             variant="outline"
@@ -1055,40 +1030,6 @@ export default function UsersPage() {
         </form>
       </Modal>
 
-      {/* Bulk Import Modal */}
-      <Modal open={importModal} onClose={() => setImportModal(false)} title="CSV orqali foydalanuvchilar import qilish">
-        <div className="space-y-4">
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-            <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">CSV format:</h4>
-            <p className="text-sm text-blue-800 dark:text-blue-200 mb-2">
-              Quyidagi formatta CSV fayl tayyorlang:
-            </p>
-            <code className="text-xs bg-blue-100 dark:bg-blue-800 p-2 rounded block">
-              username,phone_number,password,first_name,last_name,email<br/>
-              john_doe,+998901234567,password123,John,Doe,john@example.com<br/>
-              jane_smith,+998907654321,pass456,Jane,Smith,jane@example.com
-            </code>
-          </div>
-          
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              CSV fayl
-            </label>
-            <input
-              type="file"
-              accept=".csv"
-              onChange={handleFileUpload}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-            />
-          </div>
-
-          <div className="flex gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setImportModal(false)} className="flex-1">
-              Yopish
-            </Button>
-          </div>
-        </div>
-      </Modal>
     </div>
   );
 }

@@ -2,12 +2,6 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { seasonsApi } from '../../api/services';
 
-interface RewardForm {
-  day_number: number;
-  reward_type: 'coins' | 'avatar' | 'shield' | 'badge' | 'premium_access';
-  reward_value: number;
-  is_special_reward: boolean;
-}
 
 const CreateSeasonPage: React.FC = () => {
   const navigate = useNavigate();
@@ -21,18 +15,6 @@ const CreateSeasonPage: React.FC = () => {
     banner_image: ''
   });
 
-  const [rewards, setRewards] = useState<RewardForm[]>([
-    { day_number: 1, reward_type: 'coins', reward_value: 50, is_special_reward: false }
-  ]);
-
-  const rewardTypes = [
-    { value: 'coins', label: 'Tangalar', icon: '🪙' },
-    { value: 'avatar', label: 'Avatar', icon: '👤' },
-    { value: 'shield', label: 'Himoya qalqoni', icon: '🛡️' },
-    { value: 'badge', label: 'Nishon', icon: '🏅' },
-    { value: 'premium_access', label: 'Premium kirish', icon: '⭐' }
-  ];
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -41,27 +23,6 @@ const CreateSeasonPage: React.FC = () => {
     }));
   };
 
-  const addReward = () => {
-    const nextDay = Math.max(...rewards.map(r => r.day_number)) + 1;
-    setRewards(prev => [...prev, {
-      day_number: nextDay,
-      reward_type: 'coins',
-      reward_value: 50,
-      is_special_reward: false
-    }]);
-  };
-
-  const updateReward = (index: number, field: keyof RewardForm, value: any) => {
-    setRewards(prev => prev.map((reward, i) => 
-      i === index ? { ...reward, [field]: value } : reward
-    ));
-  };
-
-  const removeReward = (index: number) => {
-    if (rewards.length > 1) {
-      setRewards(prev => prev.filter((_, i) => i !== index));
-    }
-  };
 
   const validateForm = (): string | null => {
     if (!formData.title.trim()) return 'Mavsum nomi kiritilmagan';
@@ -73,15 +34,6 @@ const CreateSeasonPage: React.FC = () => {
     
     if (startDate >= endDate) return 'Boshlanish sanasi tugash sanasidan oldin bo\'lishi kerak';
     if (startDate < new Date()) return 'Boshlanish sanasi kelajakda bo\'lishi kerak';
-    
-    // Check reward days are unique
-    const days = rewards.map(r => r.day_number);
-    const uniqueDays = [...new Set(days)];
-    if (days.length !== uniqueDays.length) return 'Bir kun uchun faqat bitta sovg\'a bo\'lishi mumkin';
-    
-    // Check all reward values are positive
-    const invalidReward = rewards.find(r => r.reward_value <= 0);
-    if (invalidReward) return 'Barcha sovg\'a qiymatlari musbat bo\'lishi kerak';
     
     return null;
   };
@@ -105,10 +57,7 @@ const CreateSeasonPage: React.FC = () => {
         end_date: formData.end_date,
         banner_image: formData.banner_image.trim() || undefined,
         max_participants: formData.max_participants ? parseInt(formData.max_participants) : undefined,
-        rewards: rewards.map(reward => ({
-          ...reward,
-          reward_value: Number(reward.reward_value)
-        }))
+        rewards: [] // Empty rewards - will be added via rewards management
       };
 
       await seasonsApi.create(payload);
@@ -138,7 +87,7 @@ const CreateSeasonPage: React.FC = () => {
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Yangi Mavsum Yaratish</h1>
-          <p className="text-gray-600">Mavsum ma'lumotlari va sovg'alarni sozlang</p>
+          <p className="text-gray-600">Mavsum ma'lumotlarini kiriting. Sovg'alar keyinroq alohida qo'shiladi.</p>
         </div>
       </div>
 
@@ -236,100 +185,22 @@ const CreateSeasonPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Daily Rewards */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Kunlik Sovg'alar</h2>
-            <button
-              type="button"
-              onClick={addReward}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+        {/* Next Steps Info */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+          <div className="flex items-start gap-3">
+            <div className="text-blue-600 mt-1">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              Sovg'a Qo'shish
-            </button>
-          </div>
-
-          <div className="space-y-4">
-            {rewards.map((reward, index) => (
-              <div key={index} className="border border-gray-200 rounded-lg p-4">
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Kun
-                    </label>
-                    <input
-                      type="number"
-                      value={reward.day_number}
-                      onChange={(e) => updateReward(index, 'day_number', parseInt(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      min="1"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Sovg'a Turi
-                    </label>
-                    <select
-                      value={reward.reward_type}
-                      onChange={(e) => updateReward(index, 'reward_type', e.target.value as any)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      {rewardTypes.map(type => (
-                        <option key={type.value} value={type.value}>
-                          {type.icon} {type.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {reward.reward_type === 'coins' ? 'Tang Soni' : 'Qiymat'}
-                    </label>
-                    <input
-                      type="number"
-                      value={reward.reward_value}
-                      onChange={(e) => updateReward(index, 'reward_value', parseInt(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      min="1"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                      <input
-                        type="checkbox"
-                        checked={reward.is_special_reward}
-                        onChange={(e) => updateReward(index, 'is_special_reward', e.target.checked)}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      Maxsus Sovg'a
-                    </label>
-                  </div>
-
-                  <div>
-                    {rewards.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeReward(index)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        title="O'chirish"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
+            </div>
+            <div>
+              <h3 className="text-lg font-medium text-blue-900 mb-2">Keyingi Qadamlar</h3>
+              <ul className="text-blue-800 space-y-1 text-sm">
+                <li>1. Mavsum sovg'alarsiz yaratiladi</li>
+                <li>2. "Rewards boshqarish" orqali kunlik sovg'alar qo'shing</li>
+                <li>3. Sovg'alar tayyor bo'lgach, mavsumni faollashtirishingiz mumkin</li>
+              </ul>
+            </div>
           </div>
         </div>
 

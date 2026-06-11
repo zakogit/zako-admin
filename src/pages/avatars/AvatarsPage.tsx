@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Edit, Trash2, User, BarChart3, Upload, FolderOpen } from 'lucide-react';
 import { avatarsApi } from '../../api/services';
@@ -18,6 +18,8 @@ export default function AvatarsPage() {
   const [deleteModal, setDeleteModal] = useState(false);
   const [uploadModal, setUploadModal] = useState(false);
   const [manageModal, setManageModal] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>('');
   const limit = 20;
 
   const { data: avatarsData, isLoading } = useQuery({
@@ -66,6 +68,10 @@ export default function AvatarsPage() {
     onSuccess: () => {
       toast.success('Avatar yuklandi va qo\'shildi');
       setUploadModal(false);
+      setEditModal(false);
+      setSelectedFile(null);
+      setPreviewUrl('');
+      reset();
       qc.invalidateQueries({ queryKey: ['admin-avatars'] });
       qc.invalidateQueries({ queryKey: ['avatars-summary'] });
     },
@@ -88,6 +94,15 @@ export default function AvatarsPage() {
   const avatars: Avatar[] = Array.isArray((avatarsData as any)?.data?.data) ? (avatarsData as any).data.data : [];
   const total: number = (avatarsData as any)?.data?.total ?? 0;
   const summary = (summaryData as any)?.data ?? {};
+
+  // Cleanup preview URL when component unmounts
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>, category: string, gender: string, isPremium: boolean) => {
     const file = event.target.files?.[0];
@@ -114,10 +129,34 @@ export default function AvatarsPage() {
     uploadMutation.mutate(formData);
   };
 
+  const handleEditFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Faqat rasm fayllari qabul qilinadi');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Fayl hajmi 5MB dan oshmasligi kerak');
+      return;
+    }
+
+    setSelectedFile(file);
+    
+    // Create preview URL
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+  };
+
   const openEditModal = (avatar?: Avatar) => {
     setSelected(avatar || null);
+    setSelectedFile(null);
+    setPreviewUrl('');
     if (avatar) {
-      setValue('url', avatar.url);
       setValue('gender', avatar.gender);
       setValue('is_premium', avatar.is_premium);
     } else {
@@ -128,9 +167,22 @@ export default function AvatarsPage() {
 
   const onSubmit = (data: any) => {
     if (selected) {
+      // For updates, we can only update gender and premium status
       updateMutation.mutate(data);
     } else {
-      createMutation.mutate(data);
+      // For new avatar creation, we need a file
+      if (!selectedFile) {
+        toast.error('Rasm fayl tanlash majburiy');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('gender', data.gender);
+      formData.append('is_premium', data.is_premium.toString());
+      
+      // Use upload mutation for new avatars
+      uploadMutation.mutate(formData);
     }
   };
 
@@ -232,7 +284,7 @@ export default function AvatarsPage() {
           <EmptyState message="No avatars found" />
         ) : (
           <>
-            <Table headers={['Preview', 'URL', 'Gender', 'Type', 'Usage', 'Created', '']}>
+            <Table headers={['Preview', 'Gender', 'Type', 'Usage', 'Created', '']}>
               {avatars.map((avatar) => (
                 <tr key={avatar.id}>
                   <td className="px-4 py-3">
@@ -241,11 +293,6 @@ export default function AvatarsPage() {
                       alt="Avatar" 
                       className="w-12 h-12 rounded-full object-cover" 
                     />
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="max-w-xs truncate" title={avatar.url}>
-                      {avatar.url}
-                    </div>
                   </td>
                   <td className="px-4 py-3">
                     <Badge color={
@@ -295,17 +342,51 @@ export default function AvatarsPage() {
       </div>
 
       {/* Edit Modal */}
-      <Modal open={editModal} onClose={() => { setEditModal(false); setSelected(null); }} title={selected ? 'Edit Avatar' : 'Add Avatar'}>
+      <Modal open={editModal} onClose={() => { setEditModal(false); setSelected(null); setPreviewUrl(''); setSelectedFile(null); }} title={selected ? 'Edit Avatar' : 'Add Avatar'}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Avatar URL</label>
-            <input 
-              {...register('url', { required: 'Avatar URL is required' })}
-              placeholder="/uploads/avatars/..."
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
-            />
-            {errors.url && <p className="text-red-500 text-xs mt-1">{String(errors.url.message)}</p>}
-          </div>
+          {!selected && (
+            <div>
+              <label className="block text-sm font-medium mb-2">Avatar Rasm</label>
+              <input 
+                type="file"
+                accept="image/*"
+                onChange={handleEditFileSelect}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+              <p className="text-xs text-gray-500 mt-1">PNG, JPG yoki JPEG, maksimal 5MB</p>
+              
+              {/* Image Preview */}
+              {previewUrl && (
+                <div className="mt-3">
+                  <p className="text-sm font-medium mb-2">Preview:</p>
+                  <img 
+                    src={previewUrl} 
+                    alt="Preview" 
+                    className="w-20 h-20 rounded-full object-cover border border-gray-300 dark:border-gray-600"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {selected && (
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                Hozirgi avatar:
+              </p>
+              <div className="flex items-center gap-3">
+                <LazyImage 
+                  src={getStaticFileUrl(selected.url)} 
+                  alt="Current avatar" 
+                  className="w-16 h-16 rounded-full object-cover" 
+                />
+                <div>
+                  <p className="text-sm font-medium">{selected.url}</p>
+                  <p className="text-xs text-gray-500">Faqat gender va premium holatini o'zgartirish mumkin</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -338,7 +419,7 @@ export default function AvatarsPage() {
             <Button type="button" variant="outline" onClick={() => setEditModal(false)}>
               Cancel
             </Button>
-            <Button type="submit" loading={createMutation.isPending || updateMutation.isPending}>
+            <Button type="submit" loading={createMutation.isPending || updateMutation.isPending || uploadMutation.isPending}>
               {selected ? 'Update' : 'Add'}
             </Button>
           </div>

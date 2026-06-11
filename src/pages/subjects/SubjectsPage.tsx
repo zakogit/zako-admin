@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Search, Plus, Edit, Trash2, BookOpen, BarChart3 } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, BookOpen, Upload } from 'lucide-react';
 import { subjectsApi } from '../../api/services';
 import { Table, Badge, Button, Pagination, Modal, EmptyState } from '../../components/ui';
 import { formatDate, getStaticFileUrl } from '../../utils/helpers';
@@ -15,6 +15,8 @@ export default function SubjectsPage() {
   const [selected, setSelected] = useState<Subject | null>(null);
   const [editModal, setEditModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const limit = 20;
 
   const { data: subjectsData, isLoading } = useQuery({
@@ -22,10 +24,6 @@ export default function SubjectsPage() {
     queryFn: () => subjectsApi.getAll({}).then(r => r.data),
   });
 
-  const { data: statsData } = useQuery({
-    queryKey: ['subjects-stats'],
-    queryFn: () => subjectsApi.getStats().then(r => r.data),
-  });
 
   const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<any>();
 
@@ -79,15 +77,19 @@ export default function SubjectsPage() {
   const total = allSubjects.length;
   const startIndex = (page - 1) * limit;
   const subjects = allSubjects.slice(startIndex, startIndex + limit);
-  const stats = Array.isArray((statsData as any)?.data) ? (statsData as any).data : [];
 
   const openEditModal = (subject?: Subject) => {
     setSelected(subject || null);
+    setImageFile(null);
+    setImagePreview(null);
     if (subject) {
       setValue('name', subject.name);
       setValue('slug', subject.slug);
       setValue('description', subject.description);
       setValue('is_active', subject.is_active);
+      if (subject.icon) {
+        setImagePreview(getStaticFileUrl(subject.icon));
+      }
     } else {
       reset();
     }
@@ -95,31 +97,41 @@ export default function SubjectsPage() {
   };
 
   const onSubmit = (data: any) => {
+    const formData = new FormData();
+    formData.append('name', data.name);
+    formData.append('slug', data.slug);
+    formData.append('description', data.description || '');
+    formData.append('is_active', data.is_active ? 'true' : 'false');
+    
+    if (imageFile) {
+      formData.append('icon', imageFile);
+    }
+
     if (selected) {
-      updateMutation.mutate(data);
+      updateMutation.mutate(formData);
     } else {
-      createMutation.mutate(data);
+      createMutation.mutate(formData);
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.type.startsWith('image/')) {
+        setImageFile(file);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setImagePreview(e.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        toast.error('Please select an image file');
+      }
     }
   };
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Stats */}
-      {stats.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {stats.map((stat: any, idx: number) => (
-            <div key={idx} className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{stat.label}</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
-                </div>
-                <BarChart3 className="w-8 h-8 text-primary-500" />
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
 
       {/* Toolbar */}
       <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -254,6 +266,43 @@ export default function SubjectsPage() {
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Subject Icon</label>
+            <div className="space-y-3">
+              {imagePreview && (
+                <div className="flex items-center gap-3">
+                  <img 
+                    src={imagePreview} 
+                    alt="Preview" 
+                    className="w-12 h-12 rounded object-cover border border-gray-300 dark:border-gray-600"
+                  />
+                  <span className="text-sm text-gray-500">Current icon</span>
+                </div>
+              )}
+              <div className="flex items-center gap-3">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                  id="icon-upload"
+                />
+                <label 
+                  htmlFor="icon-upload"
+                  className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                >
+                  <Upload className="w-4 h-4" />
+                  <span className="text-sm">Choose Image</span>
+                </label>
+                {imageFile && (
+                  <span className="text-sm text-green-600 dark:text-green-400">
+                    {imageFile.name}
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
 
           <div>
