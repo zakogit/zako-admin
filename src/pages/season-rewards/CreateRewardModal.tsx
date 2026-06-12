@@ -3,6 +3,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { X, Coins, Gift, Users } from 'lucide-react';
 import api from '../../api/client';
 import { Button, Card, Spinner } from '../../components/ui';
+import { getStaticFileUrl } from '../../utils/helpers';
 
 interface SeasonReward {
   id?: number;
@@ -269,7 +270,7 @@ const CreateRewardModal: React.FC<CreateRewardModalProps> = ({
         }`}
       >
         <img
-          src={`http://localhost:3000${avatar.url || ''}`}
+          src={getStaticFileUrl(avatar.url || '')}
           alt={avatar.name}
           className="w-12 h-12 rounded-full mx-auto mb-1"
         />
