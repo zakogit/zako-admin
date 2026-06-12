@@ -1,5 +1,5 @@
 import api from './client';
-import type { AuthState, DashboardStats, User, Question, Subject, Topic, CardType, Avatar, Region, Duel, Friendship, AuditLog, PaginatedResponse, ProductPackage, Season, SeasonReward, SeasonStats, UserBadge, LeaderboardEntry } from '../types';
+import type { AuthState, DashboardStats, User, Question, Subject, Topic, CardType, Avatar, Region, Duel, Friendship, AuditLog, PaginatedResponse, ProductPackage, Season, SeasonReward, SeasonStats, UserBadge, LeaderboardEntry, League } from '../types';
 
 // ── Auth ──────────────────────────────────────────────
 export const authApi = {
@@ -269,6 +269,26 @@ export const paymentsApi = {
     api.get<{ success: boolean; data: any }>('/admin/click/test-integration'),
   createClickTestOrder: (user_id: number, amount: number, description: string) =>
     api.post('/admin/click/create-test-order', { user_id, amount, description }),
+};
+
+// ── Leagues ───────────────────────────────────────────
+export const leaguesApi = {
+  getAll: () => api.get<{ success: boolean; data: League[] }>('/admin/leagues'),
+  create: (body: {
+    name: string;
+    description?: string;
+    min_xp: number;
+    max_xp: number;
+    sort_order?: number;
+    is_active?: boolean;
+  }) => api.post<{ success: boolean; data: League }>('/admin/leagues', body),
+  update: (id: number, body: Partial<Omit<League, 'id' | 'created_at' | 'updated_at'>>) =>
+    api.put<{ success: boolean; data: League }>(`/admin/leagues/${id}`, body),
+  uploadIcon: (id: number, formData: FormData) =>
+    api.post<{ success: boolean; data: League }>(`/admin/leagues/${id}/icon`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
+  delete: (id: number) => api.delete(`/admin/leagues/${id}`),
 };
 
 // ── Regions ───────────────────────────────────────────

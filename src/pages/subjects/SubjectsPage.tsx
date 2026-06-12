@@ -110,7 +110,7 @@ export default function SubjectsPage() {
     if (selected) {
       updateMutation.mutate(formData);
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate(formData as any);
     }
   };
 

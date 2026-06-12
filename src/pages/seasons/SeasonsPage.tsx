@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   Plus, 
@@ -15,13 +15,12 @@ import {
   XCircle,
   Clock,
   Calendar,
-  List,
   Coins,
   Edit2
 } from 'lucide-react';
 import { seasonsApi } from '../../api/services';
 import api from '../../api/client';
-import { Button, Card, Badge, Spinner } from '../../components/ui';
+import { Button, Card, Spinner } from '../../components/ui';
 import CreateRewardModal from '../season-rewards/CreateRewardModal';
 import toast from 'react-hot-toast';
 
@@ -206,9 +205,6 @@ const SeasonsPage: React.FC = () => {
     }
   };
 
-  const getTypeColor = (type: string) => {
-    return type === 'premium' ? 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-white' : 'bg-gray-100 text-gray-800';
-  };
 
   // Group rewards by day
   const rewardsByDay = useMemo(() => {

@@ -16,7 +16,6 @@ import {
   AlertTriangle,
   Edit,
   KeyRound,
-  Upload,
   Download,
   Filter,
   X,

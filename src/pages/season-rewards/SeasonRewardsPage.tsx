@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Calendar, Coins, Gift, Users, Edit2, Trash2, Trophy } from 'lucide-react';
 import api from '../../api/client';
-import { Button, Card, Badge, Spinner } from '../../components/ui';
+import { Button, Card, Spinner } from '../../components/ui';
 import CreateRewardModal from './CreateRewardModal';
 
 interface Season {
@@ -44,7 +44,7 @@ const SeasonRewardsPage: React.FC = () => {
 
 
   // Fetch seasons
-  const { data: seasons, isLoading: seasonsLoading } = useQuery({
+  const { data: seasons } = useQuery({
     queryKey: ['admin', 'seasons'],
     queryFn: async () => {
       const response = await api.get('/admin/seasons');
@@ -109,9 +109,6 @@ const SeasonRewardsPage: React.FC = () => {
     }
   };
 
-  const getTypeColor = (type: string) => {
-    return type === 'premium' ? 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-white' : 'bg-gray-100 text-gray-800';
-  };
 
   // Group rewards by day
   const rewardsByDay = React.useMemo(() => {
@@ -276,7 +273,7 @@ const SeasonRewardsPage: React.FC = () => {
                         <button
                           onClick={() => {
                             setEditingReward({ 
-                              id: undefined,
+                              id: 0,
                               day_number: day, 
                               reward_type: 'simple',
                               reward_category: 'coins',
@@ -326,7 +323,7 @@ const SeasonRewardsPage: React.FC = () => {
                         <button
                           onClick={() => {
                             setEditingReward({ 
-                              id: undefined,
+                              id: 0,
                               day_number: day, 
                               reward_type: 'premium',
                               reward_category: 'coins',
