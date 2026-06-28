@@ -560,3 +560,22 @@ export const subscriptionsApi = {
   cancel: (id: number, body: { reason: string; immediate?: boolean }) =>
     api.post<{ success: boolean; data: any }>(`/admin/subscriptions/${id}/cancel`, body),
 };
+
+// ── App version / force-update gate ───────────────────
+export interface AppVersionConfig {
+  force_update_enabled: boolean;
+  min_version_android: string;
+  min_version_ios: string;
+  latest_version_android: string;
+  latest_version_ios: string;
+  store_url_android: string;
+  store_url_ios: string;
+  update_message: string;
+}
+
+export const appApi = {
+  getVersionConfig: () =>
+    api.get<{ success: boolean; data: AppVersionConfig }>('/admin/app/version'),
+  updateVersionConfig: (body: Partial<AppVersionConfig>) =>
+    api.put<{ success: boolean; message: string; data: AppVersionConfig }>('/admin/app/version', body),
+};

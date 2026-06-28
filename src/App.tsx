@@ -30,6 +30,7 @@ const SeasonRewardsPage = lazy(() => import('./pages/season-rewards/SeasonReward
 const SubscriptionsPage = lazy(() => import('./pages/subscriptions/SubscriptionsPage'));
 const PremiumAvatarManagement = lazy(() => import('./pages/premium-avatars/PremiumAvatarManagement'));
 const LeaguesPage = lazy(() => import('./pages/leagues/LeaguesPage'));
+const AppVersionPage = lazy(() => import('./pages/app-version/AppVersionPage'));
 
 const qc = new QueryClient({ defaultOptions: { queries: { retry: 1, staleTime: 30_000 } } });
 
@@ -76,6 +77,7 @@ export default function App() {
               <Route path="seasons/:seasonId/rewards" element={<SeasonRewardsPage />} />
               <Route path="subscriptions" element={<SubscriptionsPage />} />
               <Route path="ads" element={<AdsPage />} />
+              <Route path="app-version" element={<AppVersionPage />} />
               <Route path="audit-logs" element={<AuditLogsPage />} />
             </Route>
           </Routes>

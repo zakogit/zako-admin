@@ -25,6 +25,7 @@ import {
   Diamond,
   Crown,
   Medal,
+  RefreshCw,
 } from "lucide-react";
 
 const nav = [
@@ -48,6 +49,7 @@ const nav = [
   { section: "System" },
   { label: "Payments", icon: CreditCard, to: "/payments" },
   { label: "Ads", icon: Smartphone, to: "/ads" },
+  { label: "App Version", icon: RefreshCw, to: "/app-version" },
   { label: "Notifications", icon: Bell, to: "/notifications" },
   { label: "Audit Logs", icon: ClipboardList, to: "/audit-logs" },
 ];
