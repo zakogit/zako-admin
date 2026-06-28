@@ -1,5 +1,5 @@
 import api from './client';
-import type { AuthState, DashboardStats, User, Question, Subject, Topic, CardType, Avatar, Region, Duel, Friendship, AuditLog, PaginatedResponse, ProductPackage, Season, SeasonReward, SeasonStats, UserBadge, LeaderboardEntry, League } from '../types';
+import type { AuthState, DashboardStats, User, Question, Subject, Topic, CardType, Avatar, Region, Duel, Friendship, AuditLog, PaginatedResponse, ProductPackage, Season, SeasonReward, SeasonStats, BadgeType, UserBadge, LeaderboardEntry, League } from '../types';
 
 // ── Auth ──────────────────────────────────────────────
 export const authApi = {
@@ -372,7 +372,11 @@ export const seasonsApi = {
   // Get season badges
   getBadges: (id: number) =>
     api.get<{ success: boolean; data: UserBadge[] }>(`/admin/seasons/${id}/badges`),
-    
+
+  // Get badge catalog (champion / top10 / top50 / top100)
+  getBadgeTypes: () =>
+    api.get<{ success: boolean; data: BadgeType[] }>('/admin/badge-types'),
+
   // Check completion status
   getCompletionStatus: (id: number) =>
     api.get<{ success: boolean; data: { is_completed: boolean; badges_distributed: boolean } }>(`/admin/seasons/${id}/completion-status`),

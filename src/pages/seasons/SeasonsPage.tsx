@@ -16,11 +16,14 @@ import {
   Clock,
   Calendar,
   Coins,
-  Edit2
+  Edit2,
+  Award
 } from 'lucide-react';
 import { seasonsApi } from '../../api/services';
 import api from '../../api/client';
-import { Button, Card, Spinner } from '../../components/ui';
+import { Button, Card, Spinner, LazyImage } from '../../components/ui';
+import { getStaticFileUrl } from '../../utils/helpers';
+import type { BadgeType } from '../../types';
 import CreateRewardModal from '../season-rewards/CreateRewardModal';
 import toast from 'react-hot-toast';
 
@@ -66,7 +69,7 @@ const SeasonsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [showDropdown, setShowDropdown] = useState<number | null>(null);
-  const [activeTab, setActiveTab] = useState<'seasons' | 'rewards'>('seasons');
+  const [activeTab, setActiveTab] = useState<'seasons' | 'rewards' | 'badges'>('seasons');
   
   // Rewards management states
   const [selectedSeason, setSelectedSeason] = useState<number | null>(null);
@@ -120,6 +123,16 @@ const SeasonsPage: React.FC = () => {
       return response.data.data as RewardStatistics[];
     },
     enabled: !!selectedSeason && activeTab === 'rewards'
+  });
+
+  // Fetch badge catalog (champion / top10 / top50 / top100)
+  const { data: badgeTypes = [], isLoading: badgesLoading } = useQuery({
+    queryKey: ['admin', 'badge-types'],
+    queryFn: async () => {
+      const res = await seasonsApi.getBadgeTypes();
+      return (res.data?.data || []) as BadgeType[];
+    },
+    enabled: activeTab === 'badges'
   });
 
   // Status update mutation
@@ -374,6 +387,20 @@ const SeasonsPage: React.FC = () => {
           >
             <Gift className="h-5 w-5" />
             <span>Rewards Management</span>
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab('badges');
+              setSearchParams({ tab: 'badges' });
+            }}
+            className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'badges'
+                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:border-gray-300'
+            }`}
+          >
+            <Award className="h-5 w-5" />
+            <span>Nishonlar</span>
           </button>
         </nav>
       </div>
@@ -863,6 +890,58 @@ const SeasonsPage: React.FC = () => {
                 setEditingReward(null);
               }}
             />
+          )}
+        </div>
+      )}
+
+      {/* Badges Catalog Tab */}
+      {activeTab === 'badges' && (
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Nishon turlari</h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              Mavsum yakunida reyting bo'yicha tarqatiladigan nishonlar (top 100). Rasmlar mobil ilovada ko'rinadi.
+            </p>
+          </div>
+
+          {badgesLoading ? (
+            <div className="flex justify-center py-12"><Spinner /></div>
+          ) : badgeTypes.length === 0 ? (
+            <Card className="p-12 text-center text-gray-500 dark:text-gray-400">
+              Nishon turlari topilmadi
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {badgeTypes.map((bt) => (
+                <Card key={bt.id} className="p-6 flex flex-col items-center text-center">
+                  {bt.icon_path ? (
+                    <LazyImage
+                      src={getStaticFileUrl(bt.icon_path)}
+                      alt={bt.title}
+                      className="w-28 h-28 object-contain mb-4"
+                    />
+                  ) : (
+                    <div className="w-28 h-28 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-4">
+                      <Award className="w-12 h-12 text-gray-400" />
+                    </div>
+                  )}
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{bt.title}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    {bt.rank_max && bt.rank_max !== bt.rank_min
+                      ? `${bt.rank_min}–${bt.rank_max}-o'rin`
+                      : `${bt.rank_min}-o'rin`}
+                  </p>
+                  {bt.description && (
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">{bt.description}</p>
+                  )}
+                  <span
+                    className="mt-3 inline-block w-6 h-6 rounded-full border border-gray-200 dark:border-gray-600"
+                    style={{ backgroundColor: bt.badge_color || '#9CA3AF' }}
+                    title={bt.badge_color}
+                  />
+                </Card>
+              ))}
+            </div>
           )}
         </div>
       )}
