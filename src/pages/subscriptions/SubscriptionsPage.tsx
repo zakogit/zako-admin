@@ -20,8 +20,9 @@ import { Modal, Button } from '../../components/ui';
 interface PremiumSubscription {
   id: number;
   user_id: number;
-  user_name: string;
-  user_phone: string;
+  username: string;
+  full_name: string;
+  phone: string;
   plan_type: 'monthly' | 'yearly';
   price_som: number;
   start_date: string;
@@ -231,7 +232,7 @@ const SubscriptionsPage: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Jami Obunachilar</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats?.total_subscribers || 0}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats?.overview?.total_subscriptions || 0}</p>
             </div>
             <div className="p-3 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300">
               <Users className="h-6 w-6" />
@@ -243,7 +244,7 @@ const SubscriptionsPage: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Faol Obunachilar</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats?.active_subscribers || 0}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats?.overview?.active_subscriptions || 0}</p>
             </div>
             <div className="p-3 rounded-full bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-300">
               <UserCheck className="h-6 w-6" />
@@ -256,7 +257,7 @@ const SubscriptionsPage: React.FC = () => {
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Oylik Daromad</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                {stats?.monthly_revenue ? formatCurrency(stats.monthly_revenue) : '0 so\'m'}
+                {stats?.overview?.monthly_revenue ? formatCurrency(stats.overview.monthly_revenue) : '0 so\'m'}
               </p>
             </div>
             <div className="p-3 rounded-full bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-300">
@@ -269,7 +270,7 @@ const SubscriptionsPage: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Shu Oy Yangi</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats?.new_this_month || 0}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats?.overview?.new_this_month || 0}</p>
             </div>
             <div className="p-3 rounded-full bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-300">
               <Calendar className="h-6 w-6" />
@@ -357,10 +358,10 @@ const SubscriptionsPage: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {subscription.user_name}
+                        {subscription.full_name || subscription.username}
                       </div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {subscription.user_phone}
+                        {subscription.phone}
                       </div>
                     </div>
                   </td>
