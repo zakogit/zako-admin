@@ -293,3 +293,15 @@ export interface League {
   created_at?: string;
   updated_at?: string;
 }
+
+export interface Article {
+  id: number;
+  title: string;
+  slug: string;
+  excerpt?: string | null;
+  body: string;
+  cover_image_url?: string | null;
+  is_published: boolean;
+  created_at?: string;
+  updated_at?: string;
+}

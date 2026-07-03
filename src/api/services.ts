@@ -1,5 +1,5 @@
 import api from './client';
-import type { AuthState, DashboardStats, User, Question, Subject, Topic, CardType, Avatar, Region, Duel, Friendship, AuditLog, PaginatedResponse, ProductPackage, Season, SeasonReward, SeasonStats, BadgeType, UserBadge, LeaderboardEntry, League } from '../types';
+import type { AuthState, DashboardStats, User, Question, Subject, Topic, CardType, Avatar, Region, Duel, Friendship, AuditLog, PaginatedResponse, ProductPackage, Season, SeasonReward, SeasonStats, BadgeType, UserBadge, LeaderboardEntry, League, Article } from '../types';
 
 // ── Auth ──────────────────────────────────────────────
 export const authApi = {
@@ -289,6 +289,22 @@ export const leaguesApi = {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
   delete: (id: number) => api.delete(`/admin/leagues/${id}`),
+};
+
+// ── Articles (Maqolalar) ──────────────────────────────
+export const articlesApi = {
+  getAll: () => api.get<{ success: boolean; data: Article[] }>('/admin/articles'),
+  getById: (id: number) =>
+    api.get<{ success: boolean; data: Article }>(`/admin/articles/${id}`),
+  create: (body: { title: string; body: string; excerpt?: string; is_published?: boolean }) =>
+    api.post<{ success: boolean; data: Article }>('/admin/articles', body),
+  update: (id: number, body: Partial<Omit<Article, 'id' | 'slug' | 'created_at' | 'updated_at'>>) =>
+    api.put<{ success: boolean; data: Article }>(`/admin/articles/${id}`, body),
+  uploadCover: (id: number, formData: FormData) =>
+    api.post<{ success: boolean; data: Article }>(`/admin/articles/${id}/cover`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
+  delete: (id: number) => api.delete(`/admin/articles/${id}`),
 };
 
 // ── Regions ───────────────────────────────────────────
