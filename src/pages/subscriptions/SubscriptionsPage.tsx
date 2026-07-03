@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { subscriptionsApi } from '../../api/services';
+import { Modal, Button } from '../../components/ui';
 
 interface PremiumSubscription {
   id: number;
@@ -36,6 +37,12 @@ const SubscriptionsPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [planFilter, setPlanFilter] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [grantModal, setGrantModal] = useState(false);
+  const [grantForm, setGrantForm] = useState<{
+    user_id: string;
+    plan_type: 'monthly' | 'yearly';
+    duration_days: number;
+  }>({ user_id: '', plan_type: 'monthly', duration_days: 30 });
 
   // Real API calls
   const { data: subscriptionsData, isLoading } = useQuery({
@@ -90,6 +97,34 @@ const SubscriptionsPage: React.FC = () => {
       toast.error('Obunani yangilashda xatolik yuz berdi');
     },
   });
+
+  const createMutation = useMutation({
+    mutationFn: (body: { user_id: number; plan_type: 'monthly' | 'yearly'; duration_days: number }) =>
+      subscriptionsApi.create(body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+      queryClient.invalidateQueries({ queryKey: ['subscription-stats'] });
+      toast.success('Premium muvaffaqiyatli berildi');
+      setGrantModal(false);
+      setGrantForm({ user_id: '', plan_type: 'monthly', duration_days: 30 });
+    },
+    onError: (e: any) =>
+      toast.error(e.response?.data?.message || 'Premium berishda xatolik yuz berdi'),
+  });
+
+  const handleGrantSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const uid = Number(grantForm.user_id);
+    if (!uid) {
+      toast.error('Foydalanuvchi ID kiriting');
+      return;
+    }
+    createMutation.mutate({
+      user_id: uid,
+      plan_type: grantForm.plan_type,
+      duration_days: Number(grantForm.duration_days),
+    });
+  };
 
   // Helper functions
   const handleExtendSubscription = (subscription: PremiumSubscription) => {
@@ -180,8 +215,8 @@ const SubscriptionsPage: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center space-x-3">
-          <button 
-            onClick={() => console.log('Create modal not implemented yet')}
+          <button
+            onClick={() => setGrantModal(true)}
             className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
           >
             <Crown className="h-4 w-4" />
@@ -417,6 +452,66 @@ const SubscriptionsPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Manual Premium Grant Modal */}
+      <Modal open={grantModal} onClose={() => setGrantModal(false)} title="Manual Premium Berish">
+        <form onSubmit={handleGrantSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-2">Foydalanuvchi ID *</label>
+            <input
+              type="number"
+              value={grantForm.user_id}
+              onChange={(e) => setGrantForm((f) => ({ ...f, user_id: e.target.value }))}
+              placeholder="masalan: 123"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Foydalanuvchi ID'sini «Users» sahifasidan oling.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Reja</label>
+              <select
+                value={grantForm.plan_type}
+                onChange={(e) =>
+                  setGrantForm((f) => ({ ...f, plan_type: e.target.value as 'monthly' | 'yearly' }))
+                }
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
+              >
+                <option value="monthly">Oylik</option>
+                <option value="yearly">Yillik</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Muddat (kun)</label>
+              <input
+                type="number"
+                min={1}
+                value={grantForm.duration_days}
+                onChange={(e) =>
+                  setGrantForm((f) => ({ ...f, duration_days: Number(e.target.value) }))
+                }
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
+              />
+            </div>
+          </div>
+
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Manual berishda narx 0 so'm (sovg'a) sifatida yoziladi.
+          </p>
+
+          <div className="flex gap-3 pt-4">
+            <Button type="button" variant="outline" onClick={() => setGrantModal(false)}>
+              Bekor qilish
+            </Button>
+            <Button type="submit" loading={createMutation.isPending}>
+              Premium berish
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };
