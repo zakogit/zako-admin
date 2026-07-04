@@ -429,6 +429,8 @@ export interface DraftsSummary {
   approved: number;
   rejected: number;
   ready: number;
+}
+
 export interface Article {
   id: number;
   title: string;
