@@ -293,3 +293,140 @@ export interface League {
   created_at?: string;
   updated_at?: string;
 }
+
+// AI Books (PDF -> test generatsiya)
+export interface Book {
+  id: number;
+  title: string;
+  file_path: string;
+  file_size: number;
+  page_count?: number;
+  subject_id?: number;
+  subject_name?: string;
+  grade?: number;
+  status:
+    | 'uploaded'
+    | 'extracting'
+    | 'analyzing'
+    | 'reanalyze'
+    | 'needs_review'
+    | 'ready'
+    | 'needs_ocr'
+    | 'failed';
+  status_error?: string;
+  progress: number;
+  meta: {
+    page_offset?: number | null;
+    offset_confidence?: number;
+    toc_pages?: number[];
+    proposed_subject?: {
+      id: number | null;
+      name: string | null;
+      is_new: boolean;
+      confidence: 'high' | 'medium' | 'low';
+    };
+    proposed_grade?: number | null;
+    extraction_quality?: { avg: number; low_pages: Array<{ page: number; score: number }> };
+    vision_indexed?: {
+      mode: string;
+      pages: number;
+      failed: number;
+      input_tokens: number;
+      output_tokens: number;
+      skipped_reason?: string;
+    };
+  };
+  topic_count?: number;
+  confirmed_topic_count?: number;
+  draft_count?: number;
+  pending_count?: number;
+  flagged_count?: number;
+  approved_count?: number;
+  created_at: string;
+}
+
+export interface BookTopic {
+  id: number;
+  book_id: number;
+  title: string;
+  start_page: number;
+  end_page: number;
+  order_index: number;
+  linked_topic_id?: number | null;
+  linked_topic_name?: string;
+  source: 'toc' | 'fallback' | 'manual';
+  is_confirmed: boolean;
+  draft_count?: number;
+  approved_count?: number;
+}
+
+export interface GenerationJob {
+  id: number;
+  book_id: number;
+  status: 'queued' | 'running' | 'completed' | 'failed' | 'cancelled';
+  config: {
+    book_topic_ids: number[];
+    per_topic_count: number;
+    difficulty: { easy: number; medium: number; hard: number };
+  };
+  topics_total: number;
+  topics_done: number;
+  questions_created: number;
+  current_topic_id?: number | null;
+  error?: string;
+  input_tokens: number;
+  output_tokens: number;
+  batch_name?: string | null;
+  created_at: string;
+}
+
+export interface GeneratedQuestion {
+  id: number;
+  job_id: number;
+  book_id: number;
+  book_topic_id: number;
+  book_topic_title?: string;
+  question_text: string;
+  question_type: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  explanation?: string;
+  options: { option_text: string; is_correct: boolean; order_index: number }[];
+  source_page?: number;
+  source_quote?: string;
+  grounded: boolean;
+  flag_reason?: string;
+  quality_score?: number | null;
+  review_status: 'pending' | 'approved' | 'rejected' | 'needs_review';
+  created_question_id?: number;
+  created_at: string;
+}
+
+export interface BookPage {
+  page_no: number;
+  text: string;
+  char_count: number;
+  needs_ocr: boolean;
+}
+
+export interface GenEstimate {
+  requests: number;
+  input_tokens: number;
+  output_tokens: number;
+  est_cost_usd: number;
+  batch_mode: boolean;
+}
+
+export interface AiStats {
+  month: { calls: number; input_tokens: number; output_tokens: number; cost_usd: number };
+  total: { calls: number; input_tokens: number; output_tokens: number; cost_usd: number };
+  questions: { drafts: number; approved: number; avg_quality: number | null };
+  monthly_budget_usd: number | null;
+}
+
+export interface DraftsSummary {
+  pending: number;
+  needs_review: number;
+  approved: number;
+  rejected: number;
+  ready: number;
+}

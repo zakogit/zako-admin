@@ -26,6 +26,7 @@ import {
   Crown,
   Medal,
   RefreshCw,
+  Sparkles,
 } from "lucide-react";
 
 const nav = [
@@ -35,6 +36,7 @@ const nav = [
   { label: "Questions", icon: HelpCircle, to: "/questions" },
   { label: "Subjects", icon: BookOpen, to: "/subjects" },
   { label: "Topics", icon: List, to: "/topics" },
+  { label: "AI Kitoblar", icon: Sparkles, to: "/books" },
   { section: "Platform" },
   { label: "Cards", icon: Layers, to: "/cards" },
   { label: "Avatars", icon: Image, to: "/avatars" },

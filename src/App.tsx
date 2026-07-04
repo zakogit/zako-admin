@@ -31,6 +31,8 @@ const SubscriptionsPage = lazy(() => import('./pages/subscriptions/Subscriptions
 const PremiumAvatarManagement = lazy(() => import('./pages/premium-avatars/PremiumAvatarManagement'));
 const LeaguesPage = lazy(() => import('./pages/leagues/LeaguesPage'));
 const AppVersionPage = lazy(() => import('./pages/app-version/AppVersionPage'));
+const BooksPage = lazy(() => import('./pages/books/BooksPage'));
+const BookDetailPage = lazy(() => import('./pages/books/BookDetailPage'));
 
 const qc = new QueryClient({ defaultOptions: { queries: { retry: 1, staleTime: 30_000 } } });
 
@@ -61,6 +63,8 @@ export default function App() {
               <Route path="questions" element={<QuestionsPage />} />
               <Route path="subjects" element={<SubjectsPage />} />
               <Route path="topics" element={<TopicsPage />} />
+              <Route path="books" element={<BooksPage />} />
+              <Route path="books/:id" element={<BookDetailPage />} />
               <Route path="cards" element={<CardsPage />} />
               <Route path="avatars" element={<AvatarsPage />} />
               <Route path="premium-avatars" element={<PremiumAvatarManagement />} />
