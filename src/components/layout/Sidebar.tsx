@@ -27,6 +27,7 @@ import {
   Medal,
   RefreshCw,
   Newspaper,
+  Award,
 } from "lucide-react";
 
 const nav = [
@@ -44,6 +45,7 @@ const nav = [
   { label: "Store", icon: Coins, to: "/store" },
   { label: "Seasons", icon: Trophy, to: "/seasons" },
   { label: "Leagues", icon: Medal, to: "/leagues" },
+  { label: "Haftalik TOP-10", icon: Award, to: "/leaderboard" },
   { label: "Premium Obuna", icon: Diamond, to: "/subscriptions" },
   { label: "Duels", icon: Swords, to: "/duels" },
   { label: "Friends", icon: UserCheck, to: "/friends" },

@@ -599,3 +599,33 @@ export const appApi = {
   updateVersionConfig: (body: Partial<AppVersionConfig>) =>
     api.put<{ success: boolean; message: string; data: AppVersionConfig }>('/admin/app/version', body),
 };
+
+// ── Weekly leaderboard (haftalik TOP-10 Telegram post) ───────────────────────
+export interface LeaderboardSchedule {
+  enabled: boolean;
+  day: number; // 0=Yakshanba .. 6=Shanba
+  time: string; // "HH:MM"
+}
+export interface WeeklyLbEntry {
+  rank: number;
+  name: string;
+  avatar: string | null;
+  xp: number;
+}
+export const leaderboardApi = {
+  getSchedule: () =>
+    api.get<{ success: boolean; data: LeaderboardSchedule }>('/admin/leaderboard/schedule'),
+  updateSchedule: (body: Partial<LeaderboardSchedule>) =>
+    api.put<{ success: boolean; message: string; data: LeaderboardSchedule }>(
+      '/admin/leaderboard/schedule',
+      body,
+    ),
+  preview: () =>
+    api.get<{ success: boolean; data: { image_url: string; entries: WeeklyLbEntry[] } }>(
+      '/admin/leaderboard/preview',
+    ),
+  sendNow: () =>
+    api.post<{ success: boolean; message: string; data: { sent: boolean; count: number } }>(
+      '/admin/leaderboard/send',
+    ),
+};
