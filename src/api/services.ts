@@ -1,5 +1,5 @@
 import api from './client';
-import type { AuthState, DashboardStats, User, Question, Subject, Topic, CardType, Avatar, Region, Duel, Friendship, AuditLog, PaginatedResponse, ProductPackage, Season, SeasonReward, SeasonStats, BadgeType, UserBadge, LeaderboardEntry, League, Article } from '../types';
+import type { AuthState, DashboardStats, User, Question, Subject, Topic, CardType, Avatar, Region, Duel, Friendship, AuditLog, PaginatedResponse, ProductPackage, Season, SeasonReward, SeasonStats, BadgeType, UserBadge, LeaderboardEntry, League, Book, BookTopic, BookPage, GenerationJob, GeneratedQuestion, GenEstimate, AiStats, DraftsSummary, Article } from '../types';
 
 // ── Auth ──────────────────────────────────────────────
 export const authApi = {
@@ -627,5 +627,85 @@ export const leaderboardApi = {
   sendNow: () =>
     api.post<{ success: boolean; message: string; data: { sent: boolean; count: number } }>(
       '/admin/leaderboard/send',
+    ),
+};
+
+// ── AI Books (PDF -> test generatsiya) ────────────────
+export const booksApi = {
+  getAll: (params?: { status?: string; page?: number; limit?: number }) =>
+    api.get<{ success: boolean; total: number; data: Book[] }>('/admin/books', { params }),
+  getById: (id: number) =>
+    api.get<{ success: boolean; data: Book }>(`/admin/books/${id}`),
+  upload: (file: File, title?: string) => {
+    const fd = new FormData();
+    if (title) fd.append('title', title);
+    fd.append('file', file);
+    return api.post<{ success: boolean; data: { book_id: number } }>('/admin/books', fd, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 300000,
+    });
+  },
+  delete: (id: number) => api.delete(`/admin/books/${id}`),
+  getPages: (id: number, from: number, to?: number) =>
+    api.get<{ success: boolean; data: BookPage[] }>(`/admin/books/${id}/pages`, {
+      params: { from, to },
+    }),
+  confirmSubject: (
+    id: number,
+    body: {
+      subject_id?: number;
+      new_subject?: { name: string; icon?: string; description?: string };
+      grade?: number | null;
+    },
+  ) => api.post<{ success: boolean; data: Book }>(`/admin/books/${id}/confirm-subject`, body),
+  reanalyze: (id: number) => api.post(`/admin/books/${id}/reanalyze`),
+  // Mavzular
+  getTopics: (id: number) =>
+    api.get<{ success: boolean; data: BookTopic[] }>(`/admin/books/${id}/topics`),
+  createTopic: (id: number, body: { title: string; start_page: number; end_page: number }) =>
+    api.post(`/admin/books/${id}/topics`, body),
+  updateTopic: (id: number, topicId: number, body: Partial<BookTopic>) =>
+    api.put(`/admin/books/${id}/topics/${topicId}`, body),
+  confirmAllTopics: (id: number) => api.post(`/admin/books/${id}/topics/confirm-all`),
+  deleteTopic: (id: number, topicId: number) =>
+    api.delete(`/admin/books/${id}/topics/${topicId}`),
+  // Generatsiya
+  generate: (
+    id: number,
+    body: {
+      book_topic_ids: number[];
+      per_topic_count: number;
+      difficulty?: { easy: number; medium: number; hard: number };
+    },
+  ) => api.post<{ success: boolean; data: { job_id: number } }>(`/admin/books/${id}/generate`, body),
+  getEstimate: (id: number, body: { book_topic_ids: number[]; per_topic_count: number }) =>
+    api.post<{ success: boolean; data: GenEstimate }>(`/admin/books/${id}/generate-estimate`, body),
+  getAiStats: () => api.get<{ success: boolean; data: AiStats }>('/admin/books/stats/ai'),
+  getJobs: (id: number) =>
+    api.get<{ success: boolean; data: GenerationJob[] }>(`/admin/books/${id}/jobs`),
+  getJob: (jobId: number) =>
+    api.get<{ success: boolean; data: GenerationJob }>(`/admin/books/jobs/${jobId}`),
+  cancelJob: (jobId: number) => api.post(`/admin/books/jobs/${jobId}/cancel`),
+  // Draft savollar
+  getDrafts: (
+    id: number,
+    params?: { book_topic_id?: number; review_status?: string; page?: number; limit?: number },
+  ) =>
+    api.get<{ success: boolean; total: number; data: GeneratedQuestion[] }>(
+      `/admin/books/${id}/questions`,
+      { params },
+    ),
+  getDraftsSummary: (id: number, book_topic_id?: number) =>
+    api.get<{ success: boolean; data: DraftsSummary }>(`/admin/books/${id}/questions/summary`, {
+      params: { book_topic_id },
+    }),
+  updateDraft: (qid: number, body: Partial<GeneratedQuestion>) =>
+    api.put(`/admin/books/questions/${qid}`, body),
+  approveDraft: (qid: number) => api.post(`/admin/books/questions/${qid}/approve`),
+  rejectDraft: (qid: number) => api.post(`/admin/books/questions/${qid}/reject`),
+  bulkApprove: (id: number, body: { ids?: number[]; book_topic_id?: number; all_ready?: boolean }) =>
+    api.post<{ success: boolean; data: { approved_count: number } }>(
+      `/admin/books/${id}/questions/bulk-approve`,
+      body,
     ),
 };
