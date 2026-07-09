@@ -404,17 +404,28 @@ const EditGiftTypeForm: React.FC<{
 
 // Gift Type Usage Chart Component
 const GiftTypeUsageChart: React.FC<{ giftTypes: GiftTypeConfig[] | undefined }> = ({ giftTypes }) => {
-  // This would normally fetch real usage data from an API
-  const mockUsageData = [
-    { type: 'simple', count: 45, percentage: 40 },
-    { type: 'premium', count: 35, percentage: 31 },
-    { type: 'legendary', count: 20, percentage: 18 },
-    { type: 'exclusive', count: 12, percentage: 11 }
-  ];
+  // Real usage: season_rewards'dagi gift_type bo'yicha hisob (backend).
+  const { data: usageData, isLoading } = useQuery({
+    queryKey: ['gift-type-usage'],
+    queryFn: async () => {
+      const response = await fetch('/api/v1/admin/gift-type-usage', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}` },
+      });
+      const json = await response.json();
+      return (json.data || []) as Array<{ type: string; count: number; percentage: number }>;
+    },
+  });
+
+  if (isLoading) {
+    return <p className="text-sm text-gray-400 py-4">Yuklanmoqda...</p>;
+  }
+  if (!usageData || usageData.length === 0) {
+    return <p className="text-sm text-gray-400 text-center py-4">Hozircha ma'lumot yo'q</p>;
+  }
 
   return (
     <div className="space-y-4">
-      {mockUsageData.map(data => {
+      {usageData.map(data => {
         const config = giftTypes?.find(gt => gt.type_name === data.type);
         const IconComponent = giftTypeIcons[data.type as keyof typeof giftTypeIcons] || Gift;
         

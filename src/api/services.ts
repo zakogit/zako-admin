@@ -12,9 +12,21 @@ export const authApi = {
 };
 
 // ── Dashboard ─────────────────────────────────────────
+export interface ChartPoint { day: string; users: number; duels: number }
+export interface SystemHealth {
+  api: 'online' | 'offline';
+  database: 'online' | 'offline';
+  redis: 'online' | 'offline';
+  websocket: 'online' | 'offline';
+}
+export interface GiftUsage { type: string; count: number; percentage: number }
 export const dashboardApi = {
   getStats: () => api.get<{ success: boolean; data: DashboardStats }>('/admin/dashboard'),
   getActivity: () => api.get<{ success: boolean; data: any[] }>('/admin/activity'),
+  getChart: () => api.get<{ success: boolean; data: ChartPoint[] }>('/admin/dashboard/chart'),
+  getHealth: () => api.get<{ success: boolean; data: SystemHealth }>('/admin/dashboard/health'),
+  getGiftTypeUsage: () =>
+    api.get<{ success: boolean; data: GiftUsage[] }>('/admin/gift-type-usage'),
 };
 
 // ── Users ─────────────────────────────────────────────

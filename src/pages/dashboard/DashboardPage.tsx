@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Users, Swords, Layers, Activity, RefreshCw } from 'lucide-react';
@@ -6,21 +5,7 @@ import { dashboardApi } from '../../api/services';
 import { StatCard, Card, Badge } from '../../components/ui';
 import { formatDate, formatNumber } from '../../utils/helpers';
 
-// mock activity chart data (last 7 days)
-function generateChartData() {
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (6 - i));
-    return {
-      day: d.toLocaleDateString('en', { weekday: 'short' }),
-      users: Math.floor(Math.random() * 80 + 20),
-      duels: Math.floor(Math.random() * 50 + 10),
-    };
-  });
-}
-
 export default function DashboardPage() {
-  const [chartData] = useState(generateChartData);
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: () => dashboardApi.getStats().then(r => r.data.data),
@@ -30,6 +15,18 @@ export default function DashboardPage() {
     queryKey: ['dashboard-activity'],
     queryFn: () => dashboardApi.getActivity().then(r => r.data.data),
     refetchInterval: 60000,
+  });
+  // Real 7-kunlik grafik (avval Math.random mock edi)
+  const { data: chartData } = useQuery({
+    queryKey: ['dashboard-chart'],
+    queryFn: () => dashboardApi.getChart().then(r => r.data.data),
+    refetchInterval: 60000,
+  });
+  // Real system health (avval hardcoded "Online" edi)
+  const { data: health } = useQuery({
+    queryKey: ['dashboard-health'],
+    queryFn: () => dashboardApi.getHealth().then(r => r.data.data),
+    refetchInterval: 30000,
   });
 
   return (
@@ -69,7 +66,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={chartData}>
+            <AreaChart data={chartData ?? []}>
               <defs>
                 <linearGradient id="gUsers" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2} />
@@ -118,16 +115,22 @@ export default function DashboardPage() {
         <h3 className="font-semibold text-gray-900 dark:text-white mb-4">System Status</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
-            { label: 'API Server', status: 'Online' },
-            { label: 'Database', status: 'Online' },
-            { label: 'Redis Cache', status: 'Online' },
-            { label: 'WebSocket', status: 'Online' },
-          ].map(s => (
-            <div key={s.label} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
-              <span className="text-sm text-gray-600 dark:text-gray-400">{s.label}</span>
-              <Badge color="green">{s.status}</Badge>
-            </div>
-          ))}
+            { label: 'API Server', key: 'api' as const },
+            { label: 'Database', key: 'database' as const },
+            { label: 'Redis Cache', key: 'redis' as const },
+            { label: 'WebSocket', key: 'websocket' as const },
+          ].map(s => {
+            const state = health?.[s.key];
+            const online = state === 'online';
+            return (
+              <div key={s.label} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                <span className="text-sm text-gray-600 dark:text-gray-400">{s.label}</span>
+                <Badge color={!health ? 'gray' : online ? 'green' : 'red'}>
+                  {!health ? '—' : online ? 'Online' : 'Offline'}
+                </Badge>
+              </div>
+            );
+          })}
         </div>
       </Card>
     </div>
