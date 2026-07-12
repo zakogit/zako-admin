@@ -164,7 +164,7 @@ export const avatarsApi = {
 
 // ── Duels ─────────────────────────────────────────────
 export const duelsApi = {
-  getAll: (params?: { page?: number; limit?: number; search?: string; status?: string; subject_id?: number }) =>
+  getAll: (params?: { page?: number; limit?: number; search?: string; status?: string; subject_id?: number; sort?: string }) =>
     api.get<{ success: boolean; data: PaginatedResponse<Duel> }>('/admin/duels', { params }),
   getActive: () => api.get<{ success: boolean; data: Duel[] }>('/admin/duels/active'),
   getHistory: (params?: { page?: number; limit?: number; subject_id?: number }) =>

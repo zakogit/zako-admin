@@ -13,19 +13,21 @@ export default function DuelsPage() {
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState('');
   const [subjectFilter, setSubjectFilter] = useState('');
+  const [sortOrder, setSortOrder] = useState('newest');
   const [selected, setSelected] = useState<Duel | null>(null);
   const [viewModal, setViewModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const limit = 20;
 
   const { data: duelsData, isLoading } = useQuery({
-    queryKey: ['admin-duels', page, search, statusFilter, subjectFilter],
-    queryFn: () => duelsApi.getAll({ 
-      page, 
-      limit, 
+    queryKey: ['admin-duels', page, search, statusFilter, subjectFilter, sortOrder],
+    queryFn: () => duelsApi.getAll({
+      page,
+      limit,
       search: search || undefined,
       status: statusFilter || undefined,
-      subject_id: subjectFilter ? Number(subjectFilter) : undefined
+      subject_id: subjectFilter ? Number(subjectFilter) : undefined,
+      sort: sortOrder,
     }).then(r => r.data),
   });
 
@@ -113,8 +115,8 @@ export default function DuelsPage() {
             <option value="cancelled">Cancelled</option>
           </select>
 
-          <select 
-            value={subjectFilter} 
+          <select
+            value={subjectFilter}
             onChange={e => setSubjectFilter(e.target.value)}
             className="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           >
@@ -122,6 +124,16 @@ export default function DuelsPage() {
             {subjects.map(subject => (
               <option key={subject.id} value={subject.id}>{subject.name}</option>
             ))}
+          </select>
+
+          {/* Yaratilgan bo'yicha sort */}
+          <select
+            value={sortOrder}
+            onChange={e => { setSortOrder(e.target.value); setPage(1); }}
+            className="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+          >
+            <option value="newest">Yangi → eski</option>
+            <option value="oldest">Eski → yangi</option>
           </select>
 
           {/* Search */}
