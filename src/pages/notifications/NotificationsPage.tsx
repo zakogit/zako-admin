@@ -83,7 +83,7 @@ export default function NotificationsPage() {
       const sent = res?.data?.data?.sent_count ?? 0;
       const pushSent = res?.data?.data?.push_sent;
       toast.success(
-        `✅ ${formatNumber(sent)} ta foydalanuvchiga yuborildi${pushSent === false ? ' (push o‘chiq — faqat inbox)' : ''}`,
+        `✅ ${formatNumber(sent)} ta foydalanuvchiga yuborildi${pushSent === false ? ' (push o\'chiq - faqat inbox)' : ''}`,
       );
       setCreateModal(false);
       resetCreate();
