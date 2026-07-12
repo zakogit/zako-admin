@@ -12,7 +12,6 @@ import {
   TrendingUp,
   AlertCircle,
   Eye,
-  Plus,
   Send,
   Settings
 } from 'lucide-react';
@@ -46,7 +45,6 @@ export default function NotificationsPage() {
   const [deleteModal, setDeleteModal] = useState(false);
   const [deliveryModal, setDeliveryModal] = useState(false);
   const [createModal, setCreateModal] = useState(false);
-  const [broadcastModal, setBroadcastModal] = useState(false);
   const [templatesModal, setTemplatesModal] = useState(false);
   const limit = 20;
 
@@ -78,33 +76,22 @@ export default function NotificationsPage() {
 
   // Form hooks
   const { register: regCreate, handleSubmit: submitCreate, reset: resetCreate, watch, setValue, formState: { errors: errCreate } } = useForm();
-  const { register: regBroadcast, handleSubmit: submitBroadcast, reset: resetBroadcast } = useForm();
 
   const createMutation = useMutation({
     mutationFn: notificationsApi.create,
-    onSuccess: () => {
-      toast.success('Notification yuborildi');
+    onSuccess: (res: any) => {
+      const sent = res?.data?.data?.sent_count ?? 0;
+      const pushSent = res?.data?.data?.push_sent;
+      toast.success(
+        `✅ ${formatNumber(sent)} ta foydalanuvchiga yuborildi${pushSent === false ? ' (push o‘chiq — faqat inbox)' : ''}`,
+      );
       setCreateModal(false);
       resetCreate();
       qc.invalidateQueries({ queryKey: ['admin-notifications'] });
       qc.invalidateQueries({ queryKey: ['notifications-stats'] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Notification yuborishda xatolik');
-    },
-  });
-
-  const broadcastMutation = useMutation({
-    mutationFn: notificationsApi.broadcast,
-    onSuccess: () => {
-      toast.success('Broadcast yuborildi');
-      setBroadcastModal(false);
-      resetBroadcast();
-      qc.invalidateQueries({ queryKey: ['admin-notifications'] });
-      qc.invalidateQueries({ queryKey: ['notifications-stats'] });
-    },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Broadcast yuborishda xatolik');
+      toast.error(error.response?.data?.message || 'Xabar yuborishda xatolik');
     },
   });
 
@@ -134,6 +121,28 @@ export default function NotificationsPage() {
     setValue('title', template.template_title);
     setValue('message', template.template_message);
     setValue('type', template.type);
+  };
+
+  const onSendSubmit = (d: any) => {
+    const targetUsers: number[] =
+      typeof d.target_users === 'string' && d.target_users.trim() !== ''
+        ? d.target_users
+            .split(',')
+            .map((s: string) => Number(s.trim()))
+            .filter((n: number) => Number.isInteger(n) && n > 0)
+        : [];
+    if (d.target_type === 'specific' && targetUsers.length === 0) {
+      toast.error("Kamida bitta to'g'ri user ID kiriting");
+      return;
+    }
+    createMutation.mutate({
+      title: d.title,
+      message: d.message,
+      type: d.type,
+      target_type: d.target_type,
+      target_users: targetUsers,
+      data: {},
+    } as any);
   };
 
   const getTypeColor = (type: string) => {
@@ -243,22 +252,14 @@ export default function NotificationsPage() {
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <Button 
+            <Button
               onClick={() => setCreateModal(true)}
               className="flex items-center gap-2"
             >
-              <Plus className="w-4 h-4" />
-              Yangi Notification
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={() => setBroadcastModal(true)}
-              className="flex items-center gap-2"
-            >
               <Send className="w-4 h-4" />
-              Broadcast
+              Xabar yuborish
             </Button>
-            <Button 
+            <Button
               variant="outline"
               onClick={() => setTemplatesModal(true)}
               className="flex items-center gap-2"
@@ -525,8 +526,8 @@ export default function NotificationsPage() {
       </Modal>
 
       {/* Create Notification Modal */}
-      <Modal open={createModal} onClose={() => setCreateModal(false)} title="Yangi Notification Yaratish" size="lg">
-        <form onSubmit={submitCreate(d => createMutation.mutate(d as any))} className="space-y-4">
+      <Modal open={createModal} onClose={() => setCreateModal(false)} title="📨 Xabar yuborish" size="lg">
+        <form onSubmit={submitCreate(onSendSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input 
               label="Sarlavha" 
@@ -598,17 +599,6 @@ export default function NotificationsPage() {
             </div>
           )}
 
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Rejalashtirilgan vaqt (ixtiyoriy)
-            </label>
-            <input 
-              type="datetime-local"
-              {...regCreate('scheduled_at')}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
           {/* Template Buttons */}
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
             <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-3">Templatelar:</h4>
@@ -633,90 +623,6 @@ export default function NotificationsPage() {
             <Button type="submit" loading={createMutation.isPending} className="flex-1">
               <Send className="w-4 h-4 mr-2" />
               Yuborish
-            </Button>
-          </div>
-        </form>
-      </Modal>
-
-      {/* Broadcast Modal */}
-      <Modal open={broadcastModal} onClose={() => setBroadcastModal(false)} title="Broadcast Yuborish" size="lg">
-        <form onSubmit={submitBroadcast(d => broadcastMutation.mutate(d as any))} className="space-y-4">
-          <Input 
-            label="Sarlavha" 
-            placeholder="Broadcast sarlavhasi"
-            {...regBroadcast('title', { required: true })} 
-          />
-          
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Xabar matni
-            </label>
-            <textarea 
-              {...regBroadcast('message', { required: true })}
-              rows={4}
-              placeholder="Broadcast xabari..."
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Turi
-            </label>
-            <select 
-              {...regBroadcast('type', { required: true })}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="BROADCAST">Broadcast</option>
-              <option value="ANNOUNCEMENT">E'lon</option>
-              <option value="EMERGENCY">Favqulodda</option>
-            </select>
-          </div>
-
-          <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
-            <h4 className="font-medium text-orange-900 dark:text-orange-100 mb-2">Filtrlar:</h4>
-            <div className="space-y-2">
-              <label className="flex items-center">
-                <input 
-                  type="checkbox"
-                  {...regBroadcast('filters.verified_only')}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm text-orange-800 dark:text-orange-200">
-                  Faqat tasdiqlanganlarga
-                </span>
-              </label>
-              <label className="flex items-center">
-                <input 
-                  type="checkbox"
-                  {...regBroadcast('filters.premium_only')}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm text-orange-800 dark:text-orange-200">
-                  Faqat premium userlarga
-                </span>
-              </label>
-              <label className="flex items-center">
-                <input 
-                  type="checkbox"
-                  {...regBroadcast('filters.exclude_banned')}
-                  defaultChecked
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm text-orange-800 dark:text-orange-200">
-                  Bloklanganlarga yubormaslik
-                </span>
-              </label>
-            </div>
-          </div>
-
-          <div className="flex gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setBroadcastModal(false)} className="flex-1">
-              Bekor qilish
-            </Button>
-            <Button type="submit" loading={broadcastMutation.isPending} className="flex-1 bg-orange-600 hover:bg-orange-700">
-              <Send className="w-4 h-4 mr-2" />
-              Broadcast Yuborish
             </Button>
           </div>
         </form>
