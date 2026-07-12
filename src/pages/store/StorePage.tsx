@@ -66,7 +66,11 @@ export default function StorePage() {
     queryKey: ['store-packages'],
     queryFn: () => api.get('/admin/store-packages').then((r) => r.data),
   });
-  const packages: ProductPackage[] = Array.isArray(packagesData?.data) ? packagesData.data : [];
+  // Bu sahifa faqat COIN to'plamlarini boshqaradi (premium /subscriptions'da,
+  // cards /cards'da). product_type='coins' bo'lganlarini ko'rsatamiz.
+  const packages: ProductPackage[] = (Array.isArray(packagesData?.data) ? packagesData.data : []).filter(
+    (p: ProductPackage) => p.product_type === 'coins',
+  );
 
   const buildBody = (d: any) => ({
     name: d.name,
