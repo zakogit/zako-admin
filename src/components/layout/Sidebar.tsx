@@ -29,6 +29,7 @@ import {
   Sparkles,
   Newspaper,
   Award,
+  ShieldCheck,
 } from "lucide-react";
 
 const nav = [
@@ -56,6 +57,7 @@ const nav = [
   { label: "Payments", icon: CreditCard, to: "/payments" },
   { label: "Ads", icon: Smartphone, to: "/ads" },
   { label: "App Version", icon: RefreshCw, to: "/app-version" },
+  { label: "Adminlar", icon: ShieldCheck, to: "/admins" },
   { label: "Notifications", icon: Bell, to: "/notifications" },
   { label: "Audit Logs", icon: ClipboardList, to: "/audit-logs" },
 ];

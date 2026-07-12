@@ -612,6 +612,26 @@ export const appApi = {
     api.put<{ success: boolean; message: string; data: AppVersionConfig }>('/admin/app/version', body),
 };
 
+// ── Admin accounts (admin_users) ─────────────────────────
+export interface AdminUser {
+  id: number;
+  username: string;
+  role: 'super_admin' | 'moderator' | 'viewer';
+  is_active: boolean;
+  mfa_enabled: boolean;
+  created_at: string;
+}
+export const adminsApi = {
+  getAll: () => api.get<{ success: boolean; data: AdminUser[] }>('/admin/admins'),
+  create: (body: { username: string; password: string; role: string }) =>
+    api.post<{ success: boolean; message: string; data: AdminUser }>('/admin/admins', body),
+  update: (id: number, body: { role?: string; is_active?: boolean }) =>
+    api.put<{ success: boolean; message: string; data: AdminUser }>(`/admin/admins/${id}`, body),
+  resetPassword: (id: number, body: { new_password: string }) =>
+    api.put<{ success: boolean; message: string }>(`/admin/admins/${id}/password`, body),
+  remove: (id: number) => api.delete<{ success: boolean; message: string }>(`/admin/admins/${id}`),
+};
+
 // ── Weekly leaderboard (haftalik TOP-10 Telegram post) ───────────────────────
 export interface LeaderboardSchedule {
   enabled: boolean;

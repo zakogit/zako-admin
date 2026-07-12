@@ -35,6 +35,7 @@ const BooksPage = lazy(() => import('./pages/books/BooksPage'));
 const BookDetailPage = lazy(() => import('./pages/books/BookDetailPage'));
 const ArticlesPage = lazy(() => import('./pages/articles/ArticlesPage'));
 const LeaderboardPage = lazy(() => import('./pages/leaderboard/LeaderboardPage'));
+const AdminsPage = lazy(() => import('./pages/admins/AdminsPage'));
 
 const qc = new QueryClient({ defaultOptions: { queries: { retry: 1, staleTime: 30_000 } } });
 
@@ -86,6 +87,7 @@ export default function App() {
               <Route path="ads" element={<AdsPage />} />
               <Route path="app-version" element={<AppVersionPage />} />
               <Route path="leaderboard" element={<LeaderboardPage />} />
+              <Route path="admins" element={<AdminsPage />} />
               <Route path="audit-logs" element={<AuditLogsPage />} />
             </Route>
           </Routes>
