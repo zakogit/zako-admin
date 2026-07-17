@@ -1,266 +1,110 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  Plus, 
-  Users, 
-  Trophy, 
-  Gift, 
-  MoreHorizontal,
-  Edit3,
-  Trash2,
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import {
+  Plus,
+  Users,
+  Trophy,
+  ChevronRight,
   Play,
-  Pause,
   CheckCircle,
   XCircle,
   Clock,
   Calendar,
-  Coins,
-  Edit2,
-  Award
+  Award,
 } from 'lucide-react';
 import { seasonsApi } from '../../api/services';
-import api from '../../api/client';
-import { Button, Card, Spinner, LazyImage } from '../../components/ui';
+import { Card, Spinner } from '../../components/ui';
 import { getStaticFileUrl } from '../../utils/helpers';
 import type { BadgeType } from '../../types';
-import CreateRewardModal from '../season-rewards/CreateRewardModal';
-import toast from 'react-hot-toast';
+
+/** Nishon rasmi — yuklanmasa chiroyli emoji (🏆🥈🥉🎖️) ko'rsatadi ("Error" o'rniga). */
+function BadgeIcon({ name, iconPath, title }: { name: string; iconPath?: string; title: string }) {
+  const [failed, setFailed] = useState(false);
+  const emoji: Record<string, string> = { champion: '🏆', top10: '🥈', top50: '🥉', top100: '🎖️' };
+  const fallback = emoji[name] || '🏅';
+  if (!iconPath || failed) {
+    return (
+      <div className="w-28 h-28 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-5xl mb-4">
+        {fallback}
+      </div>
+    );
+  }
+  return (
+    <img
+      src={getStaticFileUrl(iconPath)}
+      alt={title}
+      onError={() => setFailed(true)}
+      className="w-28 h-28 object-contain mb-4"
+    />
+  );
+}
 
 interface Season {
   id: number;
   title: string;
-  name?: string;
   description?: string;
   status: 'upcoming' | 'active' | 'completed' | 'cancelled';
   start_date: string;
   end_date: string;
   total_participants: number;
+  season_number?: number;
   created_at: string;
   updated_at: string;
 }
 
-interface SeasonReward {
-  id: number;
-  day_number: number;
-  reward_type: 'simple' | 'premium';
-  reward_category: 'coins' | 'cards' | 'avatars';
-  coin_amount?: number;
-  card_type_id?: number;
-  card_quantity?: number;
-  male_avatar_id?: number;
-  female_avatar_id?: number;
-  reward_name: string;
-  reward_description?: string;
-  reward_icon?: string;
-  is_active: boolean;
-}
-
-interface RewardStatistics {
-  reward_category: string;
-  reward_type: string;
-  total_rewards: number;
-  total_claims: number;
-  total_coins_distributed: number;
-}
-
 const SeasonsPage: React.FC = () => {
-  const queryClient = useQueryClient();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [statusFilter, setStatusFilter] = useState<string>('');
-  const [showDropdown, setShowDropdown] = useState<number | null>(null);
-  const [activeTab, setActiveTab] = useState<'seasons' | 'rewards' | 'badges'>('seasons');
-  
-  // Rewards management states
-  const [selectedSeason, setSelectedSeason] = useState<number | null>(null);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [editingReward, setEditingReward] = useState<SeasonReward | null>(null);
+  const [activeTab, setActiveTab] = useState<'seasons' | 'badges'>('seasons');
 
-  // Check URL parameters for rewards tab and seasonId
-  useEffect(() => {
-    const tab = searchParams.get('tab');
-    const seasonId = searchParams.get('seasonId');
-    
-    if (tab === 'rewards') {
-      setActiveTab('rewards');
-      if (seasonId) {
-        setSelectedSeason(parseInt(seasonId, 10));
-      }
-    }
-  }, [searchParams]);
-
-  // Fetch seasons with React Query
+  // Fetch seasons
   const { data: seasons = [], isLoading, error } = useQuery({
     queryKey: ['seasons', statusFilter],
     queryFn: async () => {
-      const response = await seasonsApi.getAll({ 
+      const response = await seasonsApi.getAll({
         status: statusFilter || undefined,
-        limit: 100
+        limit: 100,
       });
-      console.log('Seasons API Response:', response.data);
       const seasonsData = response.data?.data || response.data;
-      return Array.isArray(seasonsData) ? seasonsData as Season[] : [];
+      return Array.isArray(seasonsData) ? (seasonsData as Season[]) : [];
     },
   });
 
-  // Fetch season rewards
-  const { data: rewards, isLoading: rewardsLoading } = useQuery({
-    queryKey: ['admin', 'season-rewards', selectedSeason],
-    queryFn: async () => {
-      if (!selectedSeason) return [];
-      const response = await api.get(`/season-rewards/admin/season/${selectedSeason}/rewards`);
-      return response.data.data as SeasonReward[];
-    },
-    enabled: !!selectedSeason && activeTab === 'rewards'
-  });
-
-  // Fetch season statistics
-  const { data: statistics } = useQuery({
-    queryKey: ['admin', 'season-statistics', selectedSeason],
-    queryFn: async () => {
-      if (!selectedSeason) return [];
-      const response = await api.get(`/season-rewards/admin/season/${selectedSeason}/statistics`);
-      return response.data.data as RewardStatistics[];
-    },
-    enabled: !!selectedSeason && activeTab === 'rewards'
-  });
-
-  // Fetch badge catalog (champion / top10 / top50 / top100)
+  // Fetch badge catalog
   const { data: badgeTypes = [], isLoading: badgesLoading } = useQuery({
     queryKey: ['admin', 'badge-types'],
     queryFn: async () => {
       const res = await seasonsApi.getBadgeTypes();
       return (res.data?.data || []) as BadgeType[];
     },
-    enabled: activeTab === 'badges'
+    enabled: activeTab === 'badges',
   });
 
-  // Status update mutation
-  const statusMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: number; status: string }) => {
-      const response = await seasonsApi.updateStatus(id, status as any);
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['seasons'] });
-      toast.success('Season holati ozgartirildi');
-      setShowDropdown(null);
-    },
-    onError: (error: any) => {
-      toast.error(error.message || 'Xatolik yuz berdi');
-    }
-  });
-
-  // Delete season mutation
-  const deleteMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const response = await seasonsApi.delete(id);
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['seasons'] });
-      toast.success('Season ochirildi');
-      setShowDropdown(null);
-    },
-    onError: (error: any) => {
-      toast.error(error.message || 'Season ochirishda xatolik');
-    }
-  });
-
-  // Complete season mutation
-  const completeMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const response = await seasonsApi.complete(id);
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['seasons'] });
-      toast.success('Season yakunlandi va badgelar taqsimlandi');
-      setShowDropdown(null);
-    },
-    onError: (error: any) => {
-      toast.error(error.message || 'Season yakunlashda xatolik');
-    }
-  });
-
-  // Delete reward mutation
-  const deleteRewardMutation = useMutation({
-    mutationFn: async ({ dayNumber, rewardType }: { dayNumber: number; rewardType: 'simple' | 'premium' }) => {
-      await api.delete(`/season-rewards/admin/season/${selectedSeason}/rewards/${dayNumber}/${rewardType}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'season-rewards', selectedSeason] });
-      queryClient.invalidateQueries({ queryKey: ['admin', 'season-statistics', selectedSeason] });
-    }
-  });
-
-  const handleDeleteReward = (dayNumber: number, rewardType: 'simple' | 'premium') => {
-    if (confirm(`${dayNumber}-kun ${rewardType} sovgasini ochirishni tasdiqlaysizmi?`)) {
-      deleteRewardMutation.mutate({ dayNumber, rewardType });
-    }
-  };
-
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'coins': return <Coins className="w-4 h-4" />;
-      case 'cards': return <Gift className="w-4 h-4" />;
-      case 'avatars': return <Users className="w-4 h-4" />;
-      default: return <Trophy className="w-4 h-4" />;
-    }
-  };
-
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'coins': return 'bg-yellow-100 text-yellow-800';
-      case 'cards': return 'bg-purple-100 text-purple-800';
-      case 'avatars': return 'bg-blue-100 text-blue-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-
-  // Group rewards by day
-  const rewardsByDay = useMemo(() => {
-    if (!rewards) return {};
-    
-    const grouped: { [key: number]: { simple?: SeasonReward; premium?: SeasonReward } } = {};
-    
-    rewards.forEach(reward => {
-      if (!grouped[reward.day_number]) {
-        grouped[reward.day_number] = {};
-      }
-      grouped[reward.day_number][reward.reward_type] = reward;
-    });
-    
-    return grouped;
-  }, [rewards]);
-
-  const maxDay = Object.keys(rewardsByDay).length > 0 
-    ? Math.max(...Object.keys(rewardsByDay).map(Number)) 
-    : 0;
+  // Barcha boshqaruv amallari (faollashtirish, yakunlash, o'chirish, ...) endi
+  // season detail sahifasida (/seasons/:id). Bu yerda faqat ro'yxat + "Batafsil".
 
   const getStatusBadge = (status: Season['status']) => {
     const configs = {
-      upcoming: { 
+      upcoming: {
         color: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800',
         icon: Clock,
-        label: 'Rejalashtirilgan'
+        label: 'Rejalashtirilgan',
       },
-      active: { 
+      active: {
         color: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800',
         icon: Play,
-        label: 'Faol'
+        label: 'Faol',
       },
-      completed: { 
+      completed: {
         color: 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600',
         icon: CheckCircle,
-        label: 'Yakunlangan'
+        label: 'Yakunlangan',
       },
-      cancelled: { 
+      cancelled: {
         color: 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800',
         icon: XCircle,
-        label: 'Bekor qilingan'
-      }
+        label: 'Bekor qilingan',
+      },
     };
 
     const config = configs[status];
@@ -277,8 +121,8 @@ const SeasonsPage: React.FC = () => {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('uz-UZ', {
       day: '2-digit',
-      month: '2-digit', 
-      year: 'numeric'
+      month: '2-digit',
+      year: 'numeric',
     });
   };
 
@@ -286,31 +130,13 @@ const SeasonsPage: React.FC = () => {
     const end = new Date(endDate);
     const now = new Date();
     const diffTime = end.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
-
-  const handleStatusChange = (seasonId: number, newStatus: string) => {
-    if (newStatus === 'completed') {
-      if (confirm('Seasonni yakunlashni xohlaysizmi? Badge\'lar taqsimlanadi.')) {
-        completeMutation.mutate(seasonId);
-      }
-    } else {
-      statusMutation.mutate({ id: seasonId, status: newStatus });
-    }
-  };
-
-  const handleDelete = (seasonId: number) => {
-    if (confirm('Seasonni ochirishni xohlaysizmi? Bu amal qaytarilmaydi.')) {
-      deleteMutation.mutate(seasonId);
-    }
-  };
-
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <Spinner />
       </div>
     );
   }
@@ -332,7 +158,7 @@ const SeasonsPage: React.FC = () => {
             Seasons Management
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Mavsumlar va rewards tizimini boshqaring
+            Mavsumlar va nishonlar tizimini boshqaring
           </p>
         </div>
         <div className="flex items-center space-x-3">
@@ -361,10 +187,7 @@ const SeasonsPage: React.FC = () => {
       <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="flex space-x-8">
           <button
-            onClick={() => {
-              setActiveTab('seasons');
-              setSearchParams({});
-            }}
+            onClick={() => setActiveTab('seasons')}
             className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'seasons'
                 ? 'border-blue-500 text-blue-600 dark:text-blue-400'
@@ -375,24 +198,7 @@ const SeasonsPage: React.FC = () => {
             <span>Seasons</span>
           </button>
           <button
-            onClick={() => {
-              setActiveTab('rewards');
-              setSearchParams({ tab: 'rewards' });
-            }}
-            className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'rewards'
-                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:border-gray-300'
-            }`}
-          >
-            <Gift className="h-5 w-5" />
-            <span>Rewards Management</span>
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab('badges');
-              setSearchParams({ tab: 'badges' });
-            }}
+            onClick={() => setActiveTab('badges')}
             className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'badges'
                 ? 'border-blue-500 text-blue-600 dark:text-blue-400'
@@ -405,23 +211,78 @@ const SeasonsPage: React.FC = () => {
         </nav>
       </div>
 
-      {/* Tab Content */}
+      {/* Seasons Tab */}
       {activeTab === 'seasons' && (
         <>
+          {/* Pipeline banner — avtomatik rotatsiya holati */}
+          {(() => {
+            const active = seasons.find((s) => s.status === 'active');
+            const upcoming = seasons
+              .filter((s) => s.status === 'upcoming')
+              .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())[0];
+            const dLeft = active ? getDaysRemaining(active.end_date) : 0;
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 p-5">
+                  <div className="flex items-center gap-2 text-green-700 dark:text-green-300 text-xs font-semibold uppercase tracking-wide">
+                    <Play className="w-4 h-4" /> Hozirgi mavsum
+                  </div>
+                  {active ? (
+                    <div className="mt-2">
+                      <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                        {active.title}
+                        {active.season_number && <span className="ml-2 text-sm text-gray-400">#{active.season_number}</span>}
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {formatDate(active.start_date)} – {formatDate(active.end_date)}
+                      </p>
+                      <p className={`mt-1 text-sm font-medium ${dLeft > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                        {dLeft > 0 ? `${dLeft} kun qoldi` : 'Muddati tugadi — tez orada yakunlanadi'}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="mt-2 text-sm text-gray-500">Faol mavsum yo'q</p>
+                  )}
+                </div>
+                <div className="rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-5">
+                  <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300 text-xs font-semibold uppercase tracking-wide">
+                    <Clock className="w-4 h-4" /> Keyingi mavsum
+                  </div>
+                  {upcoming ? (
+                    <div className="mt-2">
+                      <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                        {upcoming.title}
+                        {upcoming.season_number && <span className="ml-2 text-sm text-gray-400">#{upcoming.season_number}</span>}
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {formatDate(upcoming.start_date)} – {formatDate(upcoming.end_date)}
+                      </p>
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Hozirgi mavsum tugagach avtomatik faollashadi
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="mt-2 text-sm text-gray-500">Navbatda mavsum yo'q</p>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
+
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {[
               { label: 'Jami Seasons', value: seasons.length, icon: Trophy, color: 'blue' },
-              { label: 'Faol', value: seasons.filter(s => s.status === 'active').length, icon: Play, color: 'green' },
-              { label: 'Rejalashtirilgan', value: seasons.filter(s => s.status === 'upcoming').length, icon: Clock, color: 'yellow' },
-              { label: 'Yakunlangan', value: seasons.filter(s => s.status === 'completed').length, icon: CheckCircle, color: 'gray' },
+              { label: 'Faol', value: seasons.filter((s) => s.status === 'active').length, icon: Play, color: 'green' },
+              { label: 'Rejalashtirilgan', value: seasons.filter((s) => s.status === 'upcoming').length, icon: Clock, color: 'yellow' },
+              { label: 'Yakunlangan', value: seasons.filter((s) => s.status === 'completed').length, icon: CheckCircle, color: 'gray' },
             ].map((stat, index) => {
               const Icon = stat.icon;
-              const colorClasses = {
+              const colorClasses: Record<string, string> = {
                 blue: 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300',
                 green: 'bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-300',
                 yellow: 'bg-yellow-50 text-yellow-600 dark:bg-yellow-900/20 dark:text-yellow-300',
-                gray: 'bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
+                gray: 'bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-300',
               };
 
               return (
@@ -431,7 +292,7 @@ const SeasonsPage: React.FC = () => {
                       <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{stat.label}</p>
                       <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stat.value}</p>
                     </div>
-                    <div className={`p-3 rounded-full ${colorClasses[stat.color as keyof typeof colorClasses]}`}>
+                    <div className={`p-3 rounded-full ${colorClasses[stat.color]}`}>
                       <Icon className="h-6 w-6" />
                     </div>
                   </div>
@@ -441,33 +302,21 @@ const SeasonsPage: React.FC = () => {
           </div>
 
           {/* Seasons Table */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 relative z-0">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">Barcha Seasons</h2>
             </div>
 
-            <div className="overflow-x-auto pb-96">
+            <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Season
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Holat
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Sana
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Ishtirokchilar
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Yaratilgan
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Amallar
-                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Season</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Holat</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Sana</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ishtirokchilar</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Yaratilgan</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Amallar</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -479,6 +328,9 @@ const SeasonsPage: React.FC = () => {
                           <div>
                             <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                               {season.title}
+                              {season.season_number && (
+                                <span className="ml-2 text-xs text-gray-400">#{season.season_number}</span>
+                              )}
                             </div>
                             {season.description && (
                               <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">
@@ -487,11 +339,7 @@ const SeasonsPage: React.FC = () => {
                             )}
                           </div>
                         </td>
-                        
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {getStatusBadge(season.status)}
-                        </td>
-                        
+                        <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(season.status)}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900 dark:text-gray-100">
                             {formatDate(season.start_date)} - {formatDate(season.end_date)}
@@ -502,129 +350,24 @@ const SeasonsPage: React.FC = () => {
                             </div>
                           )}
                         </td>
-                        
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center text-sm text-gray-900 dark:text-gray-100">
                             <Users className="h-4 w-4 mr-1 text-gray-400" />
                             {season.total_participants}
                           </div>
                         </td>
-                        
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900 dark:text-gray-100">
-                            {formatDate(season.created_at)}
-                          </div>
+                          <div className="text-sm text-gray-900 dark:text-gray-100">{formatDate(season.created_at)}</div>
                         </td>
-                        
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative">
-                          <div className="flex items-center justify-end space-x-2">
-                            <Link
-                              to={`/seasons?tab=rewards&seasonId=${season.id}`}
-                              className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg"
-                              title="Rewards boshqarish"
-                            >
-                              <Gift className="h-4 w-4" />
-                            </Link>
-                            
-                            <Link
-                              to={`/seasons/${season.id}`}
-                              className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg"
-                              title="Tahrirlash"
-                            >
-                              <Edit3 className="h-4 w-4" />
-                            </Link>
-
-                            <div className="relative z-50">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setShowDropdown(showDropdown === season.id ? null : season.id);
-                                }}
-                                className="p-2 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                                title="Koproq amallar"
-                              >
-                                <MoreHorizontal className="h-4 w-4" />
-                              </button>
-                              
-                              {showDropdown === season.id && (
-                                <>
-                                  <div 
-                                    className="fixed inset-0 z-40" 
-                                    onClick={() => setShowDropdown(null)}
-                                  />
-                                  <div className="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 py-1 z-[60] min-w-max">
-                                    <Link
-                                      to={`/seasons/${season.id}`}
-                                      className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                                    >
-                                      <Edit3 className="w-4 h-4 mr-2" />
-                                      Malumotlarni tahrirlash
-                                    </Link>
-                                    
-                                    <Link
-                                      to={`/seasons?tab=rewards&seasonId=${season.id}`}
-                                      className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                                    >
-                                      <Gift className="w-4 h-4 mr-2" />
-                                      Rewards boshqarish
-                                    </Link>
-
-                                    <div className="border-t border-gray-200 dark:border-gray-600 my-1"></div>
-
-                                    {season.status === 'upcoming' && (
-                                      <button
-                                        onClick={() => handleStatusChange(season.id, 'active')}
-                                        className="flex items-center w-full px-4 py-2 text-sm text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-900/20"
-                                      >
-                                        <Play className="w-4 h-4 mr-2" />
-                                        Faollashtirish
-                                      </button>
-                                    )}
-
-                                    {season.status === 'active' && (
-                                      <button
-                                        onClick={() => handleStatusChange(season.id, 'upcoming')}
-                                        className="flex items-center w-full px-4 py-2 text-sm text-yellow-700 dark:text-yellow-300 hover:bg-yellow-50 dark:hover:bg-yellow-900/20"
-                                      >
-                                        <Pause className="w-4 h-4 mr-2" />
-                                        Toxtatish
-                                      </button>
-                                    )}
-
-                                    {season.status === 'active' && (
-                                      <button
-                                        onClick={() => handleStatusChange(season.id, 'completed')}
-                                        className="flex items-center w-full px-4 py-2 text-sm text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                                      >
-                                        <CheckCircle className="w-4 h-4 mr-2" />
-                                        Yakunlash
-                                      </button>
-                                    )}
-
-                                    {['upcoming', 'active'].includes(season.status) && (
-                                      <button
-                                        onClick={() => handleStatusChange(season.id, 'cancelled')}
-                                        className="flex items-center w-full px-4 py-2 text-sm text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20"
-                                      >
-                                        <XCircle className="w-4 h-4 mr-2" />
-                                        Bekor qilish
-                                      </button>
-                                    )}
-
-                                    <div className="border-t border-gray-200 dark:border-gray-600 my-1"></div>
-
-                                    <button
-                                      onClick={() => handleDelete(season.id)}
-                                      className="flex items-center w-full px-4 py-2 text-sm text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20"
-                                    >
-                                      <Trash2 className="w-4 h-4 mr-2" />
-                                      Ochirish
-                                    </button>
-                                  </div>
-                                </>
-                              )}
-                            </div>
-                          </div>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <Link
+                            to={`/seasons/${season.id}`}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition"
+                            title="Barcha amallar shu yerda"
+                          >
+                            Batafsil
+                            <ChevronRight className="h-4 w-4" />
+                          </Link>
                         </td>
                       </tr>
                     );
@@ -635,12 +378,8 @@ const SeasonsPage: React.FC = () => {
               {seasons.length === 0 && (
                 <div className="text-center py-12">
                   <Trophy className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600" />
-                  <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">
-                    Seasons topilmadi
-                  </h3>
-                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Yangi season yarating
-                  </p>
+                  <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">Seasons topilmadi</h3>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Yangi season yarating</p>
                   <div className="mt-6">
                     <Link
                       to="/seasons/create"
@@ -657,243 +396,6 @@ const SeasonsPage: React.FC = () => {
         </>
       )}
 
-      {/* Rewards Management Tab */}
-      {activeTab === 'rewards' && (
-        <div className="space-y-6">
-          {/* Rewards Header */}
-          <div className="flex justify-between items-center">
-            <div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Season Sovgalari</h2>
-              <p className="text-gray-600 dark:text-gray-400">Kunlik sovgalarni boshqarish va statistika</p>
-            </div>
-            
-            {selectedSeason && (
-              <Button
-                onClick={() => setShowCreateModal(true)}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Sovga Qoshish
-              </Button>
-            )}
-          </div>
-
-          {/* Season Selector */}
-          <Card className="p-6">
-            <div className="flex items-center gap-4">
-              <Calendar className="w-5 h-5 text-gray-500" />
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Season tanlang
-                </label>
-                <select
-                  value={selectedSeason || ''}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setSelectedSeason(value ? parseInt(value, 10) : null);
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                >
-                  <option value="">Season tanlang...</option>
-                  {seasons?.map(season => (
-                    <option key={season.id} value={season.id}>
-                      {season.title} ({new Date(season.start_date).toLocaleDateString()} - {new Date(season.end_date).toLocaleDateString()})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </Card>
-
-          {/* Statistics */}
-          {selectedSeason && statistics && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {statistics.map((stat, index) => (
-                <Card key={index} className="p-4">
-                  <div className="flex items-center gap-3">
-                    {getCategoryIcon(stat.reward_category)}
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {stat.reward_category} ({stat.reward_type})
-                      </p>
-                      <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{stat.total_rewards} sovga</p>
-                      <p className="text-xs text-gray-500">{stat.total_claims} marta olingan</p>
-                      {stat.total_coins_distributed > 0 && (
-                        <p className="text-xs text-green-600">
-                          {stat.total_coins_distributed} tanga tarqatilgan
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          )}
-
-          {/* Rewards Calendar */}
-          {selectedSeason && (
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Sovgalar Kalendari</h3>
-              
-              {rewardsLoading ? (
-                <div className="flex justify-center py-8">
-                  <Spinner />
-                </div>
-              ) : Object.keys(rewardsByDay).length === 0 ? (
-                <div className="text-center py-8">
-                  <Gift className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">Bu season uchun sovgalar mavjud emas</p>
-                  <Button
-                    onClick={() => setShowCreateModal(true)}
-                    className="mt-4 bg-blue-600 hover:bg-blue-700"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Birinchi Sovgani Qoshish
-                  </Button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {Array.from({ length: Math.min(maxDay + 3, 31) }, (_, i) => i + 1).map(day => {
-                    const dayRewards = rewardsByDay[day];
-                    
-                    return (
-                      <Card key={day} className="p-4 border-2 border-dashed border-gray-200 hover:border-blue-300 transition-colors">
-                        <div className="text-center mb-3">
-                          <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-800 font-semibold flex items-center justify-center mx-auto mb-2">
-                            {day}
-                          </div>
-                          <p className="text-xs text-gray-500">{day}-kun</p>
-                        </div>
-
-                        <div className="space-y-2">
-                          {/* Simple Reward */}
-                          {dayRewards?.simple ? (
-                            <div className="p-2 rounded bg-gray-50 dark:bg-gray-700 border">
-                              <div className="flex items-center justify-between mb-1">
-                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(dayRewards.simple.reward_category)}`}>
-                                  {getCategoryIcon(dayRewards.simple.reward_category)}
-                                  <span className="ml-1">Simple</span>
-                                </span>
-                                <div className="flex gap-1">
-                                  <button
-                                    onClick={() => {
-                                      setEditingReward(dayRewards.simple!);
-                                      setShowCreateModal(true);
-                                    }}
-                                    className="p-1 text-gray-400 hover:text-blue-600"
-                                  >
-                                    <Edit2 className="w-3 h-3" />
-                                  </button>
-                                  <button
-                                    onClick={() => handleDeleteReward(day, 'simple')}
-                                    className="p-1 text-gray-400 hover:text-red-600"
-                                  >
-                                    <Trash2 className="w-3 h-3" />
-                                  </button>
-                                </div>
-                              </div>
-                              <p className="text-xs font-medium text-gray-900 dark:text-gray-100">{dayRewards.simple.reward_name}</p>
-                              {dayRewards.simple.coin_amount && (
-                                <p className="text-xs text-yellow-600">{dayRewards.simple.coin_amount} tanga</p>
-                              )}
-                            </div>
-                          ) : (
-                            <button
-                              onClick={() => {
-                                setEditingReward({ 
-                                  id: undefined as any,
-                                  day_number: day, 
-                                  reward_type: 'simple',
-                                  reward_category: 'coins',
-                                  reward_name: '',
-                                  is_active: true
-                                });
-                                setShowCreateModal(true);
-                              }}
-                              className="w-full p-2 border-2 border-dashed border-gray-200 rounded text-xs text-gray-400 hover:border-blue-300 hover:text-blue-600"
-                            >
-                              + Simple
-                            </button>
-                          )}
-
-                          {/* Premium Reward */}
-                          {dayRewards?.premium ? (
-                            <div className="p-2 rounded bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200">
-                              <div className="flex items-center justify-between mb-1">
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-400 to-orange-500 text-white">
-                                  {getCategoryIcon(dayRewards.premium.reward_category)}
-                                  <span className="ml-1">Premium</span>
-                                </span>
-                                <div className="flex gap-1">
-                                  <button
-                                    onClick={() => {
-                                      setEditingReward(dayRewards.premium!);
-                                      setShowCreateModal(true);
-                                    }}
-                                    className="p-1 text-gray-400 hover:text-blue-600"
-                                  >
-                                    <Edit2 className="w-3 h-3" />
-                                  </button>
-                                  <button
-                                    onClick={() => handleDeleteReward(day, 'premium')}
-                                    className="p-1 text-gray-400 hover:text-red-600"
-                                  >
-                                    <Trash2 className="w-3 h-3" />
-                                  </button>
-                                </div>
-                              </div>
-                              <p className="text-xs font-medium text-gray-900 dark:text-gray-100">{dayRewards.premium.reward_name}</p>
-                              {dayRewards.premium.coin_amount && (
-                                <p className="text-xs text-yellow-600">{dayRewards.premium.coin_amount} tanga</p>
-                              )}
-                            </div>
-                          ) : (
-                            <button
-                              onClick={() => {
-                                setEditingReward({ 
-                                  id: undefined as any,
-                                  day_number: day, 
-                                  reward_type: 'premium',
-                                  reward_category: 'coins',
-                                  reward_name: '',
-                                  is_active: true
-                                });
-                                setShowCreateModal(true);
-                              }}
-                              className="w-full p-2 border-2 border-dashed border-yellow-200 rounded text-xs text-yellow-600 hover:border-yellow-400 hover:bg-yellow-50"
-                            >
-                              + Premium
-                            </button>
-                          )}
-                        </div>
-                      </Card>
-                    );
-                  })}
-                </div>
-              )}
-            </Card>
-          )}
-
-          {/* Create/Edit Modal */}
-          {showCreateModal && (
-            <CreateRewardModal
-              seasonId={selectedSeason!}
-              reward={editingReward}
-              onClose={() => {
-                setShowCreateModal(false);
-                setEditingReward(null);
-              }}
-              onSuccess={() => {
-                queryClient.invalidateQueries({ queryKey: ['admin', 'season-rewards', selectedSeason] });
-                queryClient.invalidateQueries({ queryKey: ['admin', 'season-statistics', selectedSeason] });
-                setShowCreateModal(false);
-                setEditingReward(null);
-              }}
-            />
-          )}
-        </div>
-      )}
-
       {/* Badges Catalog Tab */}
       {activeTab === 'badges' && (
         <div className="space-y-6">
@@ -907,24 +409,12 @@ const SeasonsPage: React.FC = () => {
           {badgesLoading ? (
             <div className="flex justify-center py-12"><Spinner /></div>
           ) : badgeTypes.length === 0 ? (
-            <Card className="p-12 text-center text-gray-500 dark:text-gray-400">
-              Nishon turlari topilmadi
-            </Card>
+            <Card className="p-12 text-center text-gray-500 dark:text-gray-400">Nishon turlari topilmadi</Card>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {badgeTypes.map((bt) => (
                 <Card key={bt.id} className="p-6 flex flex-col items-center text-center">
-                  {bt.icon_path ? (
-                    <LazyImage
-                      src={getStaticFileUrl(bt.icon_path)}
-                      alt={bt.title}
-                      className="w-28 h-28 object-contain mb-4"
-                    />
-                  ) : (
-                    <div className="w-28 h-28 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-4">
-                      <Award className="w-12 h-12 text-gray-400" />
-                    </div>
-                  )}
+                  <BadgeIcon name={bt.name} iconPath={bt.icon_path} title={bt.title} />
                   <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{bt.title}</h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                     {bt.rank_max && bt.rank_max !== bt.rank_min

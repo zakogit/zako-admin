@@ -219,25 +219,15 @@ export interface Season {
   banner_image?: string;
   total_participants: number;
   max_participants?: number;
+  season_number?: number;
+  duration_days?: number;
   created_at: string;
   updated_at: string;
-}
-
-export interface SeasonReward {
-  id: number;
-  season_id: number;
-  day_number: number;
-  reward_type: 'coins' | 'avatar' | 'shield' | 'badge' | 'premium_access';
-  reward_value: number;
-  reward_data?: any;
-  is_special_reward: boolean;
-  created_at: string;
 }
 
 export interface SeasonStats {
   total_participants: number;
   active_participants: number;
-  total_rewards_claimed: number;
   completion_rate: number;
 }
 

@@ -25,8 +25,8 @@ const AuditLogsPage = lazy(() => import('./pages/audit/AuditLogsPage'));
 const SeasonsPage = lazy(() => import('./pages/seasons/SeasonsPage'));
 const CreateSeasonPage = lazy(() => import('./pages/seasons/CreateSeasonPage'));
 const SeasonDetailsPage = lazy(() => import('./pages/seasons/SeasonDetailsPage'));
+const DailyRewardsPage = lazy(() => import('./pages/daily-rewards/DailyRewardsPage'));
 const AdsPage = lazy(() => import('./pages/ads/AdsPage'));
-const SeasonRewardsPage = lazy(() => import('./pages/season-rewards/SeasonRewardsPage'));
 const SubscriptionsPage = lazy(() => import('./pages/subscriptions/SubscriptionsPage'));
 const PremiumAvatarManagement = lazy(() => import('./pages/premium-avatars/PremiumAvatarManagement'));
 const LeaguesPage = lazy(() => import('./pages/leagues/LeaguesPage'));
@@ -82,7 +82,7 @@ export default function App() {
               <Route path="seasons" element={<SeasonsPage />} />
               <Route path="seasons/create" element={<CreateSeasonPage />} />
               <Route path="seasons/:id" element={<SeasonDetailsPage />} />
-              <Route path="seasons/:seasonId/rewards" element={<SeasonRewardsPage />} />
+              <Route path="daily-rewards" element={<DailyRewardsPage />} />
               <Route path="subscriptions" element={<SubscriptionsPage />} />
               <Route path="ads" element={<AdsPage />} />
               <Route path="app-version" element={<AppVersionPage />} />

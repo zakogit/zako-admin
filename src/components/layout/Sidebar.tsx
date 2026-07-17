@@ -30,6 +30,7 @@ import {
   Newspaper,
   Award,
   ShieldCheck,
+  Gift,
 } from "lucide-react";
 
 const nav = [
@@ -47,6 +48,7 @@ const nav = [
   { label: "Premium Avatarlar", icon: Crown, to: "/premium-avatars" },
   { label: "Store", icon: Coins, to: "/store" },
   { label: "Seasons", icon: Trophy, to: "/seasons" },
+  { label: "Kunlik sovg'alar", icon: Gift, to: "/daily-rewards" },
   { label: "Leagues", icon: Medal, to: "/leagues" },
   { label: "Haftalik TOP-10", icon: Award, to: "/leaderboard" },
   { label: "Premium Obuna", icon: Diamond, to: "/subscriptions" },

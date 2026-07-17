@@ -57,7 +57,6 @@ const CreateSeasonPage: React.FC = () => {
         end_date: formData.end_date,
         banner_image: formData.banner_image.trim() || undefined,
         max_participants: formData.max_participants ? parseInt(formData.max_participants) : undefined,
-        rewards: [] // Empty rewards - will be added via rewards management
       };
 
       await seasonsApi.create(payload);
@@ -87,7 +86,7 @@ const CreateSeasonPage: React.FC = () => {
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Yangi Mavsum Yaratish</h1>
-          <p className="text-gray-600">Mavsum ma'lumotlarini kiriting. Sovg'alar keyinroq alohida qo'shiladi.</p>
+          <p className="text-gray-600">Mavsum ma'lumotlarini kiriting. Mavsumlar avtomatik 14 kun davom etadi.</p>
         </div>
       </div>
 
@@ -185,7 +184,7 @@ const CreateSeasonPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Next Steps Info */}
+        {/* Info */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
           <div className="flex items-start gap-3">
             <div className="text-blue-600 mt-1">
@@ -194,11 +193,11 @@ const CreateSeasonPage: React.FC = () => {
               </svg>
             </div>
             <div>
-              <h3 className="text-lg font-medium text-blue-900 mb-2">Keyingi Qadamlar</h3>
+              <h3 className="text-lg font-medium text-blue-900 mb-2">Ma'lumot</h3>
               <ul className="text-blue-800 space-y-1 text-sm">
-                <li>1. Mavsum sovg'alarsiz yaratiladi</li>
-                <li>2. "Rewards boshqarish" orqali kunlik sovg'alar qo'shing</li>
-                <li>3. Sovg'alar tayyor bo'lgach, mavsumni faollashtirishingiz mumkin</li>
+                <li>• Har bir mavsum 14 kun davom etadi</li>
+                <li>• Mavsumlar avtomatik ravishda ketma-ket boshlanadi</li>
+                <li>• Mavsum yakunida TOP o'yinchilarga nishonlar (badge) taqsimlanadi</li>
               </ul>
             </div>
           </div>

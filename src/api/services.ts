@@ -1,5 +1,5 @@
 import api from './client';
-import type { AuthState, DashboardStats, User, Question, Subject, Topic, CardType, Avatar, Region, Duel, Friendship, AuditLog, PaginatedResponse, ProductPackage, Season, SeasonReward, SeasonStats, BadgeType, UserBadge, LeaderboardEntry, League, Book, BookTopic, BookPage, GenerationJob, GeneratedQuestion, GenEstimate, AiStats, DraftsSummary, Article } from '../types';
+import type { AuthState, DashboardStats, User, Question, Subject, Topic, CardType, Avatar, Region, Duel, Friendship, AuditLog, PaginatedResponse, ProductPackage, Season, SeasonStats, BadgeType, UserBadge, LeaderboardEntry, League, Book, BookTopic, BookPage, GenerationJob, GeneratedQuestion, GenEstimate, AiStats, DraftsSummary, Article } from '../types';
 
 // ── Auth ──────────────────────────────────────────────
 export const authApi = {
@@ -356,11 +356,11 @@ export const seasonsApi = {
   // Get all seasons
   getAll: (params?: { page?: number; limit?: number; status?: string }) =>
     api.get<{ success: boolean; data: Season[] }>('/admin/seasons', { params }),
-    
+
   // Get season by ID with details
   getById: (id: number) =>
-    api.get<{ success: boolean; data: { season: Season; rewards: SeasonReward[]; stats: SeasonStats } }>(`/admin/seasons/${id}`),
-    
+    api.get<{ success: boolean; data: { season: Season; stats: SeasonStats } }>(`/admin/seasons/${id}`),
+
   // Create new season
   create: (body: {
     title: string;
@@ -369,34 +369,31 @@ export const seasonsApi = {
     end_date: string;
     banner_image?: string;
     max_participants?: number;
-    rewards: Array<{
-      day_number: number;
-      reward_type: 'coins' | 'avatar' | 'shield' | 'badge' | 'premium_access';
-      reward_value: number;
-      reward_data?: any;
-      is_special_reward?: boolean;
-    }>;
   }) => api.post('/admin/seasons', body),
-  
+
+  // Update season
+  update: (id: number, body: Record<string, any>) =>
+    api.patch<{ success: boolean; message: string; data: Season }>(`/admin/seasons/${id}`, body),
+
   // Update season status
   updateStatus: (id: number, status: 'upcoming' | 'active' | 'completed' | 'cancelled') =>
     api.patch(`/admin/seasons/${id}/status`, { status }),
-    
+
   // Delete season
   delete: (id: number) => api.delete(`/admin/seasons/${id}`),
-  
+
   // Complete season and distribute badges
   complete: (id: number, notes?: string) =>
     api.post(`/admin/seasons/${id}/complete`, { notes }),
-    
+
   // Get season leaderboard
   getLeaderboard: (id: number, limit: number = 50) =>
     api.get<{ success: boolean; data: LeaderboardEntry[] }>(`/admin/seasons/${id}/leaderboard?limit=${limit}`),
-    
+
   // Get season statistics
   getStats: (id: number) =>
     api.get<{ success: boolean; data: SeasonStats }>(`/admin/seasons/${id}/stats`),
-    
+
   // Get season badges
   getBadges: (id: number) =>
     api.get<{ success: boolean; data: UserBadge[] }>(`/admin/seasons/${id}/badges`),
@@ -408,6 +405,90 @@ export const seasonsApi = {
   // Check completion status
   getCompletionStatus: (id: number) =>
     api.get<{ success: boolean; data: { is_completed: boolean; badges_distributed: boolean } }>(`/admin/seasons/${id}/completion-status`),
+
+  // Get season overview stats
+  getOverviewStats: () =>
+    api.get<{ success: boolean; data: any }>('/admin/seasons/overview/stats'),
+};
+
+// ── Daily Rewards (kunlik sovg'a "spravochnik" + premium config) ───────────
+export interface DailyRewardSlot {
+  id?: number;
+  day_number?: number;
+  reward_date?: string;
+  is_premium: boolean;
+  reward_type: 'coins' | 'avatar' | 'card';
+  amount: number;
+  ref_id: number | null;
+  title: string | null;
+  description: string | null;
+  is_active: boolean;
+  source?: 'template' | 'override';
+}
+export interface CalendarDay {
+  date: string;
+  day_number: number;
+  regular: DailyRewardSlot | null;
+  premium: DailyRewardSlot | null;
+}
+export interface RewardCalendarConfig {
+  cycle_anchor: string;
+  cycle_length: number;
+  daily_xp_required: number;
+}
+export interface PremiumConfig {
+  price_som: number;
+  duration_days: number;
+  is_purchasable: boolean;
+}
+
+export const dailyRewardsApi = {
+  // Shablon (30 kunlik spravochnik)
+  getTemplates: () =>
+    api.get<{ success: boolean; data: DailyRewardSlot[] }>('/admin/daily-rewards/templates'),
+  upsertTemplate: (body: {
+    day_number: number;
+    is_premium: boolean;
+    reward_type: 'coins' | 'avatar' | 'card';
+    amount?: number;
+    ref_id?: number | null;
+    title?: string | null;
+    description?: string | null;
+    is_active?: boolean;
+  }) => api.put('/admin/daily-rewards/templates', body),
+  deleteTemplate: (day: number, tier: 'regular' | 'premium') =>
+    api.delete('/admin/daily-rewards/templates', { params: { day, tier } }),
+
+  // Kalendar (override)
+  getCalendar: (from: string, to: string) =>
+    api.get<{ success: boolean; data: { from: string; to: string; cycle_length: number; days: CalendarDay[] } }>(
+      '/admin/daily-rewards/calendar',
+      { params: { from, to } }
+    ),
+  upsertOverride: (body: {
+    reward_date: string;
+    is_premium: boolean;
+    reward_type: 'coins' | 'avatar' | 'card';
+    amount?: number;
+    ref_id?: number | null;
+    title?: string | null;
+    description?: string | null;
+    is_active?: boolean;
+  }) => api.put('/admin/daily-rewards/overrides', body),
+  deleteOverride: (date: string, tier: 'regular' | 'premium') =>
+    api.delete('/admin/daily-rewards/overrides', { params: { date, tier } }),
+
+  // Kalendar konfiguratsiyasi (anchor / XP sharti)
+  getConfig: () =>
+    api.get<{ success: boolean; data: RewardCalendarConfig }>('/admin/daily-rewards/config'),
+  updateConfig: (body: Partial<RewardCalendarConfig>) =>
+    api.put('/admin/daily-rewards/config', body),
+
+  // Premium narx/muddat konfiguratsiyasi
+  getPremiumConfig: () =>
+    api.get<{ success: boolean; data: PremiumConfig }>('/admin/premium-config'),
+  updatePremiumConfig: (body: Partial<PremiumConfig>) =>
+    api.put('/admin/premium-config', body),
 };
 
 // ── Ads ───────────────────────────────────────────
@@ -468,106 +549,6 @@ export const adsApi = {
     }> }>('/admin/ads/users'),
 };
 
-// ── Season Flexible Rewards ─────────────────────────────────────────
-export const seasonFlexibleApi = {
-  // Get seasons list
-  getSeasons: () =>
-    api.get<{ success: boolean; data: Array<{
-      id: number;
-      title: string;
-      description?: string;
-      status: 'upcoming' | 'active' | 'completed' | 'cancelled';
-      start_date: string;
-      end_date: string;
-      total_participants: number;
-      premium_pass_price?: number;
-      premium_pass_discount_price?: number;
-    }> }>('/admin/seasons'),
-
-  // Get season rewards calendar
-  getSeasonRewardsCalendar: (seasonId: number) =>
-    api.get<{ success: boolean; data: { [day: number]: Array<{
-      id: number;
-      day_number: number;
-      reward_type: string;
-      reward_value: number;
-      gift_type: 'simple' | 'premium' | 'legendary' | 'exclusive';
-      gift_rarity: 'common' | 'rare' | 'epic' | 'legendary';
-      gift_category: string;
-      gift_icon: string;
-      gift_color: string;
-      gift_animation: string;
-      display_order: number;
-      is_active: boolean;
-      is_special_reward: boolean;
-    }> } }>(`/admin/seasons/${seasonId}/rewards/calendar`),
-
-  // Add flexible rewards
-  addFlexibleRewards: (seasonId: number, rewards: Array<{
-    day_number: number;
-    reward_type: string;
-    reward_value: number;
-    gift_type?: string;
-    gift_rarity?: string;
-    gift_category?: string;
-    display_order?: number;
-    is_special_reward?: boolean;
-  }>) =>
-    api.post<{ success: boolean; message: string; data: any[] }>
-      (`/admin/seasons/${seasonId}/rewards/flexible`, { rewards }),
-
-  // Update reward status
-  updateRewardStatus: (rewardId: number, is_active: boolean) =>
-    api.patch<{ success: boolean; message: string }>
-      (`/admin/seasons/rewards/${rewardId}/status`, { is_active }),
-
-  // Auto-assign gift type
-  autoAssignGiftType: (rewardId: number) =>
-    api.post<{ success: boolean; message: string; data: any }>
-      (`/admin/seasons/rewards/${rewardId}/auto-assign-type`),
-
-  // Get gift type configurations
-  getGiftTypes: () =>
-    api.get<{ success: boolean; data: Array<{
-      id: number;
-      type_name: string;
-      display_name: string;
-      description: string;
-      default_color: string;
-      default_icon: string;
-      default_animation: string;
-      min_rarity: string;
-      is_active: boolean;
-    }> }>('/admin/seasons/gift-types'),
-
-  // Update gift type configuration
-  updateGiftType: (id: number, config: any) =>
-    api.put<{ success: boolean; message: string }>(`/admin/gift-types/${id}`, config),
-
-  // Get rewards by type
-  getRewardsByType: (seasonId: number, giftType: string) =>
-    api.get<{ success: boolean; data: any[] }>
-      (`/admin/seasons/${seasonId}/rewards/type/${giftType}`),
-
-  // Get rewards by category
-  getRewardsByCategory: (seasonId: number, category: string) =>
-    api.get<{ success: boolean; data: any[] }>
-      (`/admin/seasons/${seasonId}/rewards/category/${category}`),
-
-  // Create reward with gift type
-  createRewardWithType: (seasonId: number, rewardData: any) =>
-    api.post<{ success: boolean; message: string; data: any }>
-      (`/admin/seasons/${seasonId}/rewards/with-type`, rewardData),
-
-  // Delete reward
-  deleteReward: (rewardId: number) =>
-    api.delete<{ success: boolean; message: string }>(`/admin/seasons/rewards/${rewardId}`),
-
-
-  // Update reward
-  updateReward: (seasonId: number, rewardId: number, rewardData: any) =>
-    api.patch<{ success: boolean; message: string; data: any }>(`/admin/seasons/${seasonId}/rewards/${rewardId}`, rewardData),
-};
 
 // ── Subscriptions ─────────────────────────────────────
 export const subscriptionsApi = {
