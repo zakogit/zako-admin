@@ -117,6 +117,7 @@ export interface CardType {
   gradient_start?: string;
   gradient_end?: string;
   border_color?: string;
+  is_premium?: boolean;
   is_active: boolean;
   total_sold?: number;
   created_at: string;

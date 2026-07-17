@@ -2,7 +2,8 @@ import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { dailyRewardsApi, avatarsApi, cardsApi } from '../../api/services';
-import type { DailyRewardSlot } from '../../api/services';
+import type { DailyRewardSlot, PremiumConfig } from '../../api/services';
+import type { Avatar } from '../../types';
 import { Button, Card, Input, Select, Modal, Spinner, Badge } from '../../components/ui';
 import { cn, getStaticFileUrl } from '../../utils/helpers';
 import {
@@ -58,6 +59,54 @@ function TypeIcon({ type }: { type?: RewardType }) {
   if (type === 'avatar') return <ImageIcon className="w-3.5 h-3.5" />;
   if (type === 'card') return <Layers className="w-3.5 h-3.5" />;
   return <Coins className="w-3.5 h-3.5" />;
+}
+
+/** Rasmli avatar tanlagich — thumbnaillar gridi (native select ID o'rniga). */
+function AvatarPicker({
+  label,
+  avatars,
+  value,
+  onChange,
+}: {
+  label: string;
+  avatars: Avatar[];
+  value: number | null;
+  onChange: (id: number) => void;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{label}</label>
+      <div className="max-h-44 overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700 p-2 grid grid-cols-4 gap-2 bg-gray-50/50 dark:bg-gray-800/30">
+        {avatars.length === 0 && (
+          <p className="col-span-4 text-xs text-gray-400 py-3 text-center">Avatar topilmadi</p>
+        )}
+        {avatars.map((a) => (
+          <button
+            key={a.id}
+            type="button"
+            onClick={() => onChange(a.id)}
+            title={`#${a.id}${a.is_premium ? ' · premium' : ''}`}
+            className={cn(
+              'relative aspect-square rounded-lg overflow-hidden border-2 transition',
+              value === a.id
+                ? 'border-primary-500 ring-2 ring-primary-300'
+                : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'
+            )}
+          >
+            <img src={getStaticFileUrl(a.url)} alt={`#${a.id}`} className="w-full h-full object-cover" />
+            {a.is_premium && (
+              <span className="absolute top-0.5 right-0.5 text-[8px]">👑</span>
+            )}
+            {value === a.id && (
+              <span className="absolute inset-0 bg-primary-500/20 flex items-center justify-center text-primary-700 dark:text-primary-200 text-xs font-bold">
+                ✓
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export default function DailyRewardsPage() {
@@ -205,11 +254,10 @@ export default function DailyRewardsPage() {
   };
 
   const avatars = avatarsQ.data || [];
-  const cards = cardsQ.data || [];
+  // Kunlik sovg'ada faqat PREMIUM kartalar beriladi.
+  const cards = (cardsQ.data || []).filter((c) => c.is_premium);
   const maleAvatars = avatars.filter((a) => a.gender === 'male' || a.gender === 'both');
   const femaleAvatars = avatars.filter((a) => a.gender === 'female' || a.gender === 'both');
-  const selectedMaleAvatar = avatars.find((a) => a.id === editor.ref_id);
-  const selectedFemaleAvatar = avatars.find((a) => a.id === editor.amount);
   const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD (mahalliy)
 
   return (
@@ -527,51 +575,19 @@ export default function DailyRewardsPage() {
           )}
 
           {editor.reward_type === 'avatar' && (
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Select
-                  label="Erkaklar avatari *"
-                  value={editor.ref_id ?? ''}
-                  onChange={(e) => setEditor({ ...editor, ref_id: e.target.value ? Number(e.target.value) : null })}
-                >
-                  <option value="">— tanlang —</option>
-                  {maleAvatars.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      #{a.id}
-                      {a.is_premium ? ' · premium' : ''}
-                    </option>
-                  ))}
-                </Select>
-                {selectedMaleAvatar && (
-                  <img
-                    src={getStaticFileUrl(selectedMaleAvatar.url)}
-                    alt="erkak avatar"
-                    className="w-16 h-16 rounded-lg object-cover border border-gray-200 dark:border-gray-700"
-                  />
-                )}
-              </div>
-              <div className="space-y-2">
-                <Select
-                  label="Ayollar avatari *"
-                  value={editor.amount || ''}
-                  onChange={(e) => setEditor({ ...editor, amount: e.target.value ? Number(e.target.value) : 0 })}
-                >
-                  <option value="">— tanlang —</option>
-                  {femaleAvatars.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      #{a.id}
-                      {a.is_premium ? ' · premium' : ''}
-                    </option>
-                  ))}
-                </Select>
-                {selectedFemaleAvatar && (
-                  <img
-                    src={getStaticFileUrl(selectedFemaleAvatar.url)}
-                    alt="ayol avatar"
-                    className="w-16 h-16 rounded-lg object-cover border border-gray-200 dark:border-gray-700"
-                  />
-                )}
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <AvatarPicker
+                label="Erkaklar avatari *"
+                avatars={maleAvatars}
+                value={editor.ref_id}
+                onChange={(id) => setEditor({ ...editor, ref_id: id })}
+              />
+              <AvatarPicker
+                label="Ayollar avatari *"
+                avatars={femaleAvatars}
+                value={editor.amount || null}
+                onChange={(id) => setEditor({ ...editor, amount: id })}
+              />
             </div>
           )}
 
@@ -651,22 +667,29 @@ export default function DailyRewardsPage() {
 }
 
 // ── Premium config form ──────────────────────────────────────────────────────
-function PremiumConfigForm({
-  initial,
-  onSaved,
-}: {
-  initial: { price_som: number; duration_days: number; is_purchasable: boolean };
-  onSaved: () => void;
-}) {
+function PremiumConfigForm({ initial, onSaved }: { initial: PremiumConfig; onSaved: () => void }) {
   const [price, setPrice] = useState(initial.price_som);
   const [duration, setDuration] = useState(initial.duration_days);
   const [purchasable, setPurchasable] = useState(initial.is_purchasable);
+  // Chegirma
+  const [discountOn, setDiscountOn] = useState(!!initial.discount_price);
+  const [discountPrice, setDiscountPrice] = useState(initial.discount_price ?? 0);
+  const [dStart, setDStart] = useState(toLocalInput(initial.discount_starts_at));
+  const [dEnd, setDEnd] = useState(toLocalInput(initial.discount_ends_at));
+
   const save = useMutation({
     mutationFn: () =>
       dailyRewardsApi.updatePremiumConfig({
         price_som: price,
         duration_days: duration,
         is_purchasable: purchasable,
+        ...(discountOn
+          ? {
+              discount_price: discountPrice,
+              discount_starts_at: dStart ? new Date(dStart).toISOString() : null,
+              discount_ends_at: dEnd ? new Date(dEnd).toISOString() : null,
+            }
+          : { discount_price: null, discount_starts_at: null, discount_ends_at: null }),
       }),
     onSuccess: () => {
       toast.success('Premium sozlamalari saqlandi');
@@ -674,19 +697,93 @@ function PremiumConfigForm({
     },
     onError: (e: any) => toast.error(e?.response?.data?.message || 'Xatolik'),
   });
+
+  const clearDiscount = useMutation({
+    mutationFn: () => dailyRewardsApi.clearPremiumDiscount(),
+    onSuccess: () => {
+      toast.success('Chegirma olib tashlandi');
+      setDiscountOn(false);
+      setDiscountPrice(0);
+      setDStart('');
+      setDEnd('');
+      onSaved();
+    },
+    onError: (e: any) => toast.error(e?.response?.data?.message || 'Xatolik'),
+  });
+
+  const savePct =
+    price > 0 && discountPrice > 0 && discountPrice < price
+      ? Math.round((1 - discountPrice / price) * 100)
+      : 0;
+
   return (
     <div className="space-y-4">
-      <Input type="number" label="Narx (so'm)" value={price} min={0} onChange={(e) => setPrice(Number(e.target.value))} />
-      <Input type="number" label="Muddat (kun)" value={duration} min={1} onChange={(e) => setDuration(Number(e.target.value))} />
+      <div className="grid grid-cols-2 gap-3">
+        <Input type="number" label="Narx (so'm)" value={price} min={0} onChange={(e) => setPrice(Number(e.target.value))} />
+        <Input type="number" label="Muddat (kun)" value={duration} min={1} onChange={(e) => setDuration(Number(e.target.value))} />
+      </div>
       <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
         <input type="checkbox" checked={purchasable} onChange={(e) => setPurchasable(e.target.checked)} className="rounded border-gray-300" />
         Sotib olish mumkin
       </label>
+
+      {/* Vaqtinchalik chegirma */}
+      <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-3 space-y-3">
+        <div className="flex items-center justify-between">
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-800 dark:text-gray-200">
+            <input type="checkbox" checked={discountOn} onChange={(e) => setDiscountOn(e.target.checked)} className="rounded border-gray-300" />
+            Vaqtinchalik chegirma
+          </label>
+          {initial.is_discount_active && (
+            <Badge color="green" size="sm">Hozir faol</Badge>
+          )}
+        </div>
+
+        {discountOn && (
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                type="number"
+                label="Chegirma narxi (so'm)"
+                value={discountPrice}
+                min={0}
+                onChange={(e) => setDiscountPrice(Number(e.target.value))}
+              />
+              <div className="flex items-end pb-2">
+                {savePct > 0 ? (
+                  <Badge color="orange">−{savePct}% chegirma</Badge>
+                ) : (
+                  <span className="text-xs text-gray-400">Chegirma narxi asl narxdan kam bo'lsin</span>
+                )}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Input type="datetime-local" label="Boshlanish" value={dStart} onChange={(e) => setDStart(e.target.value)} />
+              <Input type="datetime-local" label="Tugash" value={dEnd} onChange={(e) => setDEnd(e.target.value)} />
+            </div>
+            {initial.discount_price != null && (
+              <Button variant="ghost" size="sm" onClick={() => clearDiscount.mutate()} loading={clearDiscount.isPending}>
+                Chegirmani olib tashlash
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+
       <Button onClick={() => save.mutate()} loading={save.isPending}>
         Saqlash
       </Button>
     </div>
   );
+}
+
+/** ISO/backend sanani datetime-local input formatiga (YYYY-MM-DDTHH:mm) o'giradi. */
+function toLocalInput(iso: string | null): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 // ── Calendar config form ─────────────────────────────────────────────────────

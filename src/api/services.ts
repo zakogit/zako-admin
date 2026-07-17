@@ -440,6 +440,11 @@ export interface PremiumConfig {
   price_som: number;
   duration_days: number;
   is_purchasable: boolean;
+  discount_price: number | null;
+  discount_starts_at: string | null;
+  discount_ends_at: string | null;
+  is_discount_active?: boolean;
+  effective_price?: number;
 }
 
 export const dailyRewardsApi = {
@@ -489,6 +494,7 @@ export const dailyRewardsApi = {
     api.get<{ success: boolean; data: PremiumConfig }>('/admin/premium-config'),
   updatePremiumConfig: (body: Partial<PremiumConfig>) =>
     api.put('/admin/premium-config', body),
+  clearPremiumDiscount: () => api.delete('/admin/premium-config/discount'),
 };
 
 // ── Ads ───────────────────────────────────────────
