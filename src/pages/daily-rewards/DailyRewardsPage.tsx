@@ -254,10 +254,11 @@ export default function DailyRewardsPage() {
   };
 
   const avatars = avatarsQ.data || [];
-  // Kunlik sovg'ada faqat PREMIUM kartalar beriladi.
-  const cards = (cardsQ.data || []).filter((c) => c.is_premium);
-  const maleAvatars = avatars.filter((a) => a.gender === 'male' || a.gender === 'both');
-  const femaleAvatars = avatars.filter((a) => a.gender === 'female' || a.gender === 'both');
+  // Kartalarda alohida "premium" belgisi yo'q — barcha aktiv kartalar sovg'a sifatida beriladi.
+  const cards = (cardsQ.data || []).filter((c) => c.is_active !== false);
+  // Kunlik premium sovg'ada faqat PREMIUM avatarlar beriladi.
+  const maleAvatars = avatars.filter((a) => a.is_premium && (a.gender === 'male' || a.gender === 'both'));
+  const femaleAvatars = avatars.filter((a) => a.is_premium && (a.gender === 'female' || a.gender === 'both'));
   const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD (mahalliy)
 
   return (
