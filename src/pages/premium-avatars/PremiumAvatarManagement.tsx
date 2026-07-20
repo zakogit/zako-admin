@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Package, TrendingUp, Users, DollarSign, Plus, Edit, Trash2, Settings, BarChart3 } from 'lucide-react';
 import { Table, Badge, Button, Modal, Card, EmptyState } from '../../components/ui';
-import { formatDate, formatNumber } from '../../utils/helpers';
+import { formatDate, formatNumber, getStaticFileUrl } from '../../utils/helpers';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
 import api from '../../api/client';
@@ -379,8 +379,11 @@ export default function PremiumAvatarManagement() {
   // Rentals Tab
   const RentalsTab = () => (
     <div className="space-y-6">
-      <h2 className="text-xl font-bold">Faol Ijaralar</h2>
-      
+      <div>
+        <h2 className="text-xl font-bold">Barcha Ijaralar</h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Oxirgi 20 ta ijara (faol va tugagan). "Holat" ustunida ko'rinadi.</p>
+      </div>
+
       {rentalStatsLoading ? (
         <div className="p-8 text-center">Loading...</div>
       ) : !rentalStats?.recent_rentals?.length ? (
@@ -395,12 +398,19 @@ export default function PremiumAvatarManagement() {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <img 
-                      src={rental.avatar_url} 
-                      alt="Avatar" 
-                      className="w-8 h-8 rounded object-cover"
-                    />
-                    <Badge color="blue">{rental.avatar_gender}</Badge>
+                    {rental.avatar_url ? (
+                      <img
+                        src={getStaticFileUrl(rental.avatar_url)}
+                        alt="Avatar"
+                        className="w-8 h-8 rounded object-cover"
+                        onError={(e) => (e.currentTarget.style.display = 'none')}
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-[9px] text-gray-400">
+                        yo'q
+                      </div>
+                    )}
+                    <Badge color="blue">{rental.avatar_gender || '—'}</Badge>
                   </div>
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-500">
