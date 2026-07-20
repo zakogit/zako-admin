@@ -141,6 +141,8 @@ export const cardsApi = {
   create: (body: Partial<CardType>) => api.post('/admin/cards', body),
   update: (id: number, body: Partial<CardType>) => api.put(`/admin/cards/${id}`, body),
   delete: (id: number) => api.delete(`/admin/cards/${id}`),
+  setPremium: (id: number, is_premium: boolean) =>
+    api.patch(`/admin/premium-cards/${id}/premium-status`, { is_premium }),
   upload: (formData: FormData) => api.post<{ success: boolean; data: any }>('/admin/cards/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),

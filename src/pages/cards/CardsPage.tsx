@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Search, Plus, Edit, Trash2 } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Crown } from 'lucide-react';
 import { cardsApi } from '../../api/services';
 import { Table, Badge, Button, Pagination, Modal, EmptyState } from '../../components/ui';
 import { formatDate, formatNumber, getStaticFileUrl } from '../../utils/helpers';
@@ -61,6 +61,15 @@ export default function CardsPage() {
       qc.invalidateQueries({ queryKey: ['admin-cards'] });
     },
     onError: () => toast.error('Failed to delete card'),
+  });
+
+  const premiumMutation = useMutation({
+    mutationFn: (v: { id: number; is_premium: boolean }) => cardsApi.setPremium(v.id, v.is_premium),
+    onSuccess: (_d, v) => {
+      toast.success(v.is_premium ? 'Karta premium qilindi' : 'Premium olib tashlandi');
+      qc.invalidateQueries({ queryKey: ['admin-cards'] });
+    },
+    onError: () => toast.error('Premium holatini o\'zgartirishda xatolik'),
   });
 
   const cards: CardType[] = Array.isArray((cardsData as any)?.data?.data) ? (cardsData as any).data.data : [];
@@ -129,7 +138,7 @@ export default function CardsPage() {
           <EmptyState message="No cards found" />
         ) : (
           <>
-            <Table headers={['Card', 'Type', 'Effect', 'Price', 'Duration', 'Status', 'Created', '']}>
+            <Table headers={['Card', 'Type', 'Effect', 'Price', 'Duration', 'Premium', 'Status', 'Created', '']}>
               {cards.map((card) => (
                 <tr key={card.id}>
                   <td className="px-4 py-3">
@@ -201,6 +210,21 @@ export default function CardsPage() {
                     <Badge color="purple">
                       {card.duration_duels} duels
                     </Badge>
+                  </td>
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => premiumMutation.mutate({ id: card.id, is_premium: !card.is_premium })}
+                      disabled={premiumMutation.isPending}
+                      title={card.is_premium ? 'Premiumdan olib tashlash' : 'Premium qilish'}
+                      className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition disabled:opacity-50 ${
+                        card.is_premium
+                          ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                          : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+                      }`}
+                    >
+                      <Crown className="w-3 h-3" />
+                      {card.is_premium ? 'Premium' : 'Oddiy'}
+                    </button>
                   </td>
                   <td className="px-4 py-3">
                     <Badge color={card.is_active ? 'green' : 'red'}>
