@@ -433,3 +433,121 @@ export interface Article {
   created_at?: string;
   updated_at?: string;
 }
+
+// ---------- AI Testlar (foydalanuvchi yaratgan) ----------
+
+export type AiTestStatus = 'queued' | 'running' | 'completed' | 'failed';
+
+export interface AiTest {
+  id: number;
+  user_id: number;
+  username?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  status: AiTestStatus;
+  source_type: 'text' | 'image' | 'pdf';
+  source_filename?: string | null;
+  test_type: 'ai' | 'facts' | 'logic';
+  /** AI daraja: tezkor yoki chuqurroq sifat. */
+  model: 'flash' | 'pro';
+  difficulty: 'easy' | 'medium' | 'hard';
+  question_count: number;
+  language: string;
+  subject_name?: string | null;
+  topic_name?: string | null;
+  progress: number;
+  step: number;
+  error?: string | null;
+  diamonds_spent: number;
+  refunded: boolean;
+  input_tokens: number;
+  output_tokens: number;
+  /** Token'lardan hisoblangan taxminiy AI xarajati. */
+  cost_usd: number;
+  attempt_count?: number;
+  created_at: string;
+  started_at?: string | null;
+  finished_at?: string | null;
+}
+
+export interface AiTestCallLog {
+  id: number;
+  stage: string;
+  provider: string;
+  model: string;
+  input_tokens: number;
+  output_tokens: number;
+  duration_ms?: number | null;
+  success: boolean;
+  error?: string | null;
+  created_at: string;
+  cost_usd: number;
+}
+
+export interface AiTestAttempt {
+  id: number;
+  user_id: number;
+  correct_answers: number;
+  wrong_answers: number;
+  total_questions: number;
+  score: number;
+  spent_time: number;
+  created_at: string;
+}
+
+export interface AiTestDetail {
+  test: AiTest & {
+    phone?: string | null;
+    /** Boshidan 5000 belgi — to'liq uzunligi `source_text_length` da. */
+    source_text?: string | null;
+    source_text_length?: number | null;
+    source_file_exists?: boolean;
+  };
+  call_logs: AiTestCallLog[];
+  attempts: AiTestAttempt[];
+}
+
+export interface AiTestQuestion {
+  id: number;
+  ai_test_id: number;
+  order_index: number;
+  question_text: string;
+  difficulty: string;
+  explanation?: string | null;
+  options: Array<{ id: number; text: string; is_correct: boolean }>;
+}
+
+export interface AiTestStats {
+  totals: {
+    total: number;
+    completed: number;
+    failed: number;
+    active: number;
+    success_rate: number;
+    diamonds_spent: number;
+    diamonds_refunded: number;
+    input_tokens: number;
+    output_tokens: number;
+    cost_usd: number;
+    avg_seconds: number;
+  };
+  by_model: Array<{ model: string; count: number }>;
+  top_users: Array<{
+    user_id: number;
+    username?: string | null;
+    first_name?: string | null;
+    last_name?: string | null;
+    count: number;
+    diamonds_spent: number;
+  }>;
+}
+
+export interface AiTestFilters {
+  status?: string;
+  model?: string;
+  source_type?: string;
+  user_id?: number;
+  q?: string;
+  from?: string;
+  to?: string;
+}

@@ -33,6 +33,8 @@ const LeaguesPage = lazy(() => import('./pages/leagues/LeaguesPage'));
 const AppVersionPage = lazy(() => import('./pages/app-version/AppVersionPage'));
 const BooksPage = lazy(() => import('./pages/books/BooksPage'));
 const BookDetailPage = lazy(() => import('./pages/books/BookDetailPage'));
+const AiTestsPage = lazy(() => import('./pages/ai-tests/AiTestsPage'));
+const AiTestDetailPage = lazy(() => import('./pages/ai-tests/AiTestDetailPage'));
 const ArticlesPage = lazy(() => import('./pages/articles/ArticlesPage'));
 const LeaderboardPage = lazy(() => import('./pages/leaderboard/LeaderboardPage'));
 const AdminsPage = lazy(() => import('./pages/admins/AdminsPage'));
@@ -68,6 +70,8 @@ export default function App() {
               <Route path="topics" element={<TopicsPage />} />
               <Route path="books" element={<BooksPage />} />
               <Route path="books/:id" element={<BookDetailPage />} />
+              <Route path="ai-tests" element={<AiTestsPage />} />
+              <Route path="ai-tests/:id" element={<AiTestDetailPage />} />
               <Route path="cards" element={<CardsPage />} />
               <Route path="avatars" element={<AvatarsPage />} />
               <Route path="premium-avatars" element={<PremiumAvatarManagement />} />

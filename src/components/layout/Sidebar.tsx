@@ -31,6 +31,7 @@ import {
   Award,
   ShieldCheck,
   Gift,
+  FlaskConical,
 } from "lucide-react";
 
 const nav = [
@@ -41,6 +42,7 @@ const nav = [
   { label: "Subjects", icon: BookOpen, to: "/subjects" },
   { label: "Topics", icon: List, to: "/topics" },
   { label: "AI Kitoblar", icon: Sparkles, to: "/books" },
+  { label: "AI Testlar", icon: FlaskConical, to: "/ai-tests" },
   { label: "Maqolalar", icon: Newspaper, to: "/articles" },
   { section: "Platform" },
   { label: "Cards", icon: Layers, to: "/cards" },

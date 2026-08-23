@@ -1,5 +1,5 @@
 import api from './client';
-import type { AuthState, DashboardStats, User, Question, Subject, Topic, CardType, Avatar, Region, Duel, Friendship, AuditLog, PaginatedResponse, ProductPackage, Season, SeasonStats, BadgeType, UserBadge, LeaderboardEntry, League, Book, BookTopic, BookPage, GenerationJob, GeneratedQuestion, GenEstimate, AiStats, DraftsSummary, Article } from '../types';
+import type { AuthState, DashboardStats, User, Question, Subject, Topic, CardType, Avatar, Region, Duel, Friendship, AuditLog, PaginatedResponse, ProductPackage, Season, SeasonStats, BadgeType, UserBadge, LeaderboardEntry, League, Book, BookTopic, BookPage, GenerationJob, GeneratedQuestion, GenEstimate, AiStats, DraftsSummary, Article, AiTest, AiTestDetail, AiTestQuestion, AiTestStats, AiTestFilters } from '../types';
 
 // ── Auth ──────────────────────────────────────────────
 export const authApi = {
@@ -729,4 +729,26 @@ export const booksApi = {
       `/admin/books/${id}/questions/bulk-approve`,
       body,
     ),
+};
+
+// ── AI Testlar (foydalanuvchi yaratgan) ───────────────
+export const aiTestsApi = {
+  getAll: (params?: AiTestFilters & { page?: number; limit?: number }) =>
+    api.get<{ success: boolean; total: number; page: number; limit: number; data: AiTest[] }>(
+      '/admin/ai-tests',
+      { params },
+    ),
+  getStats: (params?: AiTestFilters) =>
+    api.get<{ success: boolean; data: AiTestStats }>('/admin/ai-tests/stats', { params }),
+  getById: (id: number) =>
+    api.get<{ success: boolean; data: AiTestDetail }>(`/admin/ai-tests/${id}`),
+  getQuestions: (id: number) =>
+    api.get<{ success: boolean; data: AiTestQuestion[] }>(`/admin/ai-tests/${id}/questions`),
+  retry: (id: number) =>
+    api.post<{ success: boolean; message: string }>(`/admin/ai-tests/${id}/retry`),
+  refund: (id: number) =>
+    api.post<{ success: boolean; message: string; data: { refunded: number; balance: number } }>(
+      `/admin/ai-tests/${id}/refund`,
+    ),
+  delete: (id: number) => api.delete(`/admin/ai-tests/${id}`),
 };
