@@ -92,6 +92,30 @@ export const dashboardApi = {
 };
 
 // ── Users ─────────────────────────────────────────────
+export interface UserDuelRow {
+  id: number;
+  status: string;
+  subject_name: string | null;
+  is_bot_game: boolean;
+  opponent_id: number | null;
+  opponent_username: string | null;
+  my_score: number;
+  opponent_score: number;
+  result: 'won' | 'lost' | 'draw' | null;
+  xp_change: number | null;
+  duration_seconds: number | null;
+  created_at: string;
+  finished_at: string | null;
+}
+export interface UserDeviceRow {
+  id: number;
+  platform: string;
+  app_version: string;
+  device_info: Record<string, unknown> | null;
+  token_preview: string;
+  created_at: string;
+  updated_at: string;
+}
 export const usersApi = {
   getAll: (params: { 
     page?: number; 
@@ -133,6 +157,12 @@ export const usersApi = {
   }) => api.put(`/admin/users/${id}`, body),
   resetPassword: (id: number, body: { new_password: string }) =>
     api.put(`/admin/users/${id}/reset-password`, body),
+  adjustXp: (id: number, body: { delta: number; description?: string }) =>
+    api.put<{ success: boolean; message: string; data: { previous_xp: number; xp: number } }>(`/admin/users/${id}/xp`, body),
+  getDuels: (id: number, params?: { page?: number; limit?: number }) =>
+    api.get<{ success: boolean; data: { data: UserDuelRow[]; total: number; page: number; limit: number } }>(`/admin/users/${id}/duels`, { params }),
+  getDevices: (id: number) =>
+    api.get<{ success: boolean; data: UserDeviceRow[] }>(`/admin/users/${id}/devices`),
   updateBalance: (id: number, body: { amount: number; description: string }) =>
     api.put(`/admin/users/${id}/balance`, body),
   ban: (id: number, body: { reason: string }) =>
@@ -227,7 +257,77 @@ export const avatarsApi = {
 };
 
 // ── Duels ─────────────────────────────────────────────
+/** Admin-editable duel config (duel_settings) — vaqt variantlari, savollar soni, XP qoidalari */
+export interface DuelConfig {
+  timeOptions: number[];
+  defaultSeconds: number;
+  questionCount: number;
+  xpWin: number;
+  xpLose: number;
+  xpDraw: number;
+}
+export interface ReplayFlag {
+  code: 'fast_perfect' | 'instant_answers' | 'perfect_score' | 'high_win_rate';
+  severity: 'low' | 'medium' | 'high';
+  text: string;
+}
+export interface ReplayAnswer {
+  selected_option_id: number | null;
+  is_correct: boolean;
+  answered_at: string;
+  seconds_from_start: number;
+}
+export interface ReplayPlayer {
+  id: number | null;
+  username: string | null;
+  is_bot?: boolean;
+  score: number;
+  answered: number;
+  correct: number;
+  accuracy: number | null;
+  avg_gap_seconds: number | null;
+  min_gap_seconds: number | null;
+  xp_change: number | null;
+  flags: ReplayFlag[];
+}
+export interface DuelReplay {
+  duel: {
+    id: number;
+    status: string;
+    subject_name: string | null;
+    is_bot_game: boolean;
+    is_draw: boolean;
+    ai_test_id: number | null;
+    duration_seconds: number | null;
+    created_at: string;
+    finished_at: string | null;
+    winner_id: number | null;
+    winner_username: string | null;
+    questions_total: number;
+  };
+  players: { p1: ReplayPlayer; p2: ReplayPlayer };
+  questions: {
+    index: number;
+    id: number;
+    text: string | null;
+    difficulty: string | null;
+    image_url: string | null;
+    options: { id: number; text: string; is_correct: boolean }[];
+    p1: ReplayAnswer | null;
+    p2: ReplayAnswer | null;
+  }[];
+}
 export const duelsApi = {
+  getReplay: (id: number) => api.get<{ success: boolean; data: DuelReplay }>(`/admin/duels/${id}/replay`),
+  getConfig: () => api.get<{ success: boolean; data: DuelConfig }>('/admin/duels/config'),
+  updateConfig: (body: {
+    time_options?: number[];
+    default_duel_time?: number;
+    questions_per_duel?: number;
+    xp_win?: number;
+    xp_lose?: number;
+    xp_draw?: number;
+  }) => api.put<{ success: boolean; message: string; data: DuelConfig }>('/admin/duels/config', body),
   getAll: (params?: { page?: number; limit?: number; search?: string; status?: string; subject_id?: number; sort?: string }) =>
     api.get<{ success: boolean; data: PaginatedResponse<Duel> }>('/admin/duels', { params }),
   getActive: () => api.get<{ success: boolean; data: Duel[] }>('/admin/duels/active'),
@@ -272,12 +372,14 @@ export const notificationsApi = {
     target_type: 'all' | 'verified' | 'premium' | 'specific';
     target_users?: number[];
     data?: any;
+    image_url?: string | null;
   }) => api.post('/admin/notifications', body),
   broadcast: (body: {
     title: string;
     message: string;
     type: string;
     data?: any;
+    image_url?: string | null;
     filters?: {
       verified_only?: boolean;
       premium_only?: boolean;
@@ -290,7 +392,12 @@ export const notificationsApi = {
     message: string;
     type: string;
     data?: any;
+    image_url?: string | null;
   }) => api.post('/admin/notifications/send-to-users', body),
+  uploadImage: (formData: FormData) =>
+    api.post<{ success: boolean; data: { url: string } }>('/admin/notifications/upload-image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
   getTemplates: () =>
     api.get<{ success: boolean; data: any[] }>('/admin/notifications/templates'),
   updateTemplate: (type: string, body: {
@@ -695,7 +802,28 @@ export interface WeeklyLbEntry {
   avatar: string | null;
   xp: number;
 }
+export interface TopPlayerRow {
+  rank: number;
+  id: number;
+  username: string;
+  name: string;
+  avatar: string | null;
+  region: string | null;
+  league: string | null;
+  xp: number;
+  rating: number;
+  total_duels: number;
+  won_duels: number;
+  win_rate: number | null;
+  created_at: string;
+}
 export const leaderboardApi = {
+  getTop: (limit: 10 | 50 | 100) =>
+    api.get<{ success: boolean; data: TopPlayerRow[] }>('/admin/leaderboard/top', { params: { limit } }),
+  resetXp: (userId: number) =>
+    api.post<{ success: boolean; message: string; data: { previous_xp: number } }>(`/admin/leaderboard/users/${userId}/reset-xp`),
+  remove: (userId: number, reason?: string) =>
+    api.post<{ success: boolean; message: string; data: { previous_xp: number } }>(`/admin/leaderboard/users/${userId}/remove`, { reason }),
   getSchedule: () =>
     api.get<{ success: boolean; data: LeaderboardSchedule }>('/admin/leaderboard/schedule'),
   updateSchedule: (body: Partial<LeaderboardSchedule>) =>

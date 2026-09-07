@@ -20,7 +20,10 @@ import {
   Filter,
   X,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Zap,
+  Swords,
+  Smartphone
 } from 'lucide-react';
 import { usersApi, regionsApi } from '../../api/services';
 import { Table, Badge, Button, Pagination, Modal, Input, EmptyState } from '../../components/ui';
@@ -51,6 +54,7 @@ export default function UsersPage() {
   const [createModal, setCreateModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
+  const [xpModal, setXpModal] = useState(false);
   const [action, setAction] = useState<'ban' | 'unban' | 'verify' | 'unverify' | 'delete' | null>(null);
   const limit = 20;
 
@@ -84,6 +88,18 @@ export default function UsersPage() {
     enabled: !!selected && userDetailModal,
   });
 
+  // Duel tarixi va qurilmalar — detail modal ochilganda
+  const { data: userDuels } = useQuery({
+    queryKey: ['user-duels', selected?.id],
+    queryFn: () => usersApi.getDuels(selected!.id, { limit: 15 }).then(r => r.data.data),
+    enabled: !!selected && userDetailModal,
+  });
+  const { data: userDevices } = useQuery({
+    queryKey: ['user-devices', selected?.id],
+    queryFn: () => usersApi.getDevices(selected!.id).then(r => r.data.data),
+    enabled: !!selected && userDetailModal,
+  });
+
   // Get regions for create/edit forms
   const { data: regionsData } = useQuery({
     queryKey: ['regions-dropdown'],
@@ -96,6 +112,7 @@ export default function UsersPage() {
   const { register: regCreate, handleSubmit: submitCreate, reset: resetCreate, formState: { errors: errCreate } } = useForm();
   const { register: regEdit, handleSubmit: submitEdit, reset: resetEdit, setValue: setEditValue } = useForm();
   const { register: regPass, handleSubmit: submitPass, reset: resetPass } = useForm<{ new_password: string }>();
+  const { register: regXp, handleSubmit: submitXp, reset: resetXp } = useForm<{ delta: number; description: string }>();
 
   // Mutations
   const balMutation = useMutation({
@@ -154,6 +171,19 @@ export default function UsersPage() {
       setSelected(null);
     },
     onError: () => toast.error('Parol o\'zgartirishda xatolik'),
+  });
+
+  const xpMutation = useMutation({
+    mutationFn: (d: { delta: number; description: string }) =>
+      usersApi.adjustXp(selected!.id, { delta: Number(d.delta), description: d.description }).then(r => r.data),
+    onSuccess: (res) => {
+      toast.success(`XP: ${formatNumber(res.data.previous_xp)} → ${formatNumber(res.data.xp)}`);
+      setXpModal(false);
+      resetXp();
+      qc.invalidateQueries({ queryKey: ['users'] });
+      qc.invalidateQueries({ queryKey: ['user-details'] });
+    },
+    onError: (error: any) => toast.error(error.response?.data?.message || 'XP o\'zgartirishda xatolik'),
   });
 
 
@@ -633,6 +663,13 @@ export default function UsersPage() {
                   >
                     <DollarSign className="w-4 h-4" />
                   </button>
+                  <button
+                    onClick={() => { setSelected(u); setXpModal(true); }}
+                    title="XP o'zgartirish"
+                    className="p-1.5 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 text-green-600 transition"
+                  >
+                    <Zap className="w-4 h-4" />
+                  </button>
                   {!(u as any).is_banned ? (
                     <button 
                       onClick={() => handleAction(u, 'ban')} 
@@ -807,6 +844,7 @@ export default function UsersPage() {
               <div className="text-center">
                 <p className="text-2xl font-bold text-green-600 dark:text-green-400">{userDetails.xp}</p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">XP</p>
+                {userDetails.league && <Badge color="purple" size="sm">{userDetails.league}</Badge>}
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
@@ -836,6 +874,81 @@ export default function UsersPage() {
               </div>
             </div>
 
+            {/* Duel tarixi (spec: "duel history ko'rish") */}
+            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+              <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+                <Swords className="w-4 h-4 text-orange-500" />
+                Duel tarixi
+                {userDuels && <span className="text-xs text-gray-400 font-normal">jami {formatNumber(userDuels.total)}</span>}
+              </h4>
+              {!userDuels ? (
+                <p className="text-sm text-gray-400">Yuklanmoqda…</p>
+              ) : userDuels.data.length === 0 ? (
+                <p className="text-sm text-gray-400">Duellar yo'q</p>
+              ) : (
+                <div className="max-h-64 overflow-y-auto">
+                  <Table headers={['#', 'Raqib', 'Fan', 'Ball', 'Natija', 'XP', 'Sana']}>
+                    {userDuels.data.map(d => (
+                      <tr key={d.id}>
+                        <td className="px-4 py-2 text-xs text-gray-400">{d.id}</td>
+                        <td className="px-4 py-2 text-sm">
+                          {d.opponent_username ?? '—'}
+                          {d.is_bot_game && <Badge color="orange" size="sm">bot</Badge>}
+                        </td>
+                        <td className="px-4 py-2 text-sm text-gray-500">{d.subject_name ?? '—'}</td>
+                        <td className="px-4 py-2 text-sm font-medium">{d.my_score} : {d.opponent_score}</td>
+                        <td className="px-4 py-2">
+                          {d.result === 'won' && <Badge color="green" size="sm">Yutdi</Badge>}
+                          {d.result === 'lost' && <Badge color="red" size="sm">Yutqazdi</Badge>}
+                          {d.result === 'draw' && <Badge color="gray" size="sm">Durang</Badge>}
+                          {!d.result && <Badge color="blue" size="sm">{d.status}</Badge>}
+                        </td>
+                        <td className={`px-4 py-2 text-sm font-semibold ${d.xp_change == null ? 'text-gray-400' : d.xp_change > 0 ? 'text-green-600' : d.xp_change < 0 ? 'text-red-600' : 'text-gray-500'}`}>
+                          {d.xp_change == null ? '—' : `${d.xp_change > 0 ? '+' : ''}${d.xp_change}`}
+                        </td>
+                        <td className="px-4 py-2 text-xs text-gray-500 whitespace-nowrap">{formatDate(d.created_at)}</td>
+                      </tr>
+                    ))}
+                  </Table>
+                </div>
+              )}
+            </div>
+
+            {/* Qurilmalar (spec: "device info") */}
+            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+              <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+                <Smartphone className="w-4 h-4 text-blue-500" />
+                Qurilmalar
+                {userDevices && <span className="text-xs text-gray-400 font-normal">{userDevices.length} ta</span>}
+              </h4>
+              {!userDevices ? (
+                <p className="text-sm text-gray-400">Yuklanmoqda…</p>
+              ) : userDevices.length === 0 ? (
+                <p className="text-sm text-gray-400">Push uchun ro'yxatdan o'tgan qurilma yo'q</p>
+              ) : (
+                <div className="space-y-2">
+                  {userDevices.map(dev => {
+                    const info = (dev.device_info || {}) as Record<string, any>;
+                    const model = info.model || info.device || info.name || null;
+                    const os = info.os_version || info.osVersion || info.system_version || null;
+                    return (
+                      <div key={dev.id} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50 text-sm">
+                        <div className="min-w-0">
+                          <p className="font-medium text-gray-900 dark:text-gray-100">
+                            <Badge color={dev.platform === 'ios' ? 'gray' : 'green'} size="sm">{dev.platform || '?'}</Badge>
+                            <span className="ml-2">v{dev.app_version || '—'}</span>
+                            {model && <span className="ml-2 text-gray-500">{model}{os ? ` · ${os}` : ''}</span>}
+                          </p>
+                          <p className="text-xs text-gray-400">token {dev.token_preview}</p>
+                        </div>
+                        <p className="text-xs text-gray-400 whitespace-nowrap">so'nggi: {formatDate(dev.updated_at)}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
             {/* Recent Transactions */}
             {userDetails.recent_transactions && userDetails.recent_transactions.length > 0 && (
               <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
@@ -862,6 +975,14 @@ export default function UsersPage() {
                 <DollarSign className="w-4 h-4 mr-2" />
                 Balansni o'zgartirish
               </Button>
+              <Button
+                variant="outline"
+                onClick={() => {setUserDetailModal(false); setXpModal(true);}}
+                className="flex-1"
+              >
+                <Zap className="w-4 h-4 mr-2" />
+                XP o'zgartirish
+              </Button>
               <Button variant="outline" onClick={() => setUserDetailModal(false)} className="flex-1">
                 Yopish
               </Button>
@@ -872,6 +993,34 @@ export default function UsersPage() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           </div>
         )}
+      </Modal>
+
+      {/* XP Modal (spec: "XP o'zgartirish") */}
+      <Modal open={xpModal} onClose={() => { setXpModal(false); resetXp(); }} title={`XP o'zgartirish — ${selected?.username}`}>
+        <form onSubmit={submitXp(d => xpMutation.mutate(d))} className="space-y-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Musbat son XP qo'shadi, manfiy son ayiradi. Natija 0 dan pastga tushmaydi. Musbat o'zgarish haftalik/kunlik XP hisobiga ham qo'shiladi.
+          </p>
+          <Input
+            label="XP o'zgarishi (masalan 100 yoki -50)"
+            type="number"
+            {...regXp('delta', { required: true, validate: v => Number(v) !== 0 })}
+          />
+          <Input
+            label="Izoh (audit uchun)"
+            placeholder="Nega o'zgartirildi"
+            {...regXp('description')}
+          />
+          <div className="flex gap-3 pt-2">
+            <Button type="button" variant="outline" onClick={() => { setXpModal(false); resetXp(); }} className="flex-1">
+              Bekor qilish
+            </Button>
+            <Button type="submit" loading={xpMutation.isPending} className="flex-1">
+              <Zap className="w-4 h-4 mr-2" />
+              Saqlash
+            </Button>
+          </div>
+        </form>
       </Modal>
 
       {/* Create User Modal */}

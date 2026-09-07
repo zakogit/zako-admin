@@ -118,6 +118,8 @@ export interface CardType {
   gradient_end?: string;
   border_color?: string;
   is_premium?: boolean;
+  /** Haftalik xarid limiti (dona); null = cheksiz */
+  weekly_limit?: number | null;
   is_active: boolean;
   total_sold?: number;
   created_at: string;
@@ -177,10 +179,15 @@ export interface Duel {
   winner_username?: string;
   subject_name?: string;
   subject_id: number;
-  status: 'waiting' | 'active' | 'finished' | 'cancelled';
+  status: 'waiting' | 'active' | 'finished' | 'cancelled' | 'expired';
   is_bot_game: boolean;
+  is_draw?: boolean | null;
+  winner_id?: number | null;
   p1_score?: number;
   p2_score?: number;
+  /** XP o'zgarishi (duel_settings qoidalaridan tiklanadi; finished bo'lmasa null) */
+  p1_xp_change?: number | null;
+  p2_xp_change?: number | null;
   created_at: string;
   finished_at?: string;
 }

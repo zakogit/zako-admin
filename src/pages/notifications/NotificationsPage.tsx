@@ -13,12 +13,14 @@ import {
   AlertCircle,
   Eye,
   Send,
-  Settings
+  Settings,
+  Image as ImageIcon,
+  X
 } from 'lucide-react';
 import { notificationsApi } from '../../api/services';
 import { Table, Badge, Button, Pagination, Modal, EmptyState, Input } from '../../components/ui';
 import { useForm } from 'react-hook-form';
-import { formatDate, formatNumber } from '../../utils/helpers';
+import { formatDate, formatNumber, getStaticFileUrl } from '../../utils/helpers';
 import toast from 'react-hot-toast';
 
 interface Notification {
@@ -46,6 +48,7 @@ export default function NotificationsPage() {
   const [deliveryModal, setDeliveryModal] = useState(false);
   const [createModal, setCreateModal] = useState(false);
   const [templatesModal, setTemplatesModal] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(null); // photo + text push
   const limit = 20;
 
   const { data: notificationsData, isLoading } = useQuery({
@@ -87,6 +90,7 @@ export default function NotificationsPage() {
       );
       setCreateModal(false);
       resetCreate();
+      setImageUrl(null);
       qc.invalidateQueries({ queryKey: ['admin-notifications'] });
       qc.invalidateQueries({ queryKey: ['notifications-stats'] });
     },
@@ -94,6 +98,28 @@ export default function NotificationsPage() {
       toast.error(error.response?.data?.message || 'Xabar yuborishda xatolik');
     },
   });
+
+  const uploadImageMutation = useMutation({
+    mutationFn: (file: File) => {
+      const fd = new FormData();
+      fd.append('file', file);
+      return notificationsApi.uploadImage(fd).then(r => r.data.data.url);
+    },
+    onSuccess: (url) => {
+      setImageUrl(url);
+      toast.success('Rasm yuklandi');
+    },
+    onError: (error: any) => toast.error(error.response?.data?.message || 'Rasm yuklashda xatolik'),
+  });
+
+  const handleImagePick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { toast.error('Faqat rasm fayllari'); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error('Rasm 5MB dan oshmasligi kerak'); return; }
+    uploadImageMutation.mutate(file);
+  };
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => notificationsApi.delete(id),
@@ -142,6 +168,7 @@ export default function NotificationsPage() {
       target_type: d.target_type,
       target_users: targetUsers,
       data: {},
+      image_url: imageUrl,
     } as any);
   };
 
@@ -565,6 +592,29 @@ export default function NotificationsPage() {
             />
             {errCreate.message && (
               <p className="text-sm text-red-600 dark:text-red-400">{String(errCreate.message.message)}</p>
+            )}
+          </div>
+
+          {/* Rasm (photo + text push). iOS'da rasm Notification Service Extension bo'lsa ko'rinadi. */}
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Rasm (ixtiyoriy)</label>
+            {imageUrl ? (
+              <div className="flex items-center gap-3 p-2 rounded-lg border border-gray-200 dark:border-gray-700">
+                <img src={getStaticFileUrl(imageUrl)} alt="" className="w-20 h-20 rounded object-cover bg-gray-100 dark:bg-gray-800" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-gray-500 truncate">{imageUrl}</p>
+                  <p className="text-xs text-gray-400">Push va inbox'da ko'rsatiladi</p>
+                </div>
+                <button type="button" onClick={() => setImageUrl(null)} className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800" title="Olib tashlash">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <label className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-gray-300 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-400 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
+                <ImageIcon className="w-4 h-4" />
+                {uploadImageMutation.isPending ? 'Yuklanmoqda…' : 'Rasm tanlash (JPG/PNG/WEBP, 5MB gacha)'}
+                <input type="file" accept="image/*" className="hidden" onChange={handleImagePick} disabled={uploadImageMutation.isPending} />
+              </label>
             )}
           </div>
 

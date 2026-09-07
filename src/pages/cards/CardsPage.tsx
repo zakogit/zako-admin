@@ -83,6 +83,7 @@ export default function CardsPage() {
       setValue('effect_type', card.effect_type);
       setValue('effect_value', card.effect_value);
       setValue('price_coins', card.price_coins);
+      setValue('weekly_limit', card.weekly_limit ?? '');
       setValue('duration_duels', card.duration_duels);
       setValue('gradient_start', card.gradient_start ?? '');
       setValue('gradient_end', card.gradient_end ?? '');
@@ -94,7 +95,12 @@ export default function CardsPage() {
     setEditModal(true);
   };
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (raw: any) => {
+    // Haftalik limit: bo'sh = cheksiz (null)
+    const wl = raw.weekly_limit === '' || raw.weekly_limit === undefined || raw.weekly_limit === null
+      ? null
+      : Number(raw.weekly_limit);
+    const data = { ...raw, weekly_limit: wl !== null && Number.isFinite(wl) && wl > 0 ? wl : null };
     if (selected) {
       updateMutation.mutate(data);
     } else {
@@ -205,6 +211,9 @@ export default function CardsPage() {
                   </td>
                   <td className="px-4 py-3">
                     <span className="font-medium">{formatNumber(card.price_coins)} coins</span>
+                    {card.weekly_limit ? (
+                      <div className="text-xs text-orange-600 dark:text-orange-400">Haftalik limit: {card.weekly_limit}</div>
+                    ) : null}
                   </td>
                   <td className="px-4 py-3">
                     <Badge color="purple">
@@ -328,6 +337,21 @@ export default function CardsPage() {
               />
               {errors.duration_duels && <p className="text-red-500 text-xs mt-1">{String(errors.duration_duels.message)}</p>}
             </div>
+          </div>
+
+          {/* Haftalik xarid limiti (spec §8 "haftalik limit"); bo'sh = cheksiz */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Haftalik limit (dona, 1 user)</label>
+            <input
+              type="number"
+              min={0}
+              placeholder="Cheksiz"
+              {...register('weekly_limit')}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Bir foydalanuvchi bir haftada (Dushanbadan, Toshkent vaqti) shu kartadan ko'pi bilan nechta olishi mumkin. Bo'sh qoldirilsa cheklov yo'q.
+            </p>
           </div>
 
           {/* Card colors — rendered as the gradient background + border in the

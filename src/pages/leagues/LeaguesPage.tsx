@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Edit, Trash2, Trophy, Upload } from 'lucide-react';
-import { leaguesApi } from '../../api/services';
-import { Table, Badge, Button, Modal, EmptyState, LazyImage } from '../../components/ui';
+import { Plus, Edit, Trash2, Trophy, Upload, Zap, Save } from 'lucide-react';
+import { leaguesApi, duelsApi } from '../../api/services';
+import type { DuelConfig } from '../../api/services';
+import { Table, Badge, Button, Modal, EmptyState, LazyImage, Card } from '../../components/ui';
 import { getStaticFileUrl } from '../../utils/helpers';
 import type { League } from '../../types';
 import toast from 'react-hot-toast';
@@ -15,6 +16,77 @@ interface LeagueFormValues {
   max_xp: number;
   sort_order: number;
   is_active: boolean;
+}
+
+/**
+ * XP qoidalari (spec §7 "League settings": win XP / lose XP). duel_settings'da
+ * saqlanadi; duel yakunida calculateRewards shu qiymatlarni ishlatadi.
+ */
+function XpRulesCard() {
+  const qc = useQueryClient();
+  const [win, setWin] = useState(24);
+  const [lose, setLose] = useState(-18);
+  const [draw, setDraw] = useState(12);
+  const [seeded, setSeeded] = useState<DuelConfig | null>(null);
+
+  const { data: config } = useQuery({
+    queryKey: ['duel-config'],
+    queryFn: () => duelsApi.getConfig().then(r => r.data.data),
+  });
+
+  // Server config kelganda formani to'ldirish — render vaqtida derived state
+  if (config && config !== seeded) {
+    setSeeded(config);
+    setWin(config.xpWin);
+    setLose(config.xpLose);
+    setDraw(config.xpDraw);
+  }
+
+  const save = useMutation({
+    mutationFn: () => duelsApi.updateConfig({ xp_win: win, xp_lose: lose, xp_draw: draw }).then(r => r.data),
+    onSuccess: (d) => {
+      toast.success(d.message || 'Saqlandi');
+      qc.invalidateQueries({ queryKey: ['duel-config'] });
+    },
+    onError: (e: any) => toast.error(e?.response?.data?.message || 'Saqlashda xatolik'),
+  });
+
+  const dirty = !!config && (win !== config.xpWin || lose !== config.xpLose || draw !== config.xpDraw);
+  const inputCls = 'w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100';
+
+  return (
+    <Card className="p-4">
+      <div className="flex flex-col md:flex-row md:items-end gap-4">
+        <div className="flex-1">
+          <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <Zap className="w-5 h-5 text-amber-500" />
+            XP qoidalari
+          </h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Har duel yakunida o'yinchiga beriladigan XP. Reyting deltasi ham shu qiymatda. Karta effektlari ustiga qo'llanadi.
+          </p>
+        </div>
+        <div className="grid grid-cols-3 gap-3 md:w-[420px]">
+          <div>
+            <label className="block text-xs font-medium mb-1 text-green-700 dark:text-green-400">Yutuq (win XP)</label>
+            <input type="number" min={0} max={1000} value={win} onChange={e => setWin(Number(e.target.value))} className={inputCls} />
+          </div>
+          <div>
+            <label className="block text-xs font-medium mb-1 text-red-700 dark:text-red-400">Mag'lubiyat (lose XP)</label>
+            <input type="number" min={-1000} max={0} value={lose} onChange={e => setLose(Number(e.target.value))} className={inputCls} />
+          </div>
+          <div>
+            <label className="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">Durang</label>
+            <input type="number" min={-1000} max={1000} value={draw} onChange={e => setDraw(Number(e.target.value))} className={inputCls} />
+          </div>
+        </div>
+        <Button onClick={() => save.mutate()} loading={save.isPending} disabled={!config || !dirty} className="whitespace-nowrap">
+          <Save className="w-4 h-4 mr-2" />
+          Saqlash
+        </Button>
+      </div>
+    </Card>
+  );
 }
 
 export default function LeaguesPage() {
@@ -158,6 +230,9 @@ export default function LeaguesPage() {
           Liga qo'shish
         </Button>
       </div>
+
+      {/* XP qoidalari (win / lose / draw) */}
+      <XpRulesCard />
 
       {/* Table */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
