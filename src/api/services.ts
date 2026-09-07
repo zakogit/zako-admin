@@ -20,6 +20,60 @@ export interface SystemHealth {
   websocket: 'online' | 'offline';
 }
 export interface GiftUsage { type: string; count: number; percentage: number }
+
+// Product analytics (DAU/WAU/MAU, retention, duel completion, win rate) — "ZAKO - Dashboard" spec
+export interface RetentionPoint { day: number; rate: number | null; cohort_size: number; returned: number }
+export interface DuelModeStat { mode: 'bot' | 'random' | 'friend'; started: number; finished: number; rate: number | null }
+export interface TopPlayer {
+  id: number;
+  username: string;
+  first_name: string | null;
+  last_name: string | null;
+  avatar: string | null;
+  xp: number;
+  rating: number;
+  total_duels: number;
+  won_duels: number;
+  win_rate: number | null;
+  league: string | null;
+}
+export interface DashboardAnalytics {
+  users: { total: number; online: number; new_today: number; new_7d: number; prev_7d: number; growth_7d_pct: number | null };
+  active: { dau: number; dau_yesterday: number; wau: number; mau: number; stickiness: number | null };
+  retention: { d1: RetentionPoint; d7: RetentionPoint; d30: RetentionPoint };
+  duels: { today: number; active_now: number; started_30d: number; finished_30d: number; completion_rate: number | null; by_mode: DuelModeStat[] };
+  win_rate: { players: number; avg_win_rate: number | null; buckets: { label: string; users: number }[] };
+  questions: { answered_today: number; correct_today: number; correct_rate: number | null };
+  top_player: TopPlayer | null;
+  cards_sold: number;
+  generated_at: string;
+}
+export interface TrendPoint {
+  date: string; // YYYY-MM-DD
+  weekday: string;
+  dau: number;
+  new_users: number;
+  duels: number;
+  duels_finished: number;
+  questions: number;
+}
+export interface XpBucket { league: string; min_xp: number; max_xp: number; users: number }
+export interface QuestionStatRow {
+  id: number;
+  question_text: string;
+  difficulty: string;
+  subject: string | null;
+  attempts: number;
+  correct: number;
+  wrong: number;
+  correct_rate: number;
+}
+export interface QuestionStats {
+  total_attempts: number;
+  hardest: QuestionStatRow[];
+  by_difficulty: { difficulty: string; attempts: number; correct: number; correct_rate: number | null }[];
+}
+
 export const dashboardApi = {
   getStats: () => api.get<{ success: boolean; data: DashboardStats }>('/admin/dashboard'),
   getActivity: () => api.get<{ success: boolean; data: any[] }>('/admin/activity'),
@@ -27,6 +81,14 @@ export const dashboardApi = {
   getHealth: () => api.get<{ success: boolean; data: SystemHealth }>('/admin/dashboard/health'),
   getGiftTypeUsage: () =>
     api.get<{ success: boolean; data: GiftUsage[] }>('/admin/gift-type-usage'),
+  getAnalytics: () =>
+    api.get<{ success: boolean; data: DashboardAnalytics }>('/admin/dashboard/analytics'),
+  getTrends: (days: number) =>
+    api.get<{ success: boolean; data: TrendPoint[] }>('/admin/dashboard/trends', { params: { days } }),
+  getXpDistribution: () =>
+    api.get<{ success: boolean; data: XpBucket[] }>('/admin/dashboard/xp-distribution'),
+  getQuestionStats: (params?: { limit?: number; min?: number }) =>
+    api.get<{ success: boolean; data: QuestionStats }>('/admin/dashboard/question-stats', { params }),
 };
 
 // ── Users ─────────────────────────────────────────────
