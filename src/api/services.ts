@@ -412,7 +412,24 @@ export const notificationsApi = {
 };
 
 // ── Payments & Orders ─────────────────────────────────
+
+/**
+ * Ikkita MUSTAQIL kalit:
+ *   payments_enabled  — bosh kalit, har ikkala platforma uchun;
+ *   apple_iap_enabled — faqat iOS. O'chsa iOS'da do'kon yashirinadi,
+ *                       Android'dagi Payme/Click oqimiga tegmaydi.
+ */
+export interface PaymentConfig {
+  payments_enabled: boolean;
+  apple_iap_enabled: boolean;
+}
+
 export const paymentsApi = {
+  getConfig: () =>
+    api.get<{ success: boolean; data: PaymentConfig }>('/admin/app/payment-config'),
+  // Qisman yangilash: faqat yuborilgan kalit yoziladi, ikkinchisi tegilmaydi.
+  updateConfig: (changes: Partial<PaymentConfig>) =>
+    api.put<{ success: boolean; data: PaymentConfig }>('/admin/app/payment-config', changes),
   // Orders
   getOrders: (params?: { page?: number; limit?: number; status?: string; product_type?: string; payment_method?: string; search?: string; date_from?: string; date_to?: string }) =>
     api.get<{ success: boolean; data: { orders: any[]; total: number; page: number; limit: number; totalPages: number } }>('/admin/orders', { params }),

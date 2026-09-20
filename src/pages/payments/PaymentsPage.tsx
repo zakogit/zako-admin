@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Search, Filter, Eye, XCircle, CheckCircle, Clock, DollarSign, TestTube } from 'lucide-react';
 import { paymentsApi } from '../../api/services';
+import { PaymentAvailabilityControl } from './PaymentAvailabilityControl';
 import { Table, Badge, Button, Pagination, Modal, EmptyState } from '../../components/ui';
 import { formatDate, formatNumber } from '../../utils/helpers';
 import toast from 'react-hot-toast';
@@ -207,6 +208,7 @@ export default function PaymentsPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <PaymentAvailabilityControl />
       {/* Header */}
       <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
