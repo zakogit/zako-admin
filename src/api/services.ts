@@ -1,5 +1,5 @@
 import api from './client';
-import type { AuthState, DashboardStats, User, Question, Subject, Topic, CardType, Avatar, Region, Duel, Friendship, AuditLog, PaginatedResponse, ProductPackage, Season, SeasonStats, BadgeType, UserBadge, LeaderboardEntry, League, Book, BookTopic, BookPage, GenerationJob, GeneratedQuestion, GenEstimate, AiStats, DraftsSummary, Article, AiTest, AiTestDetail, AiTestQuestion, AiTestStats, AiTestFilters } from '../types';
+import type { AuthState, DashboardStats, User, Question, Subject, Topic, CardType, Avatar, Region, Duel, Friendship, AuditLog, PaginatedResponse, ProductPackage, ProductPackageInput, Season, SeasonStats, BadgeType, UserBadge, LeaderboardEntry, League, Book, BookTopic, BookPage, GenerationJob, GeneratedQuestion, GenEstimate, AiStats, DraftsSummary, Article, AiTest, AiTestDetail, AiTestQuestion, AiTestStats, AiTestFilters } from '../types';
 
 // ── Auth ──────────────────────────────────────────────
 export const authApi = {
@@ -519,22 +519,11 @@ export const regionsApi = {
 
 export const storeApi = {
   getPackages: () => api.get<{ success: boolean; data: ProductPackage[] }>('/admin/store-packages'),
-  createPackage: (body: {
-    name: string;
-    description?: string;
-    product_type: 'coins' | 'premium' | 'cards';
-    price_som: number;
-    package_data?: any;
-    is_active?: boolean;
-  }) => api.post('/admin/store-packages', body),
-  updatePackage: (id: number, body: {
-    name?: string;
-    description?: string;
-    product_type?: 'coins' | 'premium' | 'cards';
-    price_som?: number;
-    package_data?: any;
-    is_active?: boolean;
-  }) => api.put(`/admin/store-packages/${id}`, body),
+  createPackage: (body: ProductPackageInput) =>
+    api.post<{ success: boolean; data: ProductPackage }>('/admin/store-packages', body),
+  // product_type yuborilsa ham backend uni o'zgartirishga ruxsat bermaydi.
+  updatePackage: (id: number, body: Partial<ProductPackageInput>) =>
+    api.put<{ success: boolean; data: ProductPackage }>(`/admin/store-packages/${id}`, body),
   deletePackage: (id: number) => api.delete(`/admin/store-packages/${id}`),
   getStats: () => api.get<{ success: boolean; data: any[] }>('/admin/store-packages/stats'),
 };

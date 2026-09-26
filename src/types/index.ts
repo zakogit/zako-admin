@@ -147,27 +147,38 @@ export interface Region {
 }
 
 // Product Package
+export type ProductType = 'coins' | 'diamonds' | 'premium' | 'cards';
+export type OfferType = 'simple' | 'special_offer';
+
 export interface ProductPackage {
   id: number;
-  product_type: 'coins' | 'premium' | 'cards';
+  product_type: ProductType;
   name: string;
-  description?: string;
+  description?: string | null;
   price_som: number;
-  discount_percent?: number;
   package_data: {
     coins?: number;
     bonus?: number;
+    diamonds?: number;
     duration_days?: number;
     features?: string[];
     card_type?: string;
     quantity?: number;
-  };
+  } | null;
   is_active: boolean;
   is_featured: boolean;
   sort_order: number;
+  // Apple IAP mahsulot ID'si (App Store Connect). NULL = paket iOS'da ko'rinmaydi.
+  apple_product_id: string | null;
+  offer_type: OfferType;
+  discount_percent: number;
+  discount_starts_at: string | null;
+  discount_ends_at: string | null;
   created_at: string;
   updated_at: string;
 }
+
+export type ProductPackageInput = Omit<ProductPackage, 'id' | 'is_featured' | 'created_at' | 'updated_at'>;
 
 // Duel
 export interface Duel {
