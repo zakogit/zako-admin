@@ -1,0 +1,149 @@
+name: CI/CD
+
+# Pull requests and pushes to main: type-check, i18n check, production build.
+# Pushes to main (and manual runs on main) additionally deploy dist/ to admin.zakoapp.uz over SSH + rsync.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch, tag or commit SHA to build and deploy (use for a rollback). Empty = the branch this run was started on."
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-cd-${{ github.ref }}
+  # never cancel a run that may be mid-deploy; superseded PR runs are safe to cancel
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    name: Check & build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check translations (uz / ru / en)
+        run: node scripts/check-i18n.mjs
+
+      # `npm run build` = tsc -b (strict type check) + vite build. Vite picks up the committed
+      # .env.production (VITE_API_BASE_URL=https://api.zakoapp.uz/api/v1), so no secrets are needed here.
+      - name: Type-check & build
+        run: npm run build
+
+      - name: Upload build artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-dist
+          path: dist
+          retention-days: 7
+          if-no-files-found: error
+
+  deploy:
+    name: Deploy to admin.zakoapp.uz
+    needs: build
+    # Only the organisation repo deploys (the personal mirror has no secrets), only from main.
+    if: github.repository == 'zakogit/zako-admin' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: production
+      url: https://admin.zakoapp.uz
+    concurrency:
+      group: deploy-production-admin
+      cancel-in-progress: false
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: admin-dist
+          path: dist
+
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          SSH_HOST: ${{ secrets.SERVER_HOST }}
+          SSH_PORT: ${{ secrets.SERVER_PORT }}
+          KNOWN_HOSTS: ${{ secrets.SERVER_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          if [ -z "$SSH_KEY" ] || [ -z "$SSH_HOST" ]; then
+            echo "::error::SERVER_SSH_KEY / SERVER_HOST secrets are not configured for this repository"
+            exit 1
+          fi
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          if [ -n "$KNOWN_HOSTS" ]; then
+            printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts          # pinned host key (recommended)
+          else
+            ssh-keyscan -p "${SSH_PORT:-22}" -H "$SSH_HOST" > ~/.ssh/known_hosts   # trust-on-first-use fallback
+          fi
+
+      - name: Upload to server
+        env:
+          SSH_USER: ${{ secrets.SERVER_USER }}
+          SSH_HOST: ${{ secrets.SERVER_HOST }}
+          SSH_PORT: ${{ secrets.SERVER_PORT }}
+          WEB_ROOT: ${{ secrets.ADMIN_WEB_ROOT }}
+        run: |
+          set -euo pipefail
+          # WEB_ROOT is the directory nginx serves for admin.zakoapp.uz (its `root`). It gets `rsync --delete`d,
+          # so refuse anything that is empty or suspiciously shallow (it must be at least /a/b/c).
+          case "$WEB_ROOT" in
+            /*/*/*) ;;
+            *) echo "::error::ADMIN_WEB_ROOT secret is empty or too short: '$WEB_ROOT'"; exit 1 ;;
+          esac
+
+          SSH="ssh -i $HOME/.ssh/deploy_key -p ${SSH_PORT:-22} -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes"
+          DEST="$SSH_USER@$SSH_HOST"
+          RSYNC="rsync -rlt --chmod=D755,F644 -e"
+
+          $SSH "$DEST" "mkdir -p '$WEB_ROOT/assets'"
+
+          # 1) New hashed assets first. Old ones stay, so tabs that still run the previous build keep loading their lazy chunks.
+          $RSYNC "$SSH" dist/assets/ "$DEST:$WEB_ROOT/assets/"
+
+          # 2) Everything else (index.html, favicon, ...) — only now does index.html start pointing at the new assets.
+          $RSYNC "$SSH" --delete --exclude='/assets/' dist/ "$DEST:$WEB_ROOT/"
+
+          # 3) Drop assets that nothing has referenced for two weeks.
+          $SSH "$DEST" "find '$WEB_ROOT/assets' -type f -mtime +14 -delete"
+
+      - name: Verify the new build is live
+        run: |
+          set -euo pipefail
+          bundle=$(grep -o 'assets/index-[A-Za-z0-9_-]*\.js' dist/index.html | head -n 1)
+          test -n "$bundle"
+          for attempt in 1 2 3 4 5 6; do
+            if curl -fsS --max-time 15 https://admin.zakoapp.uz/ | grep -q "$bundle"; then
+              echo "admin.zakoapp.uz is serving $bundle"
+              exit 0
+            fi
+            echo "attempt $attempt: not live yet, retrying in 5s"
+            sleep 5
+          done
+          echo "::error::https://admin.zakoapp.uz is not serving $bundle (cached index.html, wrong ADMIN_WEB_ROOT, or nginx points elsewhere?)"
+          exit 1
