@@ -1,0 +1,45 @@
+{
+  "language": "Язык",
+  "brand": "Админ",
+  "toggleSidebar": "Открыть / закрыть меню",
+  "theme": {
+    "toLight": "Переключить на светлую тему",
+    "toDark": "Переключить на тёмную тему"
+  },
+  "logout": "Выйти",
+  "notifications": "Уведомления",
+  "fallbackTitle": "Админ",
+  "sections": {
+    "content": "Контент",
+    "platform": "Платформа",
+    "system": "Система"
+  },
+  "nav": {
+    "dashboard": "Панель управления",
+    "users": "Пользователи",
+    "questions": "Вопросы",
+    "subjects": "Предметы",
+    "topics": "Темы",
+    "books": "AI-книги",
+    "aiTests": "AI-тесты",
+    "articles": "Статьи",
+    "cards": "Карты",
+    "avatars": "Аватары",
+    "premiumAvatars": "Премиум-аватары",
+    "store": "Магазин",
+    "seasons": "Сезоны",
+    "dailyRewards": "Ежедневные награды",
+    "leagues": "Лиги",
+    "leaderboard": "Еженедельный ТОП-10",
+    "subscriptions": "Премиум-подписка",
+    "duels": "Дуэли",
+    "friends": "Друзья",
+    "regions": "Регионы",
+    "payments": "Платежи",
+    "ads": "Реклама",
+    "appVersion": "Версия приложения",
+    "admins": "Администраторы",
+    "notifications": "Уведомления",
+    "auditLogs": "Журнал аудита"
+  }
+}

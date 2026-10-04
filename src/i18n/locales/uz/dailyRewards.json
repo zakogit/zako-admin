@@ -1,0 +1,91 @@
+{
+  "title": "Kunlik sovg'alar",
+  "subtitle": "30 kunlik spravochnik takrorlanib kalendar kunlariga ta'sir qiladi. Oddiy sovg'a — faqat tanga; premium — tanga/avatar/karta. Ikkalasi ham {{xp}} XP sharti bilan olinadi.",
+  "tier": {
+    "regular": "Oddiy",
+    "regularOption": "Oddiy (Simple)"
+  },
+  "slot": {
+    "inactive": "{{label}} (faol emas)",
+    "coins_one": "{{count}} tanga",
+    "coins_other": "{{count}} tanga",
+    "avatar": "Avatar E#{{male}}/A#{{female}}",
+    "card": "Karta #{{id}} ×{{amount}}"
+  },
+  "picker": {
+    "empty": "Avatar topilmadi",
+    "premiumTitle": "#{{id}} · premium"
+  },
+  "settings": {
+    "premium": "Premium sozlamalari",
+    "calendar": "Kalendar sozlamalari"
+  },
+  "template": {
+    "title": "{{days}} kunlik shablon (spravochnik)",
+    "description": "Har kun uchun oddiy va premium sovg'ani belgilang. Bu shablon kalendarda takrorlanadi.",
+    "day": "KUN {{day}}"
+  },
+  "calendar": {
+    "title": "Sovg'alar kalendari",
+    "description": "Ma'lum bir kunni shablondan ajratib alohida sovg'a bilan almashtiring (override). Faqat <b>ertangi kundan</b> boshlab o'zgartirish mumkin — bugun va o'tgan kunlar qulflangan.",
+    "todayLocked": "🔒 bugun",
+    "past": "o'tgan",
+    "dayShort": "k{{day}}",
+    "lockedToday": "Bugungi kun — o'zgartirib bo'lmaydi",
+    "lockedPast": "O'tgan kun — o'zgartirib bo'lmaydi",
+    "overrideMark": "(override)",
+    "resetToTemplate": "Shablonga qaytarish"
+  },
+  "editor": {
+    "title": "Sovg'ani sozlash",
+    "dayNumber": "Kun raqami",
+    "rewardTier": "Sovg'a turi",
+    "category": "Sovg'a kategoriyasi",
+    "categories": {
+      "coins": "Tangalar",
+      "card": "Kartalar",
+      "avatar": "Avatarlar"
+    },
+    "premiumOnly": "Faqat Premium",
+    "coinAmount": "Tanga miqdori",
+    "maleAvatar": "Erkaklar avatari *",
+    "femaleAvatar": "Ayollar avatari *",
+    "selectCard": "Kartani tanlang",
+    "selectPlaceholder": "— tanlang —",
+    "name": "Sovg'a nomi (ixtiyoriy)",
+    "namePlaceholder": "Masalan: 50 Tanga",
+    "descriptionLabel": "Tavsif (ixtiyoriy)",
+    "descriptionPlaceholder": "Sovg'a haqida qisqacha...",
+    "activeHint": "Faol (o'chirilsa bu kun/tier sovg'asi berilmaydi)"
+  },
+  "premiumForm": {
+    "price": "Narx ({{currency}})",
+    "duration": "Muddat (kun)",
+    "purchasable": "Sotib olish mumkin",
+    "temporaryDiscount": "Vaqtinchalik chegirma",
+    "activeNow": "Hozir faol",
+    "discountPrice": "Chegirma narxi ({{currency}})",
+    "discountBadge": "−{{percent}}% chegirma",
+    "discountHint": "Chegirma narxi asl narxdan kam bo'lsin",
+    "starts": "Boshlanish",
+    "ends": "Tugash",
+    "removeDiscount": "Chegirmani olib tashlash"
+  },
+  "calendarForm": {
+    "xpRequired": "Kunlik XP sharti",
+    "cycleAnchor": "Tsikl boshlanish sanasi (anchor)",
+    "cycleHelp": "Tsikl uzunligi: {{length}}. Anchor 1-kun sifatida qabul qilinadi.",
+    "cycleBadge": "Tsikl: {{length}}"
+  },
+  "toast": {
+    "templateSaved": "Shablon saqlandi",
+    "overrideSaved": "Kun sovg'asi o'zgartirildi",
+    "resetToTemplate": "Shablonga qaytarildi",
+    "templateDeleted": "Sovg'a o'chirildi",
+    "selectMaleAvatar": "Erkaklar avatarini tanlang",
+    "selectFemaleAvatar": "Ayollar avatarini tanlang",
+    "premiumSaved": "Premium sozlamalari saqlandi",
+    "discountRemoved": "Chegirma olib tashlandi",
+    "calendarSaved": "Kalendar sozlamalari saqlandi"
+  }
+}

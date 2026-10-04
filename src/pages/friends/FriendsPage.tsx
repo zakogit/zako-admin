@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Search, Eye, Trash2, Users, BarChart3, UserPlus, UserMinus, Clock } from 'lucide-react';
+import { Eye, Trash2, Users, BarChart3, UserPlus, UserMinus, Clock } from 'lucide-react';
 import { friendsApi } from '../../api/services';
 import { Table, Badge, Button, Pagination, Modal, EmptyState } from '../../components/ui';
 import { formatDate } from '../../utils/helpers';
 import type { Friendship } from '../../types';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 
 export default function FriendsPage() {
+  const { t } = useTranslation('friends');
   const qc = useQueryClient();
-  const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState('');
   const [selected, setSelected] = useState<Friendship | null>(null);
@@ -18,13 +19,12 @@ export default function FriendsPage() {
   const limit = 20;
 
   const { data: friendsData, isLoading } = useQuery({
-    queryKey: ['admin-friends', page, search, statusFilter],
+    queryKey: ['admin-friends', page, statusFilter],
     queryFn: () => friendsApi.getAll({ 
       page, 
       limit, 
-      search: search || undefined,
       status: statusFilter || undefined
-    }).then(r => r.data),
+    }).then(r => r.data.data),
   });
 
   const { data: statsData } = useQuery({
@@ -35,17 +35,26 @@ export default function FriendsPage() {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => friendsApi.delete(id),
     onSuccess: () => {
-      toast.success('Friendship deleted successfully');
+      toast.success(t('toast.deleted'));
       setDeleteModal(false);
       setSelected(null);
       qc.invalidateQueries({ queryKey: ['admin-friends'] });
     },
-    onError: () => toast.error('Failed to delete friendship'),
+    onError: () => toast.error(t('toast.deleteFailed')),
   });
 
-  const friends: Friendship[] = Array.isArray((friendsData as any)?.data) ? (friendsData as any).data : [];
-  const total: number = (friendsData as any)?.total ?? 0;
-  const stats = Array.isArray((statsData as any)?.data) ? (statsData as any).data : [];
+  const friends: Friendship[] = Array.isArray(friendsData?.data) ? friendsData.data : [];
+  const total: number = friendsData?.total ?? 0;
+  const summary = (statsData as any)?.data?.summary;
+  const stats = summary ? [
+    { label: t('stats.friendships'), value: summary.total_friendships },
+    { label: t('stats.pendingRequests'), value: summary.pending_requests },
+    { label: t('stats.rejected'), value: summary.rejected_requests },
+    { label: t('stats.newThisWeek'), value: summary.new_this_week },
+  ] : [];
+
+  // Backend status values are stable ids ('pending' | 'accepted' | 'rejected') — translate at render time.
+  const statusLabel = (status: string) => t(`status.${status}`, { defaultValue: status });
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -87,7 +96,7 @@ export default function FriendsPage() {
       {/* Toolbar */}
       <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-          Friendships <span className="text-gray-400 font-normal text-base">({total})</span>
+          {t('title')} <span className="text-gray-400 font-normal text-base">({total})</span>
         </h2>
 
         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
@@ -97,34 +106,24 @@ export default function FriendsPage() {
             onChange={e => setStatusFilter(e.target.value)}
             className="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           >
-            <option value="">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="accepted">Accepted</option>
-            <option value="rejected">Rejected</option>
+            <option value="">{t('filters.allStatuses')}</option>
+            <option value="pending">{t('status.pending')}</option>
+            <option value="accepted">{t('status.accepted')}</option>
+            <option value="rejected">{t('status.rejected')}</option>
           </select>
 
-          {/* Search */}
-          <div className="relative flex-1 lg:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input 
-              value={search} 
-              onChange={e => { setSearch(e.target.value); setPage(1); }}
-              placeholder="Search friendships..."
-              className="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
-            />
-          </div>
         </div>
       </div>
 
       {/* Table */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
         {isLoading ? (
-          <div className="p-8 text-center">Loading...</div>
+          <div className="p-8 text-center">{t('common:state.loading')}</div>
         ) : friends.length === 0 ? (
-          <EmptyState message="No friendships found" />
+          <EmptyState message={t('empty')} />
         ) : (
           <>
-            <Table headers={['Users', 'Status', 'Created', 'Updated', '']}>
+            <Table headers={[t('table.users'), t('common:table.status'), t('common:table.created'), t('common:table.updated'), '']}>
               {friends.map((friendship) => (
                 <tr key={friendship.id}>
                   <td className="px-4 py-3">
@@ -140,7 +139,7 @@ export default function FriendsPage() {
                     <div className="flex items-center gap-2">
                       {getStatusIcon(friendship.status)}
                       <Badge color={getStatusColor(friendship.status)}>
-                        {friendship.status}
+                        {statusLabel(friendship.status)}
                       </Badge>
                     </div>
                   </td>
@@ -179,28 +178,28 @@ export default function FriendsPage() {
       </div>
 
       {/* View Modal */}
-      <Modal open={viewModal} onClose={() => { setViewModal(false); setSelected(null); }} title="Friendship Details">
+      <Modal open={viewModal} onClose={() => { setViewModal(false); setSelected(null); }} title={t('modal.viewTitle')}>
         {selected && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Friendship ID</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('modal.friendshipId')}</label>
                 <p className="text-sm">{selected.id}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
-                <Badge color={getStatusColor(selected.status)}>{selected.status}</Badge>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('common:table.status')}</label>
+                <Badge color={getStatusColor(selected.status)}>{statusLabel(selected.status)}</Badge>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Requester</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('modal.requester')}</label>
                 <p className="text-sm">{selected.requester_username}</p>
                 <p className="text-xs text-gray-500">ID: {selected.requester_id}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Addressee</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('modal.addressee')}</label>
                 <p className="text-sm">{selected.addressee_username}</p>
                 <p className="text-xs text-gray-500">ID: {selected.addressee_id}</p>
               </div>
@@ -208,11 +207,11 @@ export default function FriendsPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Created</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('common:table.created')}</label>
                 <p className="text-sm">{formatDate(selected.created_at)}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Updated</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('common:table.updated')}</label>
                 <p className="text-sm">{formatDate(selected.updated_at)}</p>
               </div>
             </div>
@@ -221,29 +220,29 @@ export default function FriendsPage() {
       </Modal>
 
       {/* Delete Modal */}
-      <Modal open={deleteModal} onClose={() => setDeleteModal(false)} title="Delete Friendship">
+      <Modal open={deleteModal} onClose={() => setDeleteModal(false)} title={t('modal.deleteTitle')}>
         <div className="space-y-4">
-          <p>Are you sure you want to delete this friendship? This action cannot be undone.</p>
+          <p>{t('confirm.delete')}</p>
           {selected && (
             <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded">
-              <p className="font-medium">Friendship #{selected.id}</p>
+              <p className="font-medium">{t('confirm.friendship', { id: selected.id })}</p>
               <p className="text-sm text-gray-500">
                 {selected.requester_username} → {selected.addressee_username}
               </p>
-              <p className="text-sm text-gray-500">Status: {selected.status}</p>
+              <p className="text-sm text-gray-500">{t('confirm.status', { status: statusLabel(selected.status) })}</p>
             </div>
           )}
-          
+
           <div className="flex gap-3 pt-4">
             <Button variant="outline" onClick={() => setDeleteModal(false)}>
-              Cancel
+              {t('common:actions.cancel')}
             </Button>
-            <Button 
-              variant="danger" 
+            <Button
+              variant="danger"
               onClick={() => selected && deleteMutation.mutate(selected.id)}
               loading={deleteMutation.isPending}
             >
-              Delete
+              {t('common:actions.delete')}
             </Button>
           </div>
         </div>

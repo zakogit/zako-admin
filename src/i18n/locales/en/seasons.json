@@ -1,0 +1,142 @@
+{
+  "status": {
+    "upcoming": "Upcoming"
+  },
+  "daysLeft_one": "{{count}} day left",
+  "daysLeft_other": "{{count}} days left",
+  "rank": {
+    "single": "Rank {{rank}}",
+    "range": "Ranks {{from}}–{{to}}",
+    "hash": "Rank #{{rank}}"
+  },
+  "form": {
+    "name": "Season name *"
+  },
+  "actions": {
+    "newSeason": "New season",
+    "rename": "Rename",
+    "pause": "Pause",
+    "complete": "Complete",
+    "distributeBadges": "Distribute badges",
+    "cancelSeason": "Cancel season"
+  },
+  "tabs": {
+    "seasons": "Seasons",
+    "badges": "Badges",
+    "overview": "Overview",
+    "leaderboard": "Ranking"
+  },
+  "badges": {
+    "title": "Badge types",
+    "subtitle": "Badges awarded at the end of a season based on leaderboard rank (top 100). The images are shown in the mobile app.",
+    "empty": "No badge types found",
+    "distributed": "Badges distributed"
+  },
+  "list": {
+    "title": "Seasons management",
+    "subtitle": "Manage seasons and the badge system",
+    "allStatuses": "All statuses",
+    "allSeasons": "All seasons",
+    "pipeline": {
+      "current": "Current season",
+      "next": "Next season",
+      "noActive": "No active season",
+      "noUpcoming": "No season in the queue",
+      "nextHint": "Activates automatically when the current season ends",
+      "expiredSoon": "Time is up — it will be completed shortly"
+    },
+    "stats": {
+      "total": "Total seasons"
+    },
+    "table": {
+      "season": "Season",
+      "participants": "Participants",
+      "detailsHint": "All actions are available here"
+    },
+    "empty": {
+      "title": "No seasons found",
+      "hint": "Create a new season"
+    }
+  },
+  "details": {
+    "stats": {
+      "total": "Total participants",
+      "active": "Active participants",
+      "duration": "Duration",
+      "completion": "Completion rate"
+    },
+    "overview": {
+      "infoTitle": "Season information",
+      "start": "Start",
+      "end": "End",
+      "extraTitle": "Additional",
+      "duration": "Season duration",
+      "lastUpdate": "Last updated"
+    },
+    "leaderboard": {
+      "title": "Leaderboard",
+      "empty": "No leaderboard data yet (it fills up once duels are played)",
+      "rank": "Rank",
+      "points": "Points"
+    },
+    "badges": {
+      "title": "Distributed badges",
+      "notDistributed": "Badges have not been distributed yet. When the season ends, the badges below are awarded automatically to the top players (or complete the season manually)."
+    }
+  },
+  "edit": {
+    "title": "Edit season",
+    "nameRequired": "The name must not be empty",
+    "namePlaceholder": "e.g. Winter season",
+    "description": "Description (optional)",
+    "descriptionPlaceholder": "A short description of the season..."
+  },
+  "create": {
+    "title": "Create a new season",
+    "subtitle": "Enter the season details. Seasons automatically last 14 days.",
+    "basicInfo": "Basic information",
+    "namePlaceholder": "e.g. Winter season 2024",
+    "descriptionPlaceholder": "A short description of the season...",
+    "maxParticipants": "Maximum participants",
+    "maxParticipantsPlaceholder": "Leave empty for unlimited",
+    "bannerUrl": "Banner image URL",
+    "submit": "Create season",
+    "info": {
+      "title": "Info",
+      "duration": "Each season lasts 14 days",
+      "sequential": "Seasons start one after another automatically",
+      "badges": "At the end of a season, badges are awarded to the top players"
+    },
+    "validation": {
+      "name": "Season name is required",
+      "startRequired": "Start date is required",
+      "endRequired": "End date is required",
+      "startBeforeEnd": "The start date must be before the end date",
+      "startInFuture": "The start date must be in the future"
+    }
+  },
+  "confirm": {
+    "complete": "Complete the season \"{{title}}\" and distribute the badges? This action cannot be undone.",
+    "cancel": "Do you want to cancel the season?",
+    "delete": "Do you want to delete the season? This action cannot be undone."
+  },
+  "prompts": {
+    "completeNote": "Additional note for completion (optional):"
+  },
+  "toast": {
+    "created": "Season created successfully",
+    "createError": "An error occurred while creating the season",
+    "updated": "Season updated",
+    "updateError": "An error occurred while updating",
+    "statusChanged": "Season status changed",
+    "statusError": "Failed to change the status",
+    "deleted": "Season deleted",
+    "deleteError": "Failed to delete",
+    "completed": "Season completed successfully and badges distributed!",
+    "completeError": "An error occurred while completing the season"
+  },
+  "errors": {
+    "loadFailed": "Failed to load data",
+    "backToList": "Back to the seasons list"
+  }
+}

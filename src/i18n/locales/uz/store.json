@@ -1,0 +1,47 @@
+{
+  "title": "Do'kon paketlari",
+  "subtitle": "Ilovada ko'rsatiladigan paketlar (product_packages) + maxsus taklif / chegirma",
+  "addPackage": "Paket qo'shish",
+  "empty": "Paket yo'q. Birinchi paketni yarating.",
+  "table": {
+    "package": "Paket",
+    "offer": "Taklif"
+  },
+  "form": {
+    "namePlaceholder": "500 Tanga",
+    "bonus": "Bonus",
+    "sortOrder": "Tartib (sort)"
+  },
+  "productType": {
+    "coins": "Tangalar",
+    "premium": "Premium",
+    "cards": "Kartalar"
+  },
+  "offer": {
+    "heading": "Maxsus taklif & chegirma",
+    "type": "Taklif turi",
+    "simple": "Oddiy",
+    "special": "Maxsus taklif",
+    "specialBadge": "Maxsus taklif (badge)",
+    "discountPercent": "Chegirma (%)",
+    "discountStart": "Chegirma boshlanishi",
+    "discountStartHint": "Bo'sh = darhol",
+    "discountEnd": "Chegirma tugashi",
+    "discountEndHint": "Countdown shu vaqtgacha",
+    "note": "Chegirma % > 0 va oyna faol bo'lganda: narx arzonlashadi (ko'rsatiladigan VA olinadigan summa) + barcha foydalanuvchilarga push yuboriladi."
+  },
+  "modal": {
+    "editTitle": "Paketni tahrirlash"
+  },
+  "confirm": {
+    "delete": "Paket o'chirilsinmi?"
+  },
+  "toast": {
+    "created": "Paket yaratildi",
+    "createFailed": "Yaratishda xatolik",
+    "updated": "Paket yangilandi",
+    "updateFailed": "Yangilashda xatolik",
+    "deleted": "Paket o'chirildi",
+    "deleteFailed": "O'chirishda xatolik"
+  }
+}

@@ -22,6 +22,7 @@ import { Table, Badge, Button, Pagination, Modal, EmptyState, Input } from '../.
 import { useForm } from 'react-hook-form';
 import { formatDate, formatNumber, getStaticFileUrl } from '../../utils/helpers';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 
 interface Notification {
   id: number;
@@ -39,6 +40,7 @@ interface Notification {
 }
 
 export default function NotificationsPage() {
+  const { t } = useTranslation('notifications');
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -85,9 +87,8 @@ export default function NotificationsPage() {
     onSuccess: (res: any) => {
       const sent = res?.data?.data?.sent_count ?? 0;
       const pushSent = res?.data?.data?.push_sent;
-      toast.success(
-        `✅ ${formatNumber(sent)} ta foydalanuvchiga yuborildi${pushSent === false ? ' (push o\'chiq - faqat inbox)' : ''}`,
-      );
+      const sentMessage = t('toast.sent', { count: sent });
+      toast.success(pushSent === false ? `${sentMessage} ${t('toast.pushOff')}` : sentMessage);
       setCreateModal(false);
       resetCreate();
       setImageUrl(null);
@@ -95,7 +96,7 @@ export default function NotificationsPage() {
       qc.invalidateQueries({ queryKey: ['notifications-stats'] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Xabar yuborishda xatolik');
+      toast.error(error.response?.data?.message || t('toast.sendError'));
     },
   });
 
@@ -107,31 +108,31 @@ export default function NotificationsPage() {
     },
     onSuccess: (url) => {
       setImageUrl(url);
-      toast.success('Rasm yuklandi');
+      toast.success(t('toast.imageUploaded'));
     },
-    onError: (error: any) => toast.error(error.response?.data?.message || 'Rasm yuklashda xatolik'),
+    onError: (error: any) => toast.error(error.response?.data?.message || t('toast.imageUploadError')),
   });
 
   const handleImagePick = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file) return;
-    if (!file.type.startsWith('image/')) { toast.error('Faqat rasm fayllari'); return; }
-    if (file.size > 5 * 1024 * 1024) { toast.error('Rasm 5MB dan oshmasligi kerak'); return; }
+    if (!file.type.startsWith('image/')) { toast.error(t('toast.imageOnly')); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error(t('toast.imageTooLarge')); return; }
     uploadImageMutation.mutate(file);
   };
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => notificationsApi.delete(id),
     onSuccess: () => {
-      toast.success('Notification o\'chirildi');
+      toast.success(t('toast.deleted'));
       setDeleteModal(false);
       setSelected(null);
       qc.invalidateQueries({ queryKey: ['admin-notifications'] });
       qc.invalidateQueries({ queryKey: ['notifications-stats'] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Notification o\'chirishda xatolik');
+      toast.error(error.response?.data?.message || t('toast.deleteError'));
     },
   });
 
@@ -158,7 +159,7 @@ export default function NotificationsPage() {
             .filter((n: number) => Number.isInteger(n) && n > 0)
         : [];
     if (d.target_type === 'specific' && targetUsers.length === 0) {
-      toast.error("Kamida bitta to'g'ri user ID kiriting");
+      toast.error(t('toast.userIdsRequired'));
       return;
     }
     createMutation.mutate({
@@ -195,10 +196,10 @@ export default function NotificationsPage() {
 
   const getTargetLabel = (targetType: string) => {
     switch (targetType) {
-      case 'all': return 'Barcha foydalanuvchilar';
-      case 'verified': return 'Tasdiqlangan foydalanuvchilar';
-      case 'premium': return 'Premium foydalanuvchilar';
-      case 'specific': return 'Tanlangan foydalanuvchilar';
+      case 'all': return t('target.all');
+      case 'verified': return t('target.verified');
+      case 'premium': return t('target.premium');
+      case 'specific': return t('target.specific');
       default: return targetType;
     }
   };
@@ -211,7 +212,7 @@ export default function NotificationsPage() {
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Jami Notifications</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('stats.total')}</p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
                   {formatNumber(stats.total_notifications || 0)}
                 </p>
@@ -225,7 +226,7 @@ export default function NotificationsPage() {
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">O'qilmagan</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('status.unread')}</p>
                 <p className="text-3xl font-bold text-orange-600 dark:text-orange-400 mt-2">
                   {formatNumber(stats.unread_notifications || 0)}
                 </p>
@@ -239,7 +240,7 @@ export default function NotificationsPage() {
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Bugungi</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('stats.today')}</p>
                 <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">
                   {formatNumber(stats.notifications_today || 0)}
                 </p>
@@ -253,7 +254,7 @@ export default function NotificationsPage() {
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Haftalik</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('stats.thisWeek')}</p>
                 <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-2">
                   {formatNumber(stats.notifications_this_week || 0)}
                 </p>
@@ -271,11 +272,11 @@ export default function NotificationsPage() {
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              📢 Notification Boshqaruvi
+              {t('title')}
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Barcha foydalanuvchilar uchun notification yuborish va boshqarish
-              <span className="ml-2 text-sm font-medium">({formatNumber(total)} ta notification)</span>
+              {t('subtitle')}
+              <span className="ml-2 text-sm font-medium">{t('totalCount', { count: total })}</span>
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
@@ -284,7 +285,7 @@ export default function NotificationsPage() {
               className="flex items-center gap-2"
             >
               <Send className="w-4 h-4" />
-              Xabar yuborish
+              {t('actions.sendMessage')}
             </Button>
             <Button
               variant="outline"
@@ -292,7 +293,7 @@ export default function NotificationsPage() {
               className="flex items-center gap-2"
             >
               <Settings className="w-4 h-4" />
-              Templatelar
+              {t('actions.templates')}
             </Button>
           </div>
         </div>
@@ -304,7 +305,7 @@ export default function NotificationsPage() {
             <input 
               value={search} 
               onChange={e => { setSearch(e.target.value); setPage(1); }}
-              placeholder="Notification qidiring (sarlavha yoki matn bo'yicha)..."
+              placeholder={t('filters.search')}
               className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
             />
           </div>
@@ -315,12 +316,12 @@ export default function NotificationsPage() {
               onChange={e => setStatusFilter(e.target.value)}
               className="px-3 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">🏷️ Barcha turlar</option>
-              <option value="WELCOME">🎉 Xush kelibsiz</option>
-              <option value="BIRTHDAY_GIFT">🎂 Tug'ilgan kun</option>
-              <option value="ADMIN_MESSAGE">👤 Admin xabari</option>
-              <option value="BROADCAST">📢 Broadcast</option>
-              <option value="SYSTEM">⚙️ Tizim</option>
+              <option value="">{t('types.filter.all')}</option>
+              <option value="WELCOME">{t('types.filter.WELCOME')}</option>
+              <option value="BIRTHDAY_GIFT">{t('types.filter.BIRTHDAY_GIFT')}</option>
+              <option value="ADMIN_MESSAGE">{t('types.filter.ADMIN_MESSAGE')}</option>
+              <option value="BROADCAST">{t('types.filter.BROADCAST')}</option>
+              <option value="SYSTEM">{t('types.filter.SYSTEM')}</option>
             </select>
           </div>
         </div>
@@ -329,13 +330,20 @@ export default function NotificationsPage() {
       {/* Notifications Table */}
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <Table 
-          headers={['📬 Notification', '🏷️ Turi', '🎯 Maqsad', '📊 Qabul qilinganlar', '📅 Yaratilgan', '⚡ Amallar']} 
+          headers={[
+            `📬 ${t('table.notification')}`,
+            `🏷️ ${t('common:table.type')}`,
+            `🎯 ${t('table.target')}`,
+            `📊 ${t('table.recipients')}`,
+            `📅 ${t('common:table.created')}`,
+            `⚡ ${t('common:table.actions')}`,
+          ]} 
           loading={isLoading}
         >
           {notifications.length === 0 && !isLoading ? (
             <tr><td colSpan={6}>
               <EmptyState 
-                message="Hech qanday notification topilmadi" 
+                message={t('empty')} 
               />
             </td></tr>
           ) : notifications.map((notification) => (
@@ -354,7 +362,7 @@ export default function NotificationsPage() {
                     </p>
                     {notification.recipient_username && (
                       <p className="text-xs text-gray-500 mt-1">
-                        Qabul qiluvchi: {notification.recipient_username}
+                        {t('table.recipient', { username: notification.recipient_username })}
                       </p>
                     )}
                   </div>
@@ -362,11 +370,11 @@ export default function NotificationsPage() {
               </td>
               <td className="px-6 py-4">
                 <Badge color={getTypeColor(notification.type)}>
-                  {notification.type === 'WELCOME' && '🎉 Xush kelibsiz'}
-                  {notification.type === 'BIRTHDAY_GIFT' && '🎂 Tug\'ilgan kun'}
-                  {notification.type === 'ADMIN_MESSAGE' && '👤 Admin'}
-                  {notification.type === 'BROADCAST' && '📢 Broadcast'}
-                  {notification.type === 'SYSTEM' && '⚙️ Tizim'}
+                  {notification.type === 'WELCOME' && t('types.badge.WELCOME')}
+                  {notification.type === 'BIRTHDAY_GIFT' && t('types.badge.BIRTHDAY_GIFT')}
+                  {notification.type === 'ADMIN_MESSAGE' && t('types.badge.ADMIN_MESSAGE')}
+                  {notification.type === 'BROADCAST' && t('types.badge.BROADCAST')}
+                  {notification.type === 'SYSTEM' && t('types.badge.SYSTEM')}
                   {!['WELCOME', 'BIRTHDAY_GIFT', 'ADMIN_MESSAGE', 'BROADCAST', 'SYSTEM'].includes(notification.type) && notification.type}
                 </Badge>
               </td>
@@ -383,7 +391,7 @@ export default function NotificationsPage() {
                   <span className="text-lg font-semibold text-blue-600 dark:text-blue-400">
                     {formatNumber(notification.sent_count || 0)}
                   </span>
-                  <p className="text-xs text-gray-500">foydalanuvchi</p>
+                  <p className="text-xs text-gray-500">{t('table.users')}</p>
                 </div>
               </td>
               <td className="px-6 py-4">
@@ -391,7 +399,7 @@ export default function NotificationsPage() {
                   <div>{formatDate(notification.created_at)}</div>
                   {notification.created_by_username && (
                     <div className="text-xs text-gray-500 mt-1">
-                      {notification.created_by_username} tomonidan
+                      {t('table.createdBy', { username: notification.created_by_username })}
                     </div>
                   )}
                 </div>
@@ -400,14 +408,14 @@ export default function NotificationsPage() {
                 <div className="flex gap-1">
                   <button 
                     onClick={() => {setSelected(notification); setDeliveryModal(true);}} 
-                    title="Delivery hisoboti"
+                    title={t('table.deliveryReport')}
                     className="p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 text-green-600 dark:text-green-400 transition"
                   >
                     <Eye className="w-4 h-4" />
                   </button>
                   <button 
                     onClick={() => { setSelected(notification); setDeleteModal(true); }} 
-                    title="O'chirish"
+                    title={t('common:actions.delete')}
                     className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -434,7 +442,7 @@ export default function NotificationsPage() {
       <Modal 
         open={deliveryModal} 
         onClose={() => setDeliveryModal(false)} 
-        title={`📊 Delivery Hisoboti - ${selected?.title}`}
+        title={t('delivery.title', { title: selected?.title ?? '' })}
         size="lg"
       >
         <div className="space-y-6">
@@ -444,19 +452,19 @@ export default function NotificationsPage() {
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
                   <div className="text-center">
                     <p className="text-2xl font-bold text-blue-600">{formatNumber(deliveryData.total)}</p>
-                    <p className="text-sm text-blue-700">Jami</p>
+                    <p className="text-sm text-blue-700">{t('common:table.total')}</p>
                   </div>
                 </div>
                 <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
                   <div className="text-center">
                     <p className="text-2xl font-bold text-green-600">{formatNumber(deliveryData.delivered)}</p>
-                    <p className="text-sm text-green-700">Yetkazildi</p>
+                    <p className="text-sm text-green-700">{t('delivery.delivered')}</p>
                   </div>
                 </div>
                 <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
                   <div className="text-center">
                     <p className="text-2xl font-bold text-yellow-600">{formatNumber(deliveryData.read)}</p>
-                    <p className="text-sm text-yellow-700">O'qildi</p>
+                    <p className="text-sm text-yellow-700">{t('status.read')}</p>
                   </div>
                 </div>
                 <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
@@ -464,21 +472,21 @@ export default function NotificationsPage() {
                     <p className="text-2xl font-bold text-purple-600">
                       {deliveryData.total > 0 ? Math.round((deliveryData.read / deliveryData.total) * 100) : 0}%
                     </p>
-                    <p className="text-sm text-purple-700">O'qilish foizi</p>
+                    <p className="text-sm text-purple-700">{t('delivery.readRate')}</p>
                   </div>
                 </div>
               </div>
 
               {deliveryData.data && deliveryData.data.length > 0 && (
                 <div>
-                  <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Qabul qiluvchilar ro'yxati</h4>
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3">{t('delivery.recipientsList')}</h4>
                   <div className="max-h-64 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg">
                     <table className="w-full">
                       <thead className="bg-gray-50 dark:bg-gray-800">
                         <tr>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Foydalanuvchi</th>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Holati</th>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Vaqt</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{t('common:table.user')}</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{t('common:table.status')}</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{t('delivery.time')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -487,7 +495,7 @@ export default function NotificationsPage() {
                             <td className="px-4 py-2 text-sm">{item.username}</td>
                             <td className="px-4 py-2">
                               <Badge color={item.is_read ? 'green' : 'yellow'}>
-                                {item.is_read ? 'O\'qildi' : 'O\'qilmagan'}
+                                {item.is_read ? t('status.read') : t('status.unread')}
                               </Badge>
                             </td>
                             <td className="px-4 py-2 text-sm text-gray-500">{formatDate(item.created_at)}</td>
@@ -507,22 +515,22 @@ export default function NotificationsPage() {
 
           <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
             <Button onClick={() => setDeliveryModal(false)}>
-              ✅ Yopish
+              ✅ {t('common:actions.close')}
             </Button>
           </div>
         </div>
       </Modal>
 
       {/* Delete Modal */}
-      <Modal open={deleteModal} onClose={() => setDeleteModal(false)} title="🗑️ Notification O'chirish">
+      <Modal open={deleteModal} onClose={() => setDeleteModal(false)} title={t('deleteModal.title')}>
         <div className="space-y-4">
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
               <AlertCircle className="w-5 h-5 text-red-600" />
-              <h3 className="font-medium text-red-900 dark:text-red-100">Ogoh bo'ling!</h3>
+              <h3 className="font-medium text-red-900 dark:text-red-100">{t('deleteModal.warningTitle')}</h3>
             </div>
             <p className="text-sm text-red-700 dark:text-red-300">
-              Bu amalni qaytarib bo'lmaydi. Notification butunlay o'chirib tashlanadi.
+              {t('deleteModal.warning')}
             </p>
           </div>
 
@@ -531,63 +539,62 @@ export default function NotificationsPage() {
               <h4 className="font-medium text-gray-900 dark:text-gray-100">{selected.title}</h4>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{selected.message}</p>
               <p className="text-xs text-gray-500 mt-2">
-                Yaratilgan: {formatDate(selected.created_at)} | 
-                Yuborilgan: {formatNumber(selected.sent_count || 0)} ta foydalanuvchiga
+                {t('deleteModal.meta', { date: formatDate(selected.created_at), count: selected.sent_count || 0 })}
               </p>
             </div>
           )}
           
           <div className="flex gap-3 pt-4">
             <Button variant="outline" onClick={() => setDeleteModal(false)} className="flex-1">
-              ❌ Bekor qilish
+              ❌ {t('common:actions.cancel')}
             </Button>
             <Button 
               onClick={() => selected && deleteMutation.mutate(selected.id)}
               loading={deleteMutation.isPending}
               className="flex-1 bg-red-600 hover:bg-red-700 text-white"
             >
-              🗑️ O'chirish
+              🗑️ {t('common:actions.delete')}
             </Button>
           </div>
         </div>
       </Modal>
 
       {/* Create Notification Modal */}
-      <Modal open={createModal} onClose={() => setCreateModal(false)} title="📨 Xabar yuborish" size="lg">
+      <Modal open={createModal} onClose={() => setCreateModal(false)} title={`📨 ${t('actions.sendMessage')}`} size="lg">
         <form onSubmit={submitCreate(onSendSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input 
-              label="Sarlavha" 
-              placeholder="Notification sarlavhasi"
-              {...regCreate('title', { required: 'Sarlavha majburiy' })} 
+              label={t('common:table.title')} 
+              placeholder={t('form.titlePlaceholder')}
+              {...regCreate('title', { required: t('validation.title') })} 
               error={errCreate.title?.message as string}
             />
             <div className="space-y-1">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Turi
+                {t('common:table.type')}
               </label>
               <select 
-                {...regCreate('type', { required: 'Turi majburiy' })}
+                {...regCreate('type', { required: t('validation.type') })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="">Turni tanlang</option>
-                <option value="ADMIN_MESSAGE">Admin Xabari</option>
-                <option value="BROADCAST">Broadcast</option>
-                <option value="SYSTEM">Tizim</option>
-                <option value="ANNOUNCEMENT">E'lon</option>
-                <option value="MAINTENANCE">Texnik Ishlar</option>
+                <option value="">{t('types.form.placeholder')}</option>
+                <option value="ADMIN_MESSAGE">{t('types.form.ADMIN_MESSAGE')}</option>
+                <option value="BROADCAST">{t('types.form.BROADCAST')}</option>
+                <option value="SYSTEM">{t('types.form.SYSTEM')}</option>
+                <option value="ANNOUNCEMENT">{t('types.form.ANNOUNCEMENT')}</option>
+                <option value="MAINTENANCE">{t('types.form.MAINTENANCE')}</option>
               </select>
             </div>
           </div>
 
           <div className="space-y-1">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Xabar matni
+              {t('form.messageLabel')}
             </label>
             <textarea 
-              {...regCreate('message', { required: 'Xabar majburiy' })}
+              {...regCreate('message', { required: t('validation.message') })}
               rows={4}
-              placeholder="Notification xabari..."
+              placeholder={t('form.messagePlaceholder')}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             {errCreate.message && (
@@ -597,22 +604,22 @@ export default function NotificationsPage() {
 
           {/* Rasm (photo + text push). iOS'da rasm Notification Service Extension bo'lsa ko'rinadi. */}
           <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Rasm (ixtiyoriy)</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('form.imageLabel')}</label>
             {imageUrl ? (
               <div className="flex items-center gap-3 p-2 rounded-lg border border-gray-200 dark:border-gray-700">
                 <img src={getStaticFileUrl(imageUrl)} alt="" className="w-20 h-20 rounded object-cover bg-gray-100 dark:bg-gray-800" />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-gray-500 truncate">{imageUrl}</p>
-                  <p className="text-xs text-gray-400">Push va inbox'da ko'rsatiladi</p>
+                  <p className="text-xs text-gray-400">{t('form.imageHint')}</p>
                 </div>
-                <button type="button" onClick={() => setImageUrl(null)} className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800" title="Olib tashlash">
+                <button type="button" onClick={() => setImageUrl(null)} className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800" title={t('form.removeImage')}>
                   <X className="w-4 h-4" />
                 </button>
               </div>
             ) : (
               <label className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-gray-300 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-400 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
                 <ImageIcon className="w-4 h-4" />
-                {uploadImageMutation.isPending ? 'Yuklanmoqda…' : 'Rasm tanlash (JPG/PNG/WEBP, 5MB gacha)'}
+                {uploadImageMutation.isPending ? t('common:state.loading') : t('form.pickImage')}
                 <input type="file" accept="image/*" className="hidden" onChange={handleImagePick} disabled={uploadImageMutation.isPending} />
               </label>
             )}
@@ -620,24 +627,24 @@ export default function NotificationsPage() {
 
           <div className="space-y-1">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Kimga yuborish
+              {t('form.sendTo')}
             </label>
             <select 
-              {...regCreate('target_type', { required: 'Target majburiy' })}
+              {...regCreate('target_type', { required: t('validation.target') })}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="">Targetni tanlang</option>
-              <option value="all">🌍 Barchaga</option>
-              <option value="verified">✅ Tasdiqlanganlarga</option>
-              <option value="premium">👑 Premium foydalanuvchilarga</option>
-              <option value="specific">🎯 Aniq foydalanuvchilarga</option>
+              <option value="">{t('form.targetPlaceholder')}</option>
+              <option value="all">{t('form.targets.all')}</option>
+              <option value="verified">{t('form.targets.verified')}</option>
+              <option value="premium">{t('form.targets.premium')}</option>
+              <option value="specific">{t('form.targets.specific')}</option>
             </select>
           </div>
 
           {watchedTargetType === 'specific' && (
             <div className="space-y-1">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Foydalanuvchi ID'lari (vergul bilan ajrating)
+                {t('form.userIds')}
               </label>
               <input 
                 type="text"
@@ -645,13 +652,13 @@ export default function NotificationsPage() {
                 placeholder="1, 2, 3, 4"
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
-              <p className="text-xs text-gray-500">Masalan: 1, 2, 3, 4</p>
+              <p className="text-xs text-gray-500">{t('form.userIdsExample')}</p>
             </div>
           )}
 
           {/* Template Buttons */}
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-            <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-3">Templatelar:</h4>
+            <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-3">{t('form.templates')}</h4>
             <div className="flex flex-wrap gap-2">
               {templatesData?.map((template: any) => (
                 <button
@@ -668,22 +675,22 @@ export default function NotificationsPage() {
 
           <div className="flex gap-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setCreateModal(false)} className="flex-1">
-              Bekor qilish
+              {t('common:actions.cancel')}
             </Button>
             <Button type="submit" loading={createMutation.isPending} className="flex-1">
               <Send className="w-4 h-4 mr-2" />
-              Yuborish
+              {t('common:actions.send')}
             </Button>
           </div>
         </form>
       </Modal>
 
       {/* Templates Modal */}
-      <Modal open={templatesModal} onClose={() => setTemplatesModal(false)} title="Notification Templatelar" size="lg">
+      <Modal open={templatesModal} onClose={() => setTemplatesModal(false)} title={t('templates.title')} size="lg">
         <div className="space-y-4">
           <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              Bu yerda mavjud templatelarni ko'rishingiz va tahrirlashingiz mumkin:
+              {t('templates.description')}
             </p>
             
             {templatesData && templatesData.length > 0 ? (
@@ -703,20 +710,20 @@ export default function NotificationsPage() {
                         </p>
                       </div>
                       <Badge color={template.is_active ? 'green' : 'red'}>
-                        {template.is_active ? 'Faol' : 'Nofaol'}
+                        {template.is_active ? t('common:status.active') : t('common:status.inactive')}
                       </Badge>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <EmptyState message="Template topilmadi" />
+              <EmptyState message={t('templates.empty')} />
             )}
           </div>
           
           <div className="flex gap-3">
             <Button variant="outline" onClick={() => setTemplatesModal(false)} className="flex-1">
-              Yopish
+              {t('common:actions.close')}
             </Button>
           </div>
         </div>

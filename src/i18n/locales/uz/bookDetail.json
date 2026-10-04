@@ -1,0 +1,169 @@
+{
+  "pageCount_one": "{{count}} sahifa",
+  "pageCount_other": "{{count}} sahifa",
+  "quality": {
+    "badge": "Matn sifati: {{avg}}%",
+    "lowPages": "Past sifatli sahifalar: {{pages}}",
+    "lowPageItem": "{{page}}-bet ({{score}}%)",
+    "allClean": "Barcha sahifalar toza indekslangan"
+  },
+  "vision": {
+    "badge_one": "Vision: {{count}} sahifa",
+    "badge_other": "Vision: {{count}} sahifa",
+    "title": "Past sifatli/skanerlangan sahifalar Gemini vision orqali qayta o'qildi"
+  },
+  "errorCard": {
+    "failed": "Xato yuz berdi",
+    "needsOcr": "Skanerlangan kitob"
+  },
+  "actions": {
+    "start": "Boshlash"
+  },
+  "difficulty": {
+    "easy": "Oson",
+    "medium": "O'rta",
+    "hard": "Qiyin"
+  },
+  "reanalyze": {
+    "button": "Qayta tahlil",
+    "modalTitle": "Qayta tahlil",
+    "body": "Mavjud mavzular va draft savollar o'chirilib, AI tahlili qaytadan ishga tushadi (tasdiqlangan savollar bazada qoladi). Davom etasizmi?",
+    "started": "Qayta tahlil boshlandi"
+  },
+  "subject": {
+    "title": "1. Fanni belgilash",
+    "hint": "Bu kitobdan chiqadigan barcha savollar mobil ilovada shu fan ostida ko'rinadi",
+    "assigned": "Belgilangan: {{name}}",
+    "proposal": "AI taklifi: <b>{{name}}</b> · ishonch:",
+    "proposalNew": "AI taklifi: <b>{{name}}</b> (yangi fan) · ishonch:",
+    "confidenceLevel": {
+      "high": "yuqori",
+      "medium": "o'rta",
+      "low": "past"
+    },
+    "newName": "Yangi fan nomi",
+    "newNamePlaceholder": "Masalan: Tarix",
+    "gradeLabel": "Sinf (1-11)",
+    "pickExisting": "Mavjud fandan tanlash",
+    "createNew": "+ Yangi fan yaratish",
+    "confirmed": "Fan tasdiqlandi"
+  },
+  "topics": {
+    "title": "2. Mavzular va sahifa chegaralari",
+    "confirmedCount": "({{done}}/{{total}} tasdiqlangan)",
+    "hint": "Savollar aynan shu sahifa oralig'idagi matndan tuziladi — 👁 bilan chegarani tekshirib tasdiqlang. <b>\"{{appTopic}}\"</b>: savol qo'shilganda ilovadagi qaysi mavzu ostiga tushishini belgilaydi — tanlamasangiz, kitob mavzusi nomi bilan yangi mavzu avtomatik ochiladi.",
+    "add": "+ Mavzu qo'shish",
+    "confirmAll": "Hammasini tasdiqlash",
+    "empty": "Mavzular topilmadi — qo'lda qo'shishingiz mumkin",
+    "table": {
+      "pages": "Sahifalar",
+      "appTopic": "Mobil ilova mavzusi",
+      "questions": "Savollar",
+      "boundary": "Chegara"
+    },
+    "autoOption": "Avto: yangi mavzu ochiladi",
+    "draftApproved_one": "{{count}} draft / {{approved}} ✓",
+    "draftApproved_other": "{{count}} draft / {{approved}} ✓",
+    "unconfirm": "Tasdiqni bekor qilish",
+    "boundaryOk": "Chegara OK",
+    "unchecked": "Tekshirilmagan",
+    "viewPage": "Sahifa matnini ko'rish",
+    "toast": {
+      "allConfirmed": "Barcha mavzular tasdiqlandi",
+      "deleted": "Mavzu o'chirildi",
+      "added": "Mavzu qo'shildi"
+    },
+    "addModal": {
+      "title": "Mavzu qo'shish",
+      "name": "Mavzu nomi",
+      "startPage": "Boshlanish sahifasi",
+      "endPage": "Tugash sahifasi"
+    }
+  },
+  "preview": {
+    "title": "\"{{title}}\" — sahifa tekshiruvi",
+    "pageInfo": "{{page}}-sahifa (mavzu: {{start}}–{{end}})",
+    "pageHeading": "— {{page}}-sahifa —",
+    "emptyPage": "(bo'sh sahifa yoki matn qatlami yo'q)"
+  },
+  "generation": {
+    "title": "3. Savol generatsiyasi",
+    "topicsCount_one": "{{count}} mavzu",
+    "topicsCount_other": "{{count}} mavzu",
+    "questionsCount_one": "{{count}} savol",
+    "questionsCount_other": "{{count}} savol",
+    "selectAll": "Hammasini tanlash ({{topics}})",
+    "perTopic": "Har mavzuga savol",
+    "diffError": "Kamida bitta qiyinlik darajasiga 0 dan katta qiymat kiriting",
+    "diffNormalized": "Nisbatlar avtomatik 100% ga keltiriladi: oson {{easy}}% · o'rta {{medium}}% · qiyin {{hard}}%",
+    "selectedSummary": "Tanlangan: {{topics}} × {{perTopic}} = ~{{total}}",
+    "estimate": "smeta: ~{{tokens}}K token · <b>~${{cost}}</b>",
+    "batchNote": "(batch, 50% chegirma hisobga olingan)",
+    "jobLine": "Job #{{id}}: <b>{{status}}</b> — {{questions}}, {{done}}/{{total}} mavzu, {{inTokens}}K in / {{outTokens}}K out token",
+    "jobError": "xato: {{error}}",
+    "toast": {
+      "started": "Generatsiya boshlandi",
+      "cancelled": "Job bekor qilindi"
+    }
+  },
+  "job": {
+    "batchRunning": "Batch rejimda ishlanmoqda (50% tejamkor) — natija bir yo'la keladi",
+    "running_one": "Generatsiya ketmoqda: {{done}}/{{total}} mavzu · {{count}} savol yaratildi",
+    "running_other": "Generatsiya ketmoqda: {{done}}/{{total}} mavzu · {{count}} savol yaratildi",
+    "stop": "To'xtatish",
+    "tokens": "Token: {{inTokens}}K in / {{outTokens}}K out"
+  },
+  "drafts": {
+    "title": "4. Savollarni bazaga qo'shish",
+    "hint": "AI yaratgan savollar avval shu yerda \"draft\" bo'lib turadi va <b>mobil ilovada ko'rinmaydi</b>. Siz \"{{approve}}\" bosgan savollargina o'quvchilarga chiqadi. \"{{review}}\" dagilarni tahrirlab qo'shing yoki rad eting.",
+    "bulkAddTopic": "Shu mavzu tayyorlarini qo'shish ({{ready}})",
+    "bulkAddBook": "Barcha tayyorlarni qo'shish ({{ready}})",
+    "reviewedOf": "{{total}} tadan {{reviewed}} tasi ko'rib chiqilgan",
+    "allTopics": "Barcha mavzular",
+    "tabs": {
+      "needsReview": "Diqqat kerak",
+      "approved": "Bazaga qo'shilgan"
+    },
+    "empty": {
+      "pending": "Bu bo'limda savol qolmadi — boshqa tabni tekshiring",
+      "other": "Bu bo'limda savol yo'q"
+    },
+    "toast": {
+      "approved": "✓ Savol bazaga qo'shildi — mobil ilovada chiqadi",
+      "rejected": "Savol rad etildi — hech qayerda ishlatilmaydi",
+      "bulkApproved_one": "{{count}} ta savol bazaga qo'shildi",
+      "bulkApproved_other": "{{count}} ta savol bazaga qo'shildi"
+    },
+    "bulk": {
+      "title": "Ommaviy bazaga qo'shish",
+      "bodyBook_one": "Kitobdagi barcha tayyor (manbasi tasdiqlangan, \"{{pending}}\" holatidagi) {{count}} ta savol bazaga qo'shiladi va mobil ilovada chiqa boshlaydi.",
+      "bodyBook_other": "Kitobdagi barcha tayyor (manbasi tasdiqlangan, \"{{pending}}\" holatidagi) {{count}} ta savol bazaga qo'shiladi va mobil ilovada chiqa boshlaydi.",
+      "bodyTopic_one": "Shu mavzudagi {{count}} ta tayyor savol bazaga qo'shiladi.",
+      "bodyTopic_other": "Shu mavzudagi {{count}} ta tayyor savol bazaga qo'shiladi.",
+      "bodyTail": "\"{{review}}\" dagilar qo'shilmaydi — ularni alohida ko'rib chiqasiz. Davom etasizmi?"
+    }
+  },
+  "card": {
+    "quality": "Sifat: {{score}}/10",
+    "explanation": "Izoh: {{text}}",
+    "sourceVerified": "Manba tasdiqlangan · {{page}}-sahifa",
+    "attention": "Diqqat: {{reason}}",
+    "sourceUnverified": "manba tasdiqlanmagan",
+    "approvedBadge": "✓ Bazaga qo'shilgan — mobil ilovada chiqadi",
+    "rejectedBadge": "Rad etilgan — ishlatilmaydi",
+    "editTitle": "Savolni tahrirlash",
+    "rejectTitle": "Savol yaroqsiz — ishlatilmasin",
+    "reject": "Rad etish",
+    "approveTitle": "Savol bazaga qo'shiladi va mobil ilovada chiqadi",
+    "approve": "Bazaga qo'shish"
+  },
+  "edit": {
+    "title": "Savolni tahrirlash",
+    "questionText": "Savol matni",
+    "options": "Variantlar (to'g'ri javobni belgilang)",
+    "explanation": "Izoh",
+    "toast": {
+      "updated": "Draft yangilandi"
+    }
+  }
+}

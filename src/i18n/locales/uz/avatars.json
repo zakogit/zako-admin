@@ -1,0 +1,90 @@
+{
+  "title": "Avatarlar",
+  "empty": "Avatarlar topilmadi",
+  "avatarAlt": "Avatar",
+  "stats": {
+    "total": "Jami avatarlar",
+    "male": "Erkak",
+    "female": "Ayol"
+  },
+  "gender": {
+    "male": "Erkak",
+    "female": "Ayol",
+    "both": "Ikkalasi"
+  },
+  "filters": {
+    "allGenders": "Barcha jinslar",
+    "allTypes": "Barcha turlar"
+  },
+  "actions": {
+    "upload": "Avatar yuklash",
+    "files": "Fayllar",
+    "add": "Avatar qo'shish"
+  },
+  "table": {
+    "preview": "Ko'rinishi",
+    "gender": "Jinsi",
+    "usage": "Foydalanish",
+    "usageCount_one": "{{count}} ta foydalanuvchi",
+    "usageCount_other": "{{count}} ta foydalanuvchi"
+  },
+  "modal": {
+    "addTitle": "Avatar qo'shish",
+    "editTitle": "Avatarni tahrirlash",
+    "deleteTitle": "Avatarni o'chirish",
+    "uploadTitle": "Avatar yuklash",
+    "manageTitle": "Avatar fayllarini boshqarish"
+  },
+  "form": {
+    "image": "Avatar rasmi",
+    "imageHint": "PNG, JPG yoki JPEG, maksimal 5MB",
+    "preview": "Oldindan ko'rish:",
+    "previewAlt": "Oldindan ko'rish",
+    "currentAvatar": "Hozirgi avatar:",
+    "currentAvatarAlt": "Hozirgi avatar",
+    "editHint": "Faqat jins va premium holatini o'zgartirish mumkin",
+    "gender": "Jinsi",
+    "selectGender": "Jinsni tanlang",
+    "premiumAvatar": "Premium avatar"
+  },
+  "validation": {
+    "genderRequired": "Jinsni tanlash majburiy"
+  },
+  "confirm": {
+    "deleteText": "Bu avatarni o'chirishni tasdiqlaysizmi? Bu amalni bekor qilib bo'lmaydi."
+  },
+  "upload": {
+    "categoriesTitle": "Avatar kategoriyalari:",
+    "categoriesHint": "Avatar fayllarini to'g'ri papkaga yuklang. Har bir kategoriya uchun alohida yuklash kerak.",
+    "freeMale": "Bepul erkak avatarlari",
+    "freeFemale": "Bepul ayol avatarlari",
+    "premiumMale": "Premium erkak avatarlari",
+    "premiumFemale": "Premium ayol avatarlari",
+    "requirements": "Talablar:",
+    "reqImages": "Faqat rasm fayllari (PNG, JPG, JPEG)",
+    "reqSize": "Maksimal fayl hajmi: 5MB",
+    "reqDimensions": "Tavsiya etilgan o'lcham: 512x512px",
+    "reqAutoName": "Fayl avtomatik nomlanadi va papkaga joylashadi"
+  },
+  "manage": {
+    "existingFiles": "Mavjud avatar fayllari:",
+    "freeAvatars": "Bepul avatarlar",
+    "premiumAvatars": "Premium avatarlar",
+    "filesCount_one": "{{count}} ta fayl",
+    "filesCount_other": "{{count}} ta fayl",
+    "note": "<b>Eslatma:</b> Fayl boshqaruvi va o'chirish funksiyalari keyingi versiyada qo'shiladi. Hozircha fayllar `/uploads/Avatars/` papkasida saqlanadi."
+  },
+  "toast": {
+    "added": "Avatar muvaffaqiyatli qo'shildi",
+    "addFailed": "Avatar qo'shishda xatolik",
+    "updated": "Avatar muvaffaqiyatli yangilandi",
+    "updateFailed": "Avatarni yangilashda xatolik",
+    "uploaded": "Avatar yuklandi va qo'shildi",
+    "uploadFailed": "Avatar yuklashda xatolik",
+    "deleted": "Avatar muvaffaqiyatli o'chirildi",
+    "deleteFailed": "Avatarni o'chirishda xatolik",
+    "imageOnly": "Faqat rasm fayllari qabul qilinadi",
+    "fileTooLarge": "Fayl hajmi 5MB dan oshmasligi kerak",
+    "fileRequired": "Rasm faylini tanlash majburiy"
+  }
+}

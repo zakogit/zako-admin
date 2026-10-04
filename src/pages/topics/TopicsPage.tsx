@@ -7,8 +7,10 @@ import { formatDate } from '../../utils/helpers';
 import type { Topic, Subject } from '../../types';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export default function TopicsPage() {
+  const { t } = useTranslation('topics');
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -43,35 +45,35 @@ export default function TopicsPage() {
   const createMutation = useMutation({
     mutationFn: topicsApi.create,
     onSuccess: () => {
-      toast.success('Topic created successfully');
+      toast.success(t('toast.created'));
       setEditModal(false);
       topicForm.reset();
       qc.invalidateQueries({ queryKey: ['admin-topics'] });
     },
-    onError: () => toast.error('Failed to create topic'),
+    onError: () => toast.error(t('toast.createFailed')),
   });
 
   const updateMutation = useMutation({
     mutationFn: (data: any) => topicsApi.update(selected!.id, data),
     onSuccess: () => {
-      toast.success('Topic updated successfully');
+      toast.success(t('toast.updated'));
       setEditModal(false);
       setSelected(null);
       topicForm.reset();
       qc.invalidateQueries({ queryKey: ['admin-topics'] });
     },
-    onError: () => toast.error('Failed to update topic'),
+    onError: () => toast.error(t('toast.updateFailed')),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => topicsApi.delete(id),
     onSuccess: () => {
-      toast.success('Topic deleted successfully');
+      toast.success(t('toast.deleted'));
       setDeleteModal(false);
       setSelected(null);
       qc.invalidateQueries({ queryKey: ['admin-topics'] });
     },
-    onError: () => toast.error('Failed to delete topic'),
+    onError: () => toast.error(t('toast.deleteFailed')),
   });
 
   // Parse topics data with proper structure handling
@@ -88,6 +90,17 @@ export default function TopicsPage() {
   const total: number = rawTopicsData?.total ?? 0;
   const subjects: Subject[] = Array.isArray((subjectsData as any)?.data) ? (subjectsData as any).data : [];
   const stats = Array.isArray((statsData as any)?.data) ? (statsData as any).data : [];
+
+  // The stats endpoint returns fixed English labels; map the known ones, show anything else as received
+  const statLabel = (label: string) => {
+    switch (label) {
+      case 'Total Topics': return t('stats.total');
+      case 'Active Topics': return t('stats.active');
+      case 'Inactive Topics': return t('stats.inactive');
+      case 'Avg Questions/Topic': return t('stats.avgQuestions');
+      default: return label;
+    }
+  };
 
   const openEditModal = (topic?: Topic) => {
     setSelected(topic || null);
@@ -120,7 +133,7 @@ export default function TopicsPage() {
             <div key={idx} className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{stat.label}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{statLabel(stat.label)}</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
                 </div>
                 <BarChart3 className="w-8 h-8 text-primary-500" />
@@ -133,7 +146,7 @@ export default function TopicsPage() {
       {/* Toolbar */}
       <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-          Topics <span className="text-gray-400 font-normal text-base">({total})</span>
+          {t('title')} <span className="text-gray-400 font-normal text-base">({total})</span>
         </h2>
 
         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
@@ -143,7 +156,7 @@ export default function TopicsPage() {
             onChange={e => setSubjectFilter(e.target.value)}
             className="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 min-w-40"
           >
-            <option value="">All Subjects</option>
+            <option value="">{t('filters.allSubjects')}</option>
             {subjects.map(subject => (
               <option key={subject.id} value={subject.id}>{subject.name}</option>
             ))}
@@ -155,14 +168,14 @@ export default function TopicsPage() {
             <input 
               value={search} 
               onChange={e => { setSearch(e.target.value); setPage(1); }}
-              placeholder="Search topics..."
+              placeholder={t('filters.searchPlaceholder')}
               className="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
             />
           </div>
 
           <Button onClick={() => openEditModal()} className="whitespace-nowrap">
             <Plus className="w-4 h-4 mr-2" />
-            Add Topic
+            {t('actions.add')}
           </Button>
         </div>
       </div>
@@ -170,12 +183,12 @@ export default function TopicsPage() {
       {/* Table */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
         {isLoading ? (
-          <div className="p-8 text-center">Loading...</div>
+          <div className="p-8 text-center">{t('common:state.loading')}</div>
         ) : topics.length === 0 ? (
-          <EmptyState message="No topics found" />
+          <EmptyState message={t('empty.list')} />
         ) : (
           <>
-            <Table headers={['Topic', 'Subject', 'Questions', 'Order', 'Status', 'Created', '']}>
+            <Table headers={[t('common:table.topic'), t('common:table.subject'), t('table.questions'), t('common:table.order'), t('common:table.status'), t('common:table.created'), '']}>
               {topics.map((topic) => (
                 <tr key={topic.id}>
                   <td className="px-4 py-3">
@@ -200,7 +213,7 @@ export default function TopicsPage() {
                   </td>
                   <td className="px-4 py-3">
                     <Badge color={topic.is_active ? 'green' : 'red'}>
-                      {topic.is_active ? 'Active' : 'Inactive'}
+                      {topic.is_active ? t('common:status.active') : t('common:status.inactive')}
                     </Badge>
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-500">
@@ -235,25 +248,25 @@ export default function TopicsPage() {
       </div>
 
       {/* Edit Modal */}
-      <Modal open={editModal} onClose={() => { setEditModal(false); setSelected(null); }} title={selected ? 'Edit Topic' : 'Create Topic'}>
+      <Modal open={editModal} onClose={() => { setEditModal(false); setSelected(null); }} title={selected ? t('modal.edit') : t('modal.create')}>
         <form onSubmit={topicForm.handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Topic Name</label>
+              <label className="block text-sm font-medium mb-2">{t('form.name')}</label>
               <input 
-                {...topicForm.register('name', { required: 'Topic name is required' })}
+                {...topicForm.register('name', { required: t('validation.name') })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
               />
               {topicForm.formState.errors.name && <p className="text-red-500 text-xs mt-1">{String(topicForm.formState.errors.name.message)}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Subject</label>
+              <label className="block text-sm font-medium mb-2">{t('common:table.subject')}</label>
               <select 
-                {...topicForm.register('subject_id', { required: 'Subject is required' })}
+                {...topicForm.register('subject_id', { required: t('validation.subject') })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
               >
-                <option value="">Select Subject</option>
+                <option value="">{t('form.selectSubject')}</option>
                 {subjects.map(subject => (
                   <option key={subject.id} value={subject.id}>{subject.name}</option>
                 ))}
@@ -263,7 +276,7 @@ export default function TopicsPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Description</label>
+            <label className="block text-sm font-medium mb-2">{t('common:table.description')}</label>
             <textarea 
               {...topicForm.register('description')}
               rows={3}
@@ -273,10 +286,10 @@ export default function TopicsPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Order Index</label>
+              <label className="block text-sm font-medium mb-2">{t('form.orderIndex')}</label>
               <input 
                 type="number"
-                {...topicForm.register('order_index', { required: 'Order index is required', min: 1 })}
+                {...topicForm.register('order_index', { required: t('validation.orderIndex'), min: 1 })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
               />
               {topicForm.formState.errors.order_index && <p className="text-red-500 text-xs mt-1">{String(topicForm.formState.errors.order_index.message)}</p>}
@@ -289,43 +302,43 @@ export default function TopicsPage() {
                   {...topicForm.register('is_active')}
                   className="rounded border-gray-300 dark:border-gray-600"
                 />
-                <span className="text-sm font-medium">Active</span>
+                <span className="text-sm font-medium">{t('common:status.active')}</span>
               </label>
             </div>
           </div>
 
           <div className="flex gap-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setEditModal(false)}>
-              Cancel
+              {t('common:actions.cancel')}
             </Button>
             <Button type="submit" loading={createMutation.isPending || updateMutation.isPending}>
-              {selected ? 'Update' : 'Create'}
+              {selected ? t('common:actions.update') : t('common:actions.create')}
             </Button>
           </div>
         </form>
       </Modal>
 
       {/* Delete Modal */}
-      <Modal open={deleteModal} onClose={() => setDeleteModal(false)} title="Delete Topic">
+      <Modal open={deleteModal} onClose={() => setDeleteModal(false)} title={t('modal.delete')}>
         <div className="space-y-4">
-          <p>Are you sure you want to delete this topic? This action cannot be undone.</p>
+          <p>{t('confirm.delete')}</p>
           {selected && (
             <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded">
               <p className="font-medium">{selected.name}</p>
-              <p className="text-sm text-gray-500">{selected.subject_name} • {selected.question_count || 0} questions</p>
+              <p className="text-sm text-gray-500">{selected.subject_name} • {t('count.questions', { count: selected.question_count || 0 })}</p>
             </div>
           )}
           
           <div className="flex gap-3 pt-4">
             <Button variant="outline" onClick={() => setDeleteModal(false)}>
-              Cancel
+              {t('common:actions.cancel')}
             </Button>
             <Button 
               variant="danger" 
               onClick={() => selected && deleteMutation.mutate(selected.id)}
               loading={deleteMutation.isPending}
             >
-              Delete
+              {t('common:actions.delete')}
             </Button>
           </div>
         </div>

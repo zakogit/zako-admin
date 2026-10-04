@@ -1,0 +1,93 @@
+{
+  "title": "Duellar",
+  "duelSingular": "Duel",
+  "duelNumber": "Duel #{{id}}",
+  "empty": "Duellar topilmadi",
+  "player": {
+    "bot": "Bot",
+    "player1": "O'yinchi 1",
+    "player2": "O'yinchi 2"
+  },
+  "status": {
+    "waiting": "Kutilmoqda",
+    "finished": "Yakunlangan"
+  },
+  "actions": {
+    "replay": "Replay"
+  },
+  "units": {
+    "sec": "{{value}} s",
+    "secCompact": "{{value}}s"
+  },
+  "settings": {
+    "title": "Duel sozlamalari",
+    "summary": "Vaqt: {{times}} s · standart {{standard}} s · {{questions}} · XP +{{win}} / {{lose}} / {{draw}}",
+    "questionsCount_one": "{{count}} savol",
+    "questionsCount_other": "{{count}} savol",
+    "timeOptions": "Vaqt variantlari (soniya)",
+    "timeOptionsHint": "Vergul bilan, 10–3600 s oralig'ida. Mobil ilova tanlov sifatida ko'rsatadi.",
+    "defaultTime": "Standart vaqt",
+    "questionCount": "Savollar soni (1 duel)",
+    "xpNote": "Yutuq / mag'lubiyat / durang XP qoidalari <b>Ligalar</b> sahifasida sozlanadi.",
+    "saveError": "Saqlashda xatolik"
+  },
+  "filters": {
+    "allStatuses": "Barcha holatlar",
+    "allSubjects": "Barcha fanlar",
+    "sortNewest": "Yangi → eski",
+    "sortOldest": "Eski → yangi",
+    "searchPlaceholder": "Duellarni qidirish..."
+  },
+  "table": {
+    "players": "O'yinchilar",
+    "score": "Hisob",
+    "xpChange": "XP o'zgarishi",
+    "duration": "Davomiyligi",
+    "vsBot": "vs Bot",
+    "vsPlayer": "vs {{name}}",
+    "winner": "G'olib: {{name}}",
+    "draw": "Durang"
+  },
+  "replay": {
+    "title": "Duel #{{id}} — replay",
+    "aiTestDuel": "AI test dueli",
+    "suspiciousCount_one": "{{count}} shubhali belgi",
+    "suspiciousCount_other": "{{count}} shubhali belgi",
+    "resultDraw": "Natija: Durang",
+    "resultWinner": "Natija: G'olib <b>{{name}}</b>",
+    "resultNoWinner": "Natija: G'olib aniqlanmagan",
+    "byQuestion": "Savollar bo'yicha ({{total}})",
+    "aiQuestionsSeparate": "AI test duelining savollari alohida saqlanadi",
+    "noAnswers": "Bu duel uchun javoblar yozilmagan",
+    "footnote": "Vaqt — duel yaratilganidan boshlab soniyalarda. Shubhali belgilar: 100% to'g'ri + 2 s dan tez javob, 0.5 s dan kam oraliq, 30 kunlik PvP win rate 90%+.",
+    "questionHeader": "Savol",
+    "questionFallback": "Savol #{{id}}",
+    "questionMeta": "{{difficulty}} · to'g'ri: {{answer}}",
+    "noAnswer": "javob yo'q",
+    "timeUp": "Vaqt tugadi",
+    "correct": "To'g'ri",
+    "accuracy": "Aniqlik",
+    "avgGap": "O'rt. oraliq",
+    "severity": {
+      "low": "Past",
+      "medium": "O'rta",
+      "high": "Yuqori"
+    },
+    "difficulty": {
+      "easy": "Oson",
+      "medium": "O'rta",
+      "hard": "Qiyin"
+    }
+  },
+  "delete": {
+    "title": "Duelni o'chirish",
+    "confirm": "Ushbu duelni o'chirishni xohlaysizmi?",
+    "matchup": "{{p1}} vs {{p2}}",
+    "matchupBot": "{{p1}} vs Bot",
+    "matchupWaiting": "{{p1}} — raqib kutilmoqda"
+  },
+  "toast": {
+    "deleted": "Duel muvaffaqiyatli o'chirildi",
+    "deleteFailed": "Duelni o'chirib bo'lmadi"
+  }
+}

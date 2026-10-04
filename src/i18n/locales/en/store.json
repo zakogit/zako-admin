@@ -1,0 +1,47 @@
+{
+  "title": "Store packages",
+  "subtitle": "Packages shown in the app (product_packages) + special offer / discount",
+  "addPackage": "Add package",
+  "empty": "No packages yet. Create the first package.",
+  "table": {
+    "package": "Package",
+    "offer": "Offer"
+  },
+  "form": {
+    "namePlaceholder": "500 Coins",
+    "bonus": "Bonus",
+    "sortOrder": "Sort order"
+  },
+  "productType": {
+    "coins": "Coins",
+    "premium": "Premium",
+    "cards": "Cards"
+  },
+  "offer": {
+    "heading": "Special offer & discount",
+    "type": "Offer type",
+    "simple": "Regular",
+    "special": "Special offer",
+    "specialBadge": "Special offer (badge)",
+    "discountPercent": "Discount (%)",
+    "discountStart": "Discount starts",
+    "discountStartHint": "Empty = immediately",
+    "discountEnd": "Discount ends",
+    "discountEndHint": "Countdown runs until this time",
+    "note": "When discount % > 0 and the window is active: the price drops (both the displayed AND the charged amount) + a push notification is sent to all users."
+  },
+  "modal": {
+    "editTitle": "Edit package"
+  },
+  "confirm": {
+    "delete": "Delete this package?"
+  },
+  "toast": {
+    "created": "Package created",
+    "createFailed": "Failed to create",
+    "updated": "Package updated",
+    "updateFailed": "Failed to update",
+    "deleted": "Package deleted",
+    "deleteFailed": "Failed to delete"
+  }
+}

@@ -11,11 +11,13 @@ npm run lint       # ESLint (flat config: js + typescript-eslint + react-hooks +
 npm run preview    # Preview the production build locally
 ```
 
+`node scripts/check-i18n.mjs` validates the translation files and every `t()` call (no test framework otherwise — see **Language / i18n**).
+
 No test framework is configured. The backend (`../zako_backend`) must be running on `localhost:3000` for any page to load data; its dev CORS allows `localhost:5173`.
 
 `npm run build` fails on unused imports/variables (`noUnusedLocals`, `noUnusedParameters`), and `verbatimModuleSyntax` requires `import type` for type-only imports. Run it before committing — there is no CI.
 
-`README.md` is the stock Vite template and says nothing about this project. `DEPLOYMENT.md` covers the manual deploy (build locally, `rsync dist/` to the VPS, Nginx with `try_files … /index.html` for SPA routing at `admin.zakoapp.uz`).
+`README.md` is the stock Vite template and says nothing about this project. `DEPLOYMENT.md` covers deployment: **CI/CD via GitHub Actions** (`.github/workflows/ci-cd.yml` — PRs run the i18n check + `npm run build`; pushes to `main` of `zakogit/zako-admin` also rsync `dist/` to the VPS using the `SERVER_*` / `ADMIN_WEB_ROOT` secrets) and the manual fallback (build locally, `rsync dist/` to the VPS, Nginx with `try_files … /index.html` for SPA routing at `admin.zakoapp.uz`).
 
 ## What this is
 
@@ -25,12 +27,11 @@ Admin panel for Zako, an educational quiz/duel mobile app. React 19 SPA (Vite 8,
 
 ## Architecture
 
-### Adding a page (three places to touch)
+### Adding a page (four places to touch)
 1. `src/pages/<feature>/<Name>Page.tsx` — default export, one folder per feature.
 2. `src/App.tsx` — add a `React.lazy` import and a `<Route>` inside the `PrivateRoute`/`AppLayout` group. This file is the authoritative route list.
-3. `src/components/layout/Sidebar.tsx` — add an entry to the `nav` array (sections: Content / Platform / System).
-
-`Header.tsx` has a hard-coded `titles` map that only covers the original routes; newer pages fall back to the title "Admin". Add to it if the page title matters.
+3. `src/components/layout/navItems.ts` — add an entry to `NAV` (sections: content / platform / system). Both `Sidebar` and the `Header` title (longest-prefix match on the pathname) read from it; the label lives in `layout.json` under `nav.<key>`.
+4. `src/i18n/locales/{uz,ru,en}/<namespace>.json` — the page's translations (see **Language / i18n**).
 
 ### API layer
 - **`src/api/client.ts`** — Axios instance, `baseURL = VITE_API_BASE_URL`. Request interceptor reads the JWT from **raw `localStorage.adminToken`** (not from the Zustand store). On 401 it calls `/admin/refresh` with a bare `axios.post` (bypassing the interceptor to avoid loops), expects `accessToken` at the top level of the response, retries once, and on failure calls `useAuthStore.getState().logout()`.
@@ -66,8 +67,14 @@ Pass `total` and `limit` to `Pagination`; it computes the page count itself. Mut
 - Zod + `zodResolver` is only used on the login page; most forms use `useForm<any>()` with `register(..., { required })` rules. Either is acceptable; match the surrounding page.
 - Pages that track background jobs (`books`, `ai-tests`, `dashboard`) poll with `refetchInterval`. `pages/ai-tests/shared.ts` shows the pattern for label/colour maps shared between a list page and its detail page.
 
-### Language
-UI copy is mixed: older pages are English, newer ones are Uzbek (`AI Kitoblar`, `Maqolalar`, `Kunlik sovg'alar`, `Adminlar`). Match the language of the page you are editing. Commit messages are conventional-commit style with Uzbek descriptions (`feat(ai-tests): AI Testlar boshqaruv sahifasi`).
+### Language / i18n
+The UI is fully translated into **Uzbek (default, Latin), Russian and English** with `i18next` + `react-i18next`; the user switches with `LanguageSwitcher` (header, login page), persisted in `localStorage['zako-admin-lang']`. **Read `src/i18n/README.md` before touching any user-visible text** — it has the rules, key naming, glossary and translation style. The essentials:
+- No hard-coded UI strings. `const { t } = useTranslation('<ns>')` in every component that renders text; shared words via `t('common:...')`. One namespace per page (`src/i18n/locales/<lang>/<ns>.json`, auto-bundled by `import.meta.glob` — no registration) plus `common` and `layout`. All three languages must have identical keys.
+- Never call `t()` at module scope (constants, zod schemas) — store keys or build inside the component; use `i18n.t()` only inside callbacks.
+- Dates/numbers go through `formatDate`/`formatNumber` (`utils/helpers`) or `getIntlLocale()` — never hard-code `'uz-UZ'`/`'en-GB'`.
+- Backend-returned text (error messages, subject/region/card names) is data and is not translated by the admin panel.
+- Verify with `node scripts/check-i18n.mjs` (key parity, plural forms, `{{vars}}`, unknown keys) and `node scripts/check-i18n.mjs --hardcoded <paths>` (leftover literals; silence a genuine non-UI string with `// i18n-ignore`). Run it together with `npm run build`.
+Commit messages stay conventional-commit style with Uzbek descriptions (`feat(ai-tests): AI Testlar boshqaruv sahifasi`).
 
 ## Environment
 

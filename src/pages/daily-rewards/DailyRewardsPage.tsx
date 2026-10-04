@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
+import { useTranslation, Trans } from 'react-i18next';
 import { dailyRewardsApi, avatarsApi, cardsApi } from '../../api/services';
 import type { DailyRewardSlot, PremiumConfig } from '../../api/services';
 import type { Avatar } from '../../types';
@@ -46,15 +47,6 @@ const emptyEditor: EditorState = {
   is_active: true,
 };
 
-function slotLabel(slot: DailyRewardSlot | null | undefined): string {
-  if (!slot) return '—';
-  const inactive = slot.is_active ? '' : ' (faol emas)';
-  if (slot.title) return slot.title + inactive;
-  if (slot.reward_type === 'coins') return `${slot.amount} tanga${inactive}`;
-  if (slot.reward_type === 'avatar') return `Avatar E#${slot.ref_id}/A#${slot.amount}${inactive}`;
-  return `Karta #${slot.ref_id} ×${slot.amount || 1}${inactive}`;
-}
-
 function TypeIcon({ type }: { type?: RewardType }) {
   if (type === 'avatar') return <ImageIcon className="w-3.5 h-3.5" />;
   if (type === 'card') return <Layers className="w-3.5 h-3.5" />;
@@ -73,19 +65,20 @@ function AvatarPicker({
   value: number | null;
   onChange: (id: number) => void;
 }) {
+  const { t } = useTranslation('dailyRewards');
   return (
     <div className="space-y-1.5">
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{label}</label>
       <div className="max-h-44 overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700 p-2 grid grid-cols-4 gap-2 bg-gray-50/50 dark:bg-gray-800/30">
         {avatars.length === 0 && (
-          <p className="col-span-4 text-xs text-gray-400 py-3 text-center">Avatar topilmadi</p>
+          <p className="col-span-4 text-xs text-gray-400 py-3 text-center">{t('picker.empty')}</p>
         )}
         {avatars.map((a) => (
           <button
             key={a.id}
             type="button"
             onClick={() => onChange(a.id)}
-            title={`#${a.id}${a.is_premium ? ' · premium' : ''}`}
+            title={a.is_premium ? t('picker.premiumTitle', { id: a.id }) : `#${a.id}`}
             className={cn(
               'relative aspect-square rounded-lg overflow-hidden border-2 transition',
               value === a.id
@@ -110,6 +103,7 @@ function AvatarPicker({
 }
 
 export default function DailyRewardsPage() {
+  const { t } = useTranslation('dailyRewards');
   const qc = useQueryClient();
   const [editor, setEditor] = useState<EditorState>(emptyEditor);
   const [calStart, setCalStart] = useState(() => {
@@ -161,39 +155,39 @@ export default function DailyRewardsPage() {
     mutationFn: (b: Parameters<typeof dailyRewardsApi.upsertTemplate>[0]) =>
       dailyRewardsApi.upsertTemplate(b),
     onSuccess: () => {
-      toast.success('Shablon saqlandi');
+      toast.success(t('toast.templateSaved'));
       invalidateAll();
       setEditor(emptyEditor);
     },
-    onError: (e: any) => toast.error(e?.response?.data?.message || 'Xatolik'),
+    onError: (e: any) => toast.error(e?.response?.data?.message || t('common:status.error')),
   });
   const saveOverride = useMutation({
     mutationFn: (b: Parameters<typeof dailyRewardsApi.upsertOverride>[0]) =>
       dailyRewardsApi.upsertOverride(b),
     onSuccess: () => {
-      toast.success('Kun sovg\'asi o\'zgartirildi');
+      toast.success(t('toast.overrideSaved'));
       invalidateAll();
       setEditor(emptyEditor);
     },
-    onError: (e: any) => toast.error(e?.response?.data?.message || 'Xatolik'),
+    onError: (e: any) => toast.error(e?.response?.data?.message || t('common:status.error')),
   });
   const delOverride = useMutation({
     mutationFn: (v: { date: string; tier: Tier }) => dailyRewardsApi.deleteOverride(v.date, v.tier),
     onSuccess: () => {
-      toast.success('Shablonga qaytarildi');
+      toast.success(t('toast.resetToTemplate'));
       invalidateAll();
       setEditor(emptyEditor);
     },
-    onError: (e: any) => toast.error(e?.response?.data?.message || 'Xatolik'),
+    onError: (e: any) => toast.error(e?.response?.data?.message || t('common:status.error')),
   });
   const delTemplate = useMutation({
     mutationFn: (v: { day: number; tier: Tier }) => dailyRewardsApi.deleteTemplate(v.day, v.tier),
     onSuccess: () => {
-      toast.success('Sovg\'a o\'chirildi');
+      toast.success(t('toast.templateDeleted'));
       invalidateAll();
       setEditor(emptyEditor);
     },
-    onError: (e: any) => toast.error(e?.response?.data?.message || 'Xatolik'),
+    onError: (e: any) => toast.error(e?.response?.data?.message || t('common:status.error')),
   });
 
   const handleDelete = () => {
@@ -207,7 +201,7 @@ export default function DailyRewardsPage() {
   const cycleLength = configQ.data?.cycle_length ?? 30;
   const templates = templatesQ.data || [];
   const byDay = (day: number, premium: boolean) =>
-    templates.find((t) => t.day_number === day && t.is_premium === premium) || null;
+    templates.find((tpl) => tpl.day_number === day && tpl.is_premium === premium) || null;
 
   const openEditor = (partial: Partial<EditorState>) => {
     const tier: Tier = partial.tier || 'regular';
@@ -227,16 +221,16 @@ export default function DailyRewardsPage() {
       is_active: editor.is_active,
     };
     if (editor.reward_type === 'card' && !editor.ref_id) {
-      toast.error('Kartani tanlang');
+      toast.error(t('editor.selectCard'));
       return;
     }
     if (editor.reward_type === 'avatar') {
       if (!editor.ref_id) {
-        toast.error('Erkaklar avatarini tanlang');
+        toast.error(t('toast.selectMaleAvatar'));
         return;
       }
       if (!editor.amount) {
-        toast.error('Ayollar avatarini tanlang');
+        toast.error(t('toast.selectFemaleAvatar'));
         return;
       }
     }
@@ -261,6 +255,16 @@ export default function DailyRewardsPage() {
   const femaleAvatars = avatars.filter((a) => a.is_premium && (a.gender === 'female' || a.gender === 'both'));
   const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD (mahalliy)
 
+  const slotLabel = (slot: DailyRewardSlot | null | undefined): string => {
+    if (!slot) return '—';
+    let label: string;
+    if (slot.title) label = slot.title;
+    else if (slot.reward_type === 'coins') label = t('slot.coins', { count: slot.amount ?? 0 });
+    else if (slot.reward_type === 'avatar') label = t('slot.avatar', { male: slot.ref_id, female: slot.amount });
+    else label = t('slot.card', { id: slot.ref_id, amount: slot.amount || 1 });
+    return slot.is_active ? label : t('slot.inactive', { label });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
@@ -268,11 +272,9 @@ export default function DailyRewardsPage() {
           <Gift className="w-6 h-6" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Kunlik sovg'alar</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('title')}</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            30 kunlik spravochnik takrorlanib kalendar kunlariga ta'sir qiladi. Oddiy sovg'a — faqat
-            tanga; premium — tanga/avatar/karta. Ikkalasi ham {configQ.data?.daily_xp_required ?? 20} XP
-            sharti bilan olinadi.
+            {t('subtitle', { xp: configQ.data?.daily_xp_required ?? 20 })}
           </p>
         </div>
       </div>
@@ -281,7 +283,7 @@ export default function DailyRewardsPage() {
         <Card className="p-6">
           <div className="flex items-center gap-2 mb-4">
             <Crown className="w-5 h-5 text-amber-500" />
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Premium sozlamalari</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t('settings.premium')}</h2>
           </div>
           {premiumQ.isLoading || !premiumQ.data ? (
             <Spinner />
@@ -293,7 +295,7 @@ export default function DailyRewardsPage() {
         <Card className="p-6">
           <div className="flex items-center gap-2 mb-4">
             <CalIcon className="w-5 h-5 text-primary-500" />
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Kalendar sozlamalari</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t('settings.calendar')}</h2>
           </div>
           {configQ.isLoading || !configQ.data ? (
             <Spinner />
@@ -306,10 +308,10 @@ export default function DailyRewardsPage() {
       {/* Spravochnik grid */}
       <Card className="p-6">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-          {cycleLength} kunlik shablon (spravochnik)
+          {t('template.title', { days: cycleLength })}
         </h2>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-          Har kun uchun oddiy va premium sovg'ani belgilang. Bu shablon kalendarda takrorlanadi.
+          {t('template.description')}
         </p>
         {templatesQ.isLoading ? (
           <Spinner />
@@ -323,7 +325,7 @@ export default function DailyRewardsPage() {
                   key={day}
                   className="rounded-xl border border-gray-200 dark:border-gray-800 p-3 space-y-2 bg-gray-50/50 dark:bg-gray-800/30"
                 >
-                  <div className="text-xs font-bold text-gray-400">KUN {day}</div>
+                  <div className="text-xs font-bold text-gray-400">{t('template.day', { day })}</div>
                   <button
                     onClick={() =>
                       openEditor({
@@ -341,7 +343,7 @@ export default function DailyRewardsPage() {
                     className="w-full text-left rounded-lg px-2 py-1.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:border-primary-400 transition"
                   >
                     <div className="flex items-center gap-1 text-[10px] uppercase text-gray-400 font-semibold">
-                      <TypeIcon type="coins" /> Oddiy
+                      <TypeIcon type="coins" /> {t('tier.regular')}
                     </div>
                     <div className="text-xs text-gray-800 dark:text-gray-200 truncate">{slotLabel(reg)}</div>
                   </button>
@@ -362,7 +364,7 @@ export default function DailyRewardsPage() {
                     className="w-full text-left rounded-lg px-2 py-1.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 hover:border-amber-400 transition"
                   >
                     <div className="flex items-center gap-1 text-[10px] uppercase text-amber-600 dark:text-amber-400 font-semibold">
-                      <Crown className="w-3.5 h-3.5" /> Premium
+                      <Crown className="w-3.5 h-3.5" /> {t('common:status.premium')}
                     </div>
                     <div className="text-xs text-gray-800 dark:text-gray-200 truncate">{slotLabel(prem)}</div>
                   </button>
@@ -376,7 +378,7 @@ export default function DailyRewardsPage() {
       {/* Kalendar (oylik grid + override) */}
       <Card className="p-6">
         <div className="flex items-center justify-between mb-1">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Sovg'alar kalendari</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t('calendar.title')}</h2>
           <div className="flex items-center gap-2">
             <Button size="sm" variant="outline" onClick={() => shiftMonth(-1)}>
               <ChevronLeft className="w-4 h-4" />
@@ -390,8 +392,7 @@ export default function DailyRewardsPage() {
           </div>
         </div>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-          Ma'lum bir kunni shablondan ajratib alohida sovg'a bilan almashtiring (override).
-          Faqat <span className="font-medium">ertangi kundan</span> boshlab o'zgartirish mumkin — bugun va o'tgan kunlar qulflangan.
+          <Trans i18nKey="dailyRewards:calendar.description" components={{ b: <span className="font-medium" /> }} />
         </p>
         {calendarQ.isLoading ? (
           <Spinner />
@@ -418,7 +419,7 @@ export default function DailyRewardsPage() {
                       {Number(d.date.slice(8, 10))}
                     </span>
                     <span className="text-[9px] text-gray-400">
-                      {isToday ? '🔒 bugun' : isPast ? "o'tgan" : `k${d.day_number}`}
+                      {isToday ? t('calendar.todayLocked') : isPast ? t('calendar.past') : t('calendar.dayShort', { day: d.day_number })}
                     </span>
                   </div>
                   {(['regular', 'premium'] as Tier[]).map((tier) => {
@@ -436,7 +437,7 @@ export default function DailyRewardsPage() {
                               ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'
                               : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700'
                           )}
-                          title={isToday ? "Bugungi kun — o'zgartirib bo'lmaydi" : "O'tgan kun — o'zgartirib bo'lmaydi"}
+                          title={isToday ? t('calendar.lockedToday') : t('calendar.lockedPast')}
                         >
                           <span className="text-gray-500 dark:text-gray-400">{tier === 'premium' ? '★' : '•'}</span>{' '}
                           <span className="text-gray-800 dark:text-gray-200">{slotLabel(slot)}</span>
@@ -444,6 +445,7 @@ export default function DailyRewardsPage() {
                       );
                     }
 
+                    const tierName = tier === 'premium' ? t('common:status.premium') : t('tier.regular');
                     return (
                       <div key={tier} className="flex items-stretch gap-1">
                         <button
@@ -467,7 +469,7 @@ export default function DailyRewardsPage() {
                               : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700',
                             isOverride && 'ring-1 ring-purple-400'
                           )}
-                          title={`${tier === 'premium' ? 'Premium' : 'Oddiy'}: ${slotLabel(slot)}${isOverride ? ' (override)' : ''}`}
+                          title={`${tierName}: ${slotLabel(slot)}${isOverride ? ` ${t('calendar.overrideMark')}` : ''}`}
                         >
                           <span className="text-gray-500 dark:text-gray-400">{tier === 'premium' ? '★' : '•'}</span>{' '}
                           <span className="text-gray-800 dark:text-gray-200">{slotLabel(slot)}</span>
@@ -476,7 +478,7 @@ export default function DailyRewardsPage() {
                           <button
                             onClick={() => delOverride.mutate({ date: d.date, tier })}
                             className="px-1 rounded text-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 text-[10px]"
-                            title="Shablonga qaytarish"
+                            title={t('calendar.resetToTemplate')}
                           >
                             ↩
                           </button>
@@ -492,20 +494,20 @@ export default function DailyRewardsPage() {
       </Card>
 
       {/* Editor modal */}
-      <Modal open={editor.open} onClose={() => setEditor(emptyEditor)} title="Sovg'ani sozlash">
+      <Modal open={editor.open} onClose={() => setEditor(emptyEditor)} title={t('editor.title')}>
         <div className="space-y-5">
           {/* Kun raqami + Sovg'a turi (tier) */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                {editor.mode === 'template' ? 'Kun raqami' : 'Sana'}
+                {editor.mode === 'template' ? t('editor.dayNumber') : t('common:table.date')}
               </label>
               <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 px-3 py-2 text-sm text-gray-700 dark:text-gray-200">
                 {editor.mode === 'template' ? editor.day_number : editor.reward_date}
               </div>
             </div>
             <Select
-              label="Sovg'a turi"
+              label={t('editor.rewardTier')}
               value={editor.tier}
               onChange={(e) => {
                 const tier = e.target.value as Tier;
@@ -516,19 +518,19 @@ export default function DailyRewardsPage() {
                 });
               }}
             >
-              <option value="regular">Oddiy (Simple)</option>
-              <option value="premium">Premium</option>
+              <option value="regular">{t('tier.regularOption')}</option>
+              <option value="premium">{t('common:status.premium')}</option>
             </Select>
           </div>
 
           {/* Sovg'a kategoriyasi — kartalar */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Sovg'a kategoriyasi</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('editor.category')}</label>
             <div className="grid grid-cols-3 gap-3">
               {([
-                { type: 'coins', label: 'Tangalar', icon: <Coins className="w-6 h-6" />, premiumOnly: false },
-                { type: 'card', label: 'Cardlar', icon: <Layers className="w-6 h-6" />, premiumOnly: true },
-                { type: 'avatar', label: 'Avatarlar', icon: <ImageIcon className="w-6 h-6" />, premiumOnly: true },
+                { type: 'coins', label: t('editor.categories.coins'), icon: <Coins className="w-6 h-6" />, premiumOnly: false },
+                { type: 'card', label: t('editor.categories.card'), icon: <Layers className="w-6 h-6" />, premiumOnly: true },
+                { type: 'avatar', label: t('editor.categories.avatar'), icon: <ImageIcon className="w-6 h-6" />, premiumOnly: true },
               ] as { type: RewardType; label: string; icon: React.ReactNode; premiumOnly: boolean }[]).map((c) => {
                 const disabled = c.premiumOnly && editor.tier !== 'premium';
                 const selected = editor.reward_type === c.type;
@@ -556,7 +558,7 @@ export default function DailyRewardsPage() {
                     {c.icon}
                     <span className="text-sm font-medium">{c.label}</span>
                     {c.premiumOnly && (
-                      <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">Premium only</span>
+                      <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">{t('editor.premiumOnly')}</span>
                     )}
                   </button>
                 );
@@ -568,7 +570,7 @@ export default function DailyRewardsPage() {
           {editor.reward_type === 'coins' && (
             <Input
               type="number"
-              label="Tanga miqdori"
+              label={t('editor.coinAmount')}
               value={editor.amount}
               min={1}
               onChange={(e) => setEditor({ ...editor, amount: Number(e.target.value) })}
@@ -578,13 +580,13 @@ export default function DailyRewardsPage() {
           {editor.reward_type === 'avatar' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <AvatarPicker
-                label="Erkaklar avatari *"
+                label={t('editor.maleAvatar')}
                 avatars={maleAvatars}
                 value={editor.ref_id}
                 onChange={(id) => setEditor({ ...editor, ref_id: id })}
               />
               <AvatarPicker
-                label="Ayollar avatari *"
+                label={t('editor.femaleAvatar')}
                 avatars={femaleAvatars}
                 value={editor.amount || null}
                 onChange={(id) => setEditor({ ...editor, amount: id })}
@@ -595,11 +597,11 @@ export default function DailyRewardsPage() {
           {editor.reward_type === 'card' && (
             <div className="grid grid-cols-2 gap-3">
               <Select
-                label="Kartani tanlang"
+                label={t('editor.selectCard')}
                 value={editor.ref_id ?? ''}
                 onChange={(e) => setEditor({ ...editor, ref_id: e.target.value ? Number(e.target.value) : null })}
               >
-                <option value="">— tanlang —</option>
+                <option value="">{t('editor.selectPlaceholder')}</option>
                 {cards.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
@@ -608,7 +610,7 @@ export default function DailyRewardsPage() {
               </Select>
               <Input
                 type="number"
-                label="Soni"
+                label={t('common:table.count')}
                 value={editor.amount}
                 min={1}
                 onChange={(e) => setEditor({ ...editor, amount: Number(e.target.value) })}
@@ -617,18 +619,18 @@ export default function DailyRewardsPage() {
           )}
 
           <Input
-            label="Sovg'a nomi (ixtiyoriy)"
+            label={t('editor.name')}
             value={editor.title}
-            placeholder="Masalan: 50 Tanga"
+            placeholder={t('editor.namePlaceholder')}
             onChange={(e) => setEditor({ ...editor, title: e.target.value })}
           />
 
           <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tavsif (ixtiyoriy)</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('editor.descriptionLabel')}</label>
             <textarea
               rows={2}
               value={editor.description}
-              placeholder="Sovg'a haqida qisqacha..."
+              placeholder={t('editor.descriptionPlaceholder')}
               onChange={(e) => setEditor({ ...editor, description: e.target.value })}
               className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition"
             />
@@ -641,7 +643,7 @@ export default function DailyRewardsPage() {
               onChange={(e) => setEditor({ ...editor, is_active: e.target.checked })}
               className="rounded border-gray-300"
             />
-            Faol (o'chirilsa bu kun/tier sovg'asi berilmaydi)
+            {t('editor.activeHint')}
           </label>
 
           <div className="flex items-center justify-between gap-2 pt-2">
@@ -650,14 +652,14 @@ export default function DailyRewardsPage() {
               onClick={handleDelete}
               loading={delTemplate.isPending || delOverride.isPending}
             >
-              {editor.mode === 'template' ? 'O\'chirish' : 'Shablonga qaytarish'}
+              {editor.mode === 'template' ? t('common:actions.delete') : t('calendar.resetToTemplate')}
             </Button>
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => setEditor(emptyEditor)}>
-                Bekor qilish
+                {t('common:actions.cancel')}
               </Button>
               <Button onClick={submitEditor} loading={saveTemplate.isPending || saveOverride.isPending}>
-                Saqlash
+                {t('common:actions.save')}
               </Button>
             </div>
           </div>
@@ -669,6 +671,7 @@ export default function DailyRewardsPage() {
 
 // ── Premium config form ──────────────────────────────────────────────────────
 function PremiumConfigForm({ initial, onSaved }: { initial: PremiumConfig; onSaved: () => void }) {
+  const { t } = useTranslation('dailyRewards');
   const [price, setPrice] = useState(initial.price_som);
   const [duration, setDuration] = useState(initial.duration_days);
   const [purchasable, setPurchasable] = useState(initial.is_purchasable);
@@ -693,23 +696,23 @@ function PremiumConfigForm({ initial, onSaved }: { initial: PremiumConfig; onSav
           : { discount_price: null, discount_starts_at: null, discount_ends_at: null }),
       }),
     onSuccess: () => {
-      toast.success('Premium sozlamalari saqlandi');
+      toast.success(t('toast.premiumSaved'));
       onSaved();
     },
-    onError: (e: any) => toast.error(e?.response?.data?.message || 'Xatolik'),
+    onError: (e: any) => toast.error(e?.response?.data?.message || t('common:status.error')),
   });
 
   const clearDiscount = useMutation({
     mutationFn: () => dailyRewardsApi.clearPremiumDiscount(),
     onSuccess: () => {
-      toast.success('Chegirma olib tashlandi');
+      toast.success(t('toast.discountRemoved'));
       setDiscountOn(false);
       setDiscountPrice(0);
       setDStart('');
       setDEnd('');
       onSaved();
     },
-    onError: (e: any) => toast.error(e?.response?.data?.message || 'Xatolik'),
+    onError: (e: any) => toast.error(e?.response?.data?.message || t('common:status.error')),
   });
 
   const savePct =
@@ -720,12 +723,12 @@ function PremiumConfigForm({ initial, onSaved }: { initial: PremiumConfig; onSav
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
-        <Input type="number" label="Narx (so'm)" value={price} min={0} onChange={(e) => setPrice(Number(e.target.value))} />
-        <Input type="number" label="Muddat (kun)" value={duration} min={1} onChange={(e) => setDuration(Number(e.target.value))} />
+        <Input type="number" label={t('premiumForm.price', { currency: t('common:units.som') })} value={price} min={0} onChange={(e) => setPrice(Number(e.target.value))} />
+        <Input type="number" label={t('premiumForm.duration')} value={duration} min={1} onChange={(e) => setDuration(Number(e.target.value))} />
       </div>
       <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
         <input type="checkbox" checked={purchasable} onChange={(e) => setPurchasable(e.target.checked)} className="rounded border-gray-300" />
-        Sotib olish mumkin
+        {t('premiumForm.purchasable')}
       </label>
 
       {/* Vaqtinchalik chegirma */}
@@ -733,10 +736,10 @@ function PremiumConfigForm({ initial, onSaved }: { initial: PremiumConfig; onSav
         <div className="flex items-center justify-between">
           <label className="flex items-center gap-2 text-sm font-medium text-gray-800 dark:text-gray-200">
             <input type="checkbox" checked={discountOn} onChange={(e) => setDiscountOn(e.target.checked)} className="rounded border-gray-300" />
-            Vaqtinchalik chegirma
+            {t('premiumForm.temporaryDiscount')}
           </label>
           {initial.is_discount_active && (
-            <Badge color="green" size="sm">Hozir faol</Badge>
+            <Badge color="green" size="sm">{t('premiumForm.activeNow')}</Badge>
           )}
         </div>
 
@@ -745,26 +748,26 @@ function PremiumConfigForm({ initial, onSaved }: { initial: PremiumConfig; onSav
             <div className="grid grid-cols-2 gap-3">
               <Input
                 type="number"
-                label="Chegirma narxi (so'm)"
+                label={t('premiumForm.discountPrice', { currency: t('common:units.som') })}
                 value={discountPrice}
                 min={0}
                 onChange={(e) => setDiscountPrice(Number(e.target.value))}
               />
               <div className="flex items-end pb-2">
                 {savePct > 0 ? (
-                  <Badge color="orange">−{savePct}% chegirma</Badge>
+                  <Badge color="orange">{t('premiumForm.discountBadge', { percent: savePct })}</Badge>
                 ) : (
-                  <span className="text-xs text-gray-400">Chegirma narxi asl narxdan kam bo'lsin</span>
+                  <span className="text-xs text-gray-400">{t('premiumForm.discountHint')}</span>
                 )}
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <Input type="datetime-local" label="Boshlanish" value={dStart} onChange={(e) => setDStart(e.target.value)} />
-              <Input type="datetime-local" label="Tugash" value={dEnd} onChange={(e) => setDEnd(e.target.value)} />
+              <Input type="datetime-local" label={t('premiumForm.starts')} value={dStart} onChange={(e) => setDStart(e.target.value)} />
+              <Input type="datetime-local" label={t('premiumForm.ends')} value={dEnd} onChange={(e) => setDEnd(e.target.value)} />
             </div>
             {initial.discount_price != null && (
               <Button variant="ghost" size="sm" onClick={() => clearDiscount.mutate()} loading={clearDiscount.isPending}>
-                Chegirmani olib tashlash
+                {t('premiumForm.removeDiscount')}
               </Button>
             )}
           </div>
@@ -772,7 +775,7 @@ function PremiumConfigForm({ initial, onSaved }: { initial: PremiumConfig; onSav
       </div>
 
       <Button onClick={() => save.mutate()} loading={save.isPending}>
-        Saqlash
+        {t('common:actions.save')}
       </Button>
     </div>
   );
@@ -795,26 +798,28 @@ function CalendarConfigForm({
   initial: { cycle_anchor: string; cycle_length: number; daily_xp_required: number };
   onSaved: () => void;
 }) {
+  const { t } = useTranslation('dailyRewards');
+  const cycleLengthLabel = t('common:units.days', { count: initial.cycle_length });
   const [anchor, setAnchor] = useState(initial.cycle_anchor);
   const [xp, setXp] = useState(initial.daily_xp_required);
   const save = useMutation({
     mutationFn: () => dailyRewardsApi.updateConfig({ cycle_anchor: anchor, daily_xp_required: xp }),
     onSuccess: () => {
-      toast.success('Kalendar sozlamalari saqlandi');
+      toast.success(t('toast.calendarSaved'));
       onSaved();
     },
-    onError: (e: any) => toast.error(e?.response?.data?.message || 'Xatolik'),
+    onError: (e: any) => toast.error(e?.response?.data?.message || t('common:status.error')),
   });
   return (
     <div className="space-y-4">
-      <Input type="number" label="Kunlik XP sharti" value={xp} min={0} onChange={(e) => setXp(Number(e.target.value))} />
-      <Input type="date" label="Tsikl boshlanish sanasi (anchor)" value={anchor} onChange={(e) => setAnchor(e.target.value)} />
-      <p className="text-xs text-gray-400">Tsikl uzunligi: {initial.cycle_length} kun. Anchor 1-kun sifatida qabul qilinadi.</p>
+      <Input type="number" label={t('calendarForm.xpRequired')} value={xp} min={0} onChange={(e) => setXp(Number(e.target.value))} />
+      <Input type="date" label={t('calendarForm.cycleAnchor')} value={anchor} onChange={(e) => setAnchor(e.target.value)} />
+      <p className="text-xs text-gray-400">{t('calendarForm.cycleHelp', { length: cycleLengthLabel })}</p>
       <div className="flex items-center gap-2">
-        <Badge color="gray" size="sm">Tsikl: {initial.cycle_length} kun</Badge>
+        <Badge color="gray" size="sm">{t('calendarForm.cycleBadge', { length: cycleLengthLabel })}</Badge>
       </div>
       <Button onClick={() => save.mutate()} loading={save.isPending}>
-        Saqlash
+        {t('common:actions.save')}
       </Button>
     </div>
   );

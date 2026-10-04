@@ -1,0 +1,25 @@
+{
+  "title": "Ilova versiyasi",
+  "subtitle": "Majburiy yangilanish (force-update) sozlamalari",
+  "enable": {
+    "title": "Majburiy yangilanishni yoqish",
+    "hint": "Yoqilganda, minimal versiyadan past ilovalar bloklanadi va yangilanish oynasi ko'rsatiladi."
+  },
+  "message": {
+    "label": "Yangilanish xabari",
+    "placeholder": "Ilovaning yangi versiyasi chiqdi. Davom etish uchun ilovani yangilang."
+  },
+  "fields": {
+    "minVersion": "Minimal versiya (majburiy)",
+    "latestVersion": "Oxirgi versiya",
+    "storeUrlAndroid": "Store havolasi (Play Market)",
+    "storeUrlIos": "Store havolasi (App Store)"
+  },
+  "warnings": {
+    "iosStoreEmpty": "iOS Store havolasi bo'sh — majburiy yangilanishda foydalanuvchi App Store'ga o'ta olmaydi.",
+    "inert": "Minimal va oxirgi versiya bir xil — hech kim minimaldan past emas, shuning uchun majburiy yangilanish ishlamaydi. Yangi versiya chiqqanda minimal versiyani ko'taring."
+  },
+  "toast": {
+    "saveError": "Saqlashda xatolik"
+  }
+}

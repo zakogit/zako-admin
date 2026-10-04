@@ -1,0 +1,137 @@
+{
+  "title": "AI Testlar",
+  "subtitle": "Foydalanuvchilar olmosga yaratgan testlar — holati, xarajati va kontenti",
+  "stats": {
+    "totalTests": "Jami testlar",
+    "successRate": "{{rate}}% muvaffaqiyatli",
+    "failed": "Yiqilganlar",
+    "inProgress": "{{n}} ta jarayonda",
+    "diamondsSpent": "Sarflangan olmos",
+    "diamondsRefunded": "{{n}} qaytarilgan",
+    "aiCost": "AI xarajati",
+    "avgGeneration": "o'rtacha {{seconds}}s generatsiya"
+  },
+  "filters": {
+    "search": "Qidiruv",
+    "searchPlaceholder": "Fan, mavzu, username yoki ism",
+    "aiLevel": "AI daraja",
+    "source": "Manba",
+    "dateFrom": "Sanadan",
+    "dateTo": "Sanagacha"
+  },
+  "table": {
+    "subjectTopic": "Fan / Mavzu",
+    "source": "Manba",
+    "level": "Daraja",
+    "questions": "Savol",
+    "diamonds": "Olmos",
+    "cost": "Xarajat",
+    "duration": "Davomiylik",
+    "stage": "Bosqich",
+    "model": "Model",
+    "tokens": "Token",
+    "result": "Natija",
+    "time": "Vaqt",
+    "correct": "To'g'ri",
+    "wrong": "Noto'g'ri",
+    "score": "Ball"
+  },
+  "empty": {
+    "filtered": "Filtrga mos test topilmadi",
+    "none": "Hali test yaratilmagan",
+    "notFound": "Test topilmadi",
+    "noCalls": "AI chaqiruvi qayd etilmagan",
+    "noQuestions": "Savollar topilmadi"
+  },
+  "badge": {
+    "refunded": "qaytarilgan",
+    "diamondsRefunded": "olmos qaytarilgan"
+  },
+  "status": {
+    "queued": "Navbatda",
+    "running": "Yaratilmoqda",
+    "completed": "Tayyor",
+    "failed": "Xato"
+  },
+  "sourceType": {
+    "text": "Matn",
+    "image": "Rasm"
+  },
+  "testType": {
+    "ai": "AI tanlaydi",
+    "facts": "Faktlar",
+    "logic": "Mantiq"
+  },
+  "difficulty": {
+    "easy": "Oson",
+    "medium": "O'rta",
+    "hard": "Qiyin"
+  },
+  "language": {
+    "uz": "O'zbek",
+    "ru": "Rus",
+    "en": "Ingliz"
+  },
+  "units": {
+    "ms": "{{value}}ms",
+    "sec": "{{value}}s",
+    "minSec": "{{min}}m {{sec}}s"
+  },
+  "actions": {
+    "backToList": "Ro'yxatga",
+    "retry": "Qayta ishga tushirish",
+    "refund": "Olmosni qaytarish"
+  },
+  "detail": {
+    "title": "AI Test #{{id}}",
+    "errorReason": "Xato sababi",
+    "sourceType": "Manba turi",
+    "questionType": "Savol turi",
+    "language": "Til",
+    "questionCount": "Savollar soni",
+    "tokensHint": "kirish / chiqish",
+    "started": "Boshlangan",
+    "finished": "Tugagan"
+  },
+  "source": {
+    "title": "Manba",
+    "chars_one": "{{count}} belgi",
+    "chars_other": "{{count}} belgi",
+    "truncated": "(boshidan qismi ko'rsatilgan)",
+    "unnamedFile": "Nomsiz fayl",
+    "fileStored": "Fayl serverda saqlangan",
+    "fileDeleted": "Fayl o'chirilgan — qayta ishga tushirib bo'lmaydi"
+  },
+  "calls": {
+    "title": "AI chaqiruvlari",
+    "ok": "OK"
+  },
+  "attempts": {
+    "title": "Yechish urinishlari"
+  },
+  "questions": {
+    "title": "Yaratilgan savollar"
+  },
+  "confirm": {
+    "retry": {
+      "title": "Testni qayta ishga tushirish",
+      "body": "Test qayta navbatga qo'yiladi va generatsiya boshidan ishlaydi. <b>Foydalanuvchidan olmos yechilmaydi.</b>",
+      "refundedNote": "Diqqat: bu test uchun olmos allaqachon qaytarilgan — qayta yaratish foydalanuvchi uchun bepul bo'ladi.",
+      "button": "Qayta ishga tushirish"
+    },
+    "refund": {
+      "title": "Olmosni qaytarish",
+      "body_one": "Foydalanuvchi balansiga <b>{{count}} olmos</b> qaytariladi. Bu amal bir marta bajariladi va bekor qilinmaydi.",
+      "body_other": "Foydalanuvchi balansiga <b>{{count}} olmos</b> qaytariladi. Bu amal bir marta bajariladi va bekor qilinmaydi.",
+      "button": "Qaytarish"
+    },
+    "delete": {
+      "title": "Testni o'chirish",
+      "body": "Test, uning barcha savollari va urinishlari o'chiriladi. Manba fayli ham o'chadi. Bu amal qaytarilmaydi."
+    }
+  },
+  "toast": {
+    "done": "Bajarildi",
+    "actionFailed": "Amalni bajarib bo'lmadi"
+  }
+}

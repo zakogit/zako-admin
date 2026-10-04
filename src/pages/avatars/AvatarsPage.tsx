@@ -7,8 +7,10 @@ import { formatDate, getStaticFileUrl } from '../../utils/helpers';
 import type { Avatar } from '../../types';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
+import { useTranslation, Trans } from 'react-i18next';
 
 export default function AvatarsPage() {
+  const { t } = useTranslation('avatars');
   const qc = useQueryClient();
   const [page, setPage] = useState(1);
   const [genderFilter, setGenderFilter] = useState('');
@@ -43,30 +45,30 @@ export default function AvatarsPage() {
   const createMutation = useMutation({
     mutationFn: avatarsApi.add,
     onSuccess: () => {
-      toast.success('Avatar added successfully');
+      toast.success(t('toast.added'));
       setEditModal(false);
       reset();
       qc.invalidateQueries({ queryKey: ['admin-avatars'] });
     },
-    onError: () => toast.error('Failed to add avatar'),
+    onError: () => toast.error(t('toast.addFailed')),
   });
 
   const updateMutation = useMutation({
     mutationFn: (data: any) => avatarsApi.update(selected!.id, data),
     onSuccess: () => {
-      toast.success('Avatar updated successfully');
+      toast.success(t('toast.updated'));
       setEditModal(false);
       setSelected(null);
       reset();
       qc.invalidateQueries({ queryKey: ['admin-avatars'] });
     },
-    onError: () => toast.error('Failed to update avatar'),
+    onError: () => toast.error(t('toast.updateFailed')),
   });
 
   const uploadMutation = useMutation({
     mutationFn: avatarsApi.upload,
     onSuccess: () => {
-      toast.success('Avatar yuklandi va qo\'shildi');
+      toast.success(t('toast.uploaded'));
       setUploadModal(false);
       setEditModal(false);
       setSelectedFile(null);
@@ -76,24 +78,27 @@ export default function AvatarsPage() {
       qc.invalidateQueries({ queryKey: ['avatars-summary'] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Avatar yuklashda xatolik');
+      toast.error(error.response?.data?.message || t('toast.uploadFailed'));
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => avatarsApi.delete(id),
     onSuccess: () => {
-      toast.success('Avatar deleted successfully');
+      toast.success(t('toast.deleted'));
       setDeleteModal(false);
       setSelected(null);
       qc.invalidateQueries({ queryKey: ['admin-avatars'] });
     },
-    onError: () => toast.error('Failed to delete avatar'),
+    onError: () => toast.error(t('toast.deleteFailed')),
   });
 
   const avatars: Avatar[] = Array.isArray((avatarsData as any)?.data?.data) ? (avatarsData as any).data.data : [];
   const total: number = (avatarsData as any)?.data?.total ?? 0;
   const summary = (summaryData as any)?.data ?? {};
+
+  // The API returns the raw enum ('male' | 'female' | 'both') — show it translated, fall back to the raw value.
+  const genderLabel = (gender: string) => t(`gender.${String(gender).toLowerCase()}`, { defaultValue: gender });
 
   // Cleanup preview URL when component unmounts
   useEffect(() => {
@@ -110,13 +115,13 @@ export default function AvatarsPage() {
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      toast.error('Faqat rasm fayllari qabul qilinadi');
+      toast.error(t('toast.imageOnly'));
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Fayl hajmi 5MB dan oshmasligi kerak');
+      toast.error(t('toast.fileTooLarge'));
       return;
     }
 
@@ -135,13 +140,13 @@ export default function AvatarsPage() {
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      toast.error('Faqat rasm fayllari qabul qilinadi');
+      toast.error(t('toast.imageOnly'));
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Fayl hajmi 5MB dan oshmasligi kerak');
+      toast.error(t('toast.fileTooLarge'));
       return;
     }
 
@@ -172,7 +177,7 @@ export default function AvatarsPage() {
     } else {
       // For new avatar creation, we need a file
       if (!selectedFile) {
-        toast.error('Rasm fayl tanlash majburiy');
+        toast.error(t('toast.fileRequired'));
         return;
       }
 
@@ -194,7 +199,7 @@ export default function AvatarsPage() {
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Total Avatars</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{t('stats.total')}</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{summary.total || 0}</p>
               </div>
               <User className="w-8 h-8 text-blue-500" />
@@ -203,7 +208,7 @@ export default function AvatarsPage() {
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Premium</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{t('common:status.premium')}</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{summary.premium || 0}</p>
               </div>
               <BarChart3 className="w-8 h-8 text-yellow-500" />
@@ -212,7 +217,7 @@ export default function AvatarsPage() {
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Male</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{t('stats.male')}</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{summary.male || 0}</p>
               </div>
               <User className="w-8 h-8 text-blue-500" />
@@ -221,7 +226,7 @@ export default function AvatarsPage() {
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Female</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{t('stats.female')}</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{summary.female || 0}</p>
               </div>
               <User className="w-8 h-8 text-pink-500" />
@@ -233,7 +238,7 @@ export default function AvatarsPage() {
       {/* Toolbar */}
       <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-          Avatars <span className="text-gray-400 font-normal text-base">({total})</span>
+          {t('title')} <span className="text-gray-400 font-normal text-base">({total})</span>
         </h2>
 
         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
@@ -243,10 +248,10 @@ export default function AvatarsPage() {
             onChange={e => setGenderFilter(e.target.value)}
             className="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           >
-            <option value="">All Genders</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="both">Both</option>
+            <option value="">{t('filters.allGenders')}</option>
+            <option value="male">{t('gender.male')}</option>
+            <option value="female">{t('gender.female')}</option>
+            <option value="both">{t('gender.both')}</option>
           </select>
 
           <select 
@@ -254,24 +259,24 @@ export default function AvatarsPage() {
             onChange={e => setPremiumFilter(e.target.value)}
             className="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           >
-            <option value="">All Types</option>
-            <option value="true">Premium</option>
-            <option value="false">Free</option>
+            <option value="">{t('filters.allTypes')}</option>
+            <option value="true">{t('common:status.premium')}</option>
+            <option value="false">{t('common:status.free')}</option>
           </select>
 
           <Button onClick={() => setUploadModal(true)} className="whitespace-nowrap">
             <Upload className="w-4 h-4 mr-2" />
-            Avatar Yuklash
+            {t('actions.upload')}
           </Button>
           
           <Button onClick={() => setManageModal(true)} variant="outline" className="whitespace-nowrap">
             <FolderOpen className="w-4 h-4 mr-2" />
-            Fayllar
+            {t('actions.files')}
           </Button>
 
           <Button onClick={() => openEditModal()} variant="outline" className="whitespace-nowrap">
             <Plus className="w-4 h-4 mr-2" />
-            Add Avatar
+            {t('actions.add')}
           </Button>
         </div>
       </div>
@@ -279,18 +284,18 @@ export default function AvatarsPage() {
       {/* Table */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
         {isLoading ? (
-          <div className="p-8 text-center">Loading...</div>
+          <div className="p-8 text-center">{t('common:state.loading')}</div>
         ) : avatars.length === 0 ? (
-          <EmptyState message="No avatars found" />
+          <EmptyState message={t('empty')} />
         ) : (
           <>
-            <Table headers={['Preview', 'Gender', 'Type', 'Usage', 'Created', '']}>
+            <Table headers={[t('table.preview'), t('table.gender'), t('common:table.type'), t('table.usage'), t('common:table.created'), '']}>
               {avatars.map((avatar) => (
                 <tr key={avatar.id}>
                   <td className="px-4 py-3">
                     <LazyImage 
                       src={getStaticFileUrl(avatar.url)} 
-                      alt="Avatar" 
+                      alt={t('avatarAlt')}
                       className="w-12 h-12 rounded-full object-cover" 
                     />
                   </td>
@@ -299,16 +304,16 @@ export default function AvatarsPage() {
                       avatar.gender === 'male' ? 'blue' : 
                       avatar.gender === 'female' ? 'pink' : 'purple'
                     }>
-                      {avatar.gender}
+                      {genderLabel(avatar.gender)}
                     </Badge>
                   </td>
                   <td className="px-4 py-3">
                     <Badge color={avatar.is_premium ? 'yellow' : 'green'}>
-                      {avatar.is_premium ? 'Premium' : 'Free'}
+                      {avatar.is_premium ? t('common:status.premium') : t('common:status.free')}
                     </Badge>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-sm">{avatar.usage_count || 0} users</span>
+                    <span className="text-sm">{t('table.usageCount', { count: Number(avatar.usage_count) || 0 })}</span>
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-500">
                     {avatar.created_at ? formatDate(avatar.created_at) : '-'}
@@ -342,26 +347,26 @@ export default function AvatarsPage() {
       </div>
 
       {/* Edit Modal */}
-      <Modal open={editModal} onClose={() => { setEditModal(false); setSelected(null); setPreviewUrl(''); setSelectedFile(null); }} title={selected ? 'Edit Avatar' : 'Add Avatar'}>
+      <Modal open={editModal} onClose={() => { setEditModal(false); setSelected(null); setPreviewUrl(''); setSelectedFile(null); }} title={selected ? t('modal.editTitle') : t('modal.addTitle')}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {!selected && (
             <div>
-              <label className="block text-sm font-medium mb-2">Avatar Rasm</label>
+              <label className="block text-sm font-medium mb-2">{t('form.image')}</label>
               <input 
                 type="file"
                 accept="image/*"
                 onChange={handleEditFileSelect}
                 className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
               />
-              <p className="text-xs text-gray-500 mt-1">PNG, JPG yoki JPEG, maksimal 5MB</p>
+              <p className="text-xs text-gray-500 mt-1">{t('form.imageHint')}</p>
               
               {/* Image Preview */}
               {previewUrl && (
                 <div className="mt-3">
-                  <p className="text-sm font-medium mb-2">Preview:</p>
+                  <p className="text-sm font-medium mb-2">{t('form.preview')}</p>
                   <img 
                     src={previewUrl} 
-                    alt="Preview" 
+                    alt={t('form.previewAlt')}
                     className="w-20 h-20 rounded-full object-cover border border-gray-300 dark:border-gray-600"
                   />
                 </div>
@@ -372,17 +377,17 @@ export default function AvatarsPage() {
           {selected && (
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                Hozirgi avatar:
+                {t('form.currentAvatar')}
               </p>
               <div className="flex items-center gap-3">
                 <LazyImage 
                   src={getStaticFileUrl(selected.url)} 
-                  alt="Current avatar" 
+                  alt={t('form.currentAvatarAlt')}
                   className="w-16 h-16 rounded-full object-cover" 
                 />
                 <div>
                   <p className="text-sm font-medium">{selected.url}</p>
-                  <p className="text-xs text-gray-500">Faqat gender va premium holatini o'zgartirish mumkin</p>
+                  <p className="text-xs text-gray-500">{t('form.editHint')}</p>
                 </div>
               </div>
             </div>
@@ -390,15 +395,15 @@ export default function AvatarsPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Gender</label>
+              <label className="block text-sm font-medium mb-2">{t('form.gender')}</label>
               <select 
-                {...register('gender', { required: 'Gender is required' })}
+                {...register('gender', { required: t('validation.genderRequired') })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
               >
-                <option value="">Select Gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="both">Both</option>
+                <option value="">{t('form.selectGender')}</option>
+                <option value="male">{t('gender.male')}</option>
+                <option value="female">{t('gender.female')}</option>
+                <option value="both">{t('gender.both')}</option>
               </select>
               {errors.gender && <p className="text-red-500 text-xs mt-1">{String(errors.gender.message)}</p>}
             </div>
@@ -410,62 +415,62 @@ export default function AvatarsPage() {
                   {...register('is_premium')}
                   className="rounded border-gray-300 dark:border-gray-600"
                 />
-                <span className="text-sm font-medium">Premium Avatar</span>
+                <span className="text-sm font-medium">{t('form.premiumAvatar')}</span>
               </label>
             </div>
           </div>
 
           <div className="flex gap-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setEditModal(false)}>
-              Cancel
+              {t('common:actions.cancel')}
             </Button>
             <Button type="submit" loading={createMutation.isPending || updateMutation.isPending || uploadMutation.isPending}>
-              {selected ? 'Update' : 'Add'}
+              {selected ? t('common:actions.update') : t('common:actions.add')}
             </Button>
           </div>
         </form>
       </Modal>
 
       {/* Delete Modal */}
-      <Modal open={deleteModal} onClose={() => setDeleteModal(false)} title="Delete Avatar">
+      <Modal open={deleteModal} onClose={() => setDeleteModal(false)} title={t('modal.deleteTitle')}>
         <div className="space-y-4">
-          <p>Are you sure you want to delete this avatar? This action cannot be undone.</p>
+          <p>{t('confirm.deleteText')}</p>
           {selected && (
             <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded">
               <LazyImage 
                 src={getStaticFileUrl(selected.url)} 
-                alt="Avatar" 
+                alt={t('avatarAlt')}
                 className="w-12 h-12 rounded-full object-cover" 
               />
               <div>
                 <p className="text-sm truncate">{selected.url}</p>
-                <p className="text-xs text-gray-500">{selected.gender} • {selected.is_premium ? 'Premium' : 'Free'}</p>
+                <p className="text-xs text-gray-500">{genderLabel(selected.gender)} • {selected.is_premium ? t('common:status.premium') : t('common:status.free')}</p>
               </div>
             </div>
           )}
           
           <div className="flex gap-3 pt-4">
             <Button variant="outline" onClick={() => setDeleteModal(false)}>
-              Cancel
+              {t('common:actions.cancel')}
             </Button>
             <Button 
               variant="danger" 
               onClick={() => selected && deleteMutation.mutate(selected.id)}
               loading={deleteMutation.isPending}
             >
-              Delete
+              {t('common:actions.delete')}
             </Button>
           </div>
         </div>
       </Modal>
 
       {/* Avatar Upload Modal */}
-      <Modal open={uploadModal} onClose={() => setUploadModal(false)} title="Avatar Yuklash" size="lg">
+      <Modal open={uploadModal} onClose={() => setUploadModal(false)} title={t('modal.uploadTitle')} size="lg">
         <div className="space-y-6">
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-            <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">Avatar kategoriyalari:</h4>
+            <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">{t('upload.categoriesTitle')}</h4>
             <p className="text-sm text-blue-800 dark:text-blue-200">
-              Avatar fayllarini to'g'ri papkaga yuklang. Har bir kategoriya uchun alohida yuklash kerak.
+              {t('upload.categoriesHint')}
             </p>
           </div>
 
@@ -474,7 +479,7 @@ export default function AvatarsPage() {
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
               <h5 className="font-medium text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                 <User className="w-4 h-4" />
-                Bepul Erkak Avatarlari
+                {t('upload.freeMale')}
               </h5>
               <input
                 type="file"
@@ -488,7 +493,7 @@ export default function AvatarsPage() {
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
               <h5 className="font-medium text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                 <User className="w-4 h-4" />
-                Bepul Ayol Avatarlari
+                {t('upload.freeFemale')}
               </h5>
               <input
                 type="file"
@@ -502,7 +507,7 @@ export default function AvatarsPage() {
             <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 border border-yellow-200 dark:border-yellow-800">
               <h5 className="font-medium text-yellow-900 dark:text-yellow-100 mb-3 flex items-center gap-2">
                 <User className="w-4 h-4" />
-                👑 Premium Erkak Avatarlari
+                👑 {t('upload.premiumMale')}
               </h5>
               <input
                 type="file"
@@ -516,7 +521,7 @@ export default function AvatarsPage() {
             <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 border border-yellow-200 dark:border-yellow-800">
               <h5 className="font-medium text-yellow-900 dark:text-yellow-100 mb-3 flex items-center gap-2">
                 <User className="w-4 h-4" />
-                👑 Premium Ayol Avatarlari
+                👑 {t('upload.premiumFemale')}
               </h5>
               <input
                 type="file"
@@ -528,12 +533,12 @@ export default function AvatarsPage() {
           </div>
 
           <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
-            <h5 className="font-medium text-gray-900 dark:text-gray-100 mb-2">📋 Talablar:</h5>
+            <h5 className="font-medium text-gray-900 dark:text-gray-100 mb-2">📋 {t('upload.requirements')}</h5>
             <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-              <li>• Faqat rasm fayllari (PNG, JPG, JPEG)</li>
-              <li>• Maksimal fayl hajmi: 5MB</li>
-              <li>• Tavsiya etilgan o'lcham: 512x512px</li>
-              <li>• Fayl avtomatik nomlandi va papkaga joylashadi</li>
+              <li>• {t('upload.reqImages')}</li>
+              <li>• {t('upload.reqSize')}</li>
+              <li>• {t('upload.reqDimensions')}</li>
+              <li>• {t('upload.reqAutoName')}</li>
             </ul>
           </div>
 
@@ -543,41 +548,44 @@ export default function AvatarsPage() {
               onClick={() => setUploadModal(false)} 
               className="flex-1"
             >
-              Yopish
+              {t('common:actions.close')}
             </Button>
           </div>
         </div>
       </Modal>
 
       {/* File Management Modal */}
-      <Modal open={manageModal} onClose={() => setManageModal(false)} title="Avatar Fayllari Boshqaruvi" size="lg">
+      <Modal open={manageModal} onClose={() => setManageModal(false)} title={t('modal.manageTitle')} size="lg">
         <div className="space-y-4">
           <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Mavjud avatar fayllari:</h4>
+            <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3">{t('manage.existingFiles')}</h4>
             
             <div className="space-y-3">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-white dark:bg-gray-700 rounded-lg p-3 border">
-                  <h5 className="font-medium text-gray-900 dark:text-gray-100 mb-2">🆓 Bepul Avatarlar</h5>
+                  <h5 className="font-medium text-gray-900 dark:text-gray-100 mb-2">🆓 {t('manage.freeAvatars')}</h5>
                   <div className="text-sm text-gray-600 dark:text-gray-400">
-                    <p>📂 Free/Male/: 8 ta fayl</p>
-                    <p>📂 Free/Female/: 8 ta fayl</p>
+                    {/* i18n-ignore: folder path, not UI text */}
+                    <p>📂 Free/Male/: {t('manage.filesCount', { count: 8 })}</p>
+                    {/* i18n-ignore: folder path, not UI text */}
+                    <p>📂 Free/Female/: {t('manage.filesCount', { count: 8 })}</p>
                   </div>
                 </div>
                 
                 <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-3 border border-yellow-200 dark:border-yellow-800">
-                  <h5 className="font-medium text-yellow-900 dark:text-yellow-100 mb-2">👑 Premium Avatarlar</h5>
+                  <h5 className="font-medium text-yellow-900 dark:text-yellow-100 mb-2">👑 {t('manage.premiumAvatars')}</h5>
                   <div className="text-sm text-yellow-800 dark:text-yellow-200">
-                    <p>📂 Premium/Male/: 8 ta fayl</p>
-                    <p>📂 Premium/Female/: 8 ta fayl</p>
+                    {/* i18n-ignore: folder path, not UI text */}
+                    <p>📂 Premium/Male/: {t('manage.filesCount', { count: 8 })}</p>
+                    {/* i18n-ignore: folder path, not UI text */}
+                    <p>📂 Premium/Female/: {t('manage.filesCount', { count: 8 })}</p>
                   </div>
                 </div>
               </div>
 
               <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
                 <p className="text-sm text-blue-800 dark:text-blue-200">
-                  💡 <strong>Eslatma:</strong> Fayl boshqaruvi va o'chirish funksiyalari keyingi versiyada qo'shiladi. 
-                  Hozircha fayllar `/uploads/Avatars/` papkasida saqlanadi.
+                  💡 <Trans i18nKey="avatars:manage.note" components={{ b: <strong /> }} />
                 </p>
               </div>
             </div>
@@ -585,7 +593,7 @@ export default function AvatarsPage() {
           
           <div className="flex gap-3">
             <Button variant="outline" onClick={() => setManageModal(false)} className="flex-1">
-              Yopish
+              {t('common:actions.close')}
             </Button>
           </div>
         </div>

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
+import { Trans, useTranslation } from 'react-i18next';
 import {
   ArrowLeft,
   Check,
@@ -31,7 +32,7 @@ import {
   Select,
   Spinner,
 } from '../../components/ui';
-import { STATUS_LABELS } from './BooksPage';
+import { STATUS_COLORS } from './BooksPage';
 
 const PROCESSING = ['uploaded', 'extracting', 'analyzing', 'reanalyze'];
 const DIFFICULTY_COLORS: Record<string, 'green' | 'yellow' | 'red'> = {
@@ -41,6 +42,7 @@ const DIFFICULTY_COLORS: Record<string, 'green' | 'yellow' | 'red'> = {
 };
 
 export default function BookDetailPage() {
+  const { t } = useTranslation('bookDetail');
   const { id } = useParams();
   const bookId = Number(id);
   const navigate = useNavigate();
@@ -60,7 +62,8 @@ export default function BookDetailPage() {
     );
   }
 
-  const st = STATUS_LABELS[book.status] ?? { label: book.status, color: 'gray' as const };
+  const statusColor = STATUS_COLORS[book.status] ?? 'gray';
+  const statusLabel = t(`books:status.${book.status}`, { defaultValue: book.status });
   const processing = PROCESSING.includes(book.status);
 
   return (
@@ -74,17 +77,20 @@ export default function BookDetailPage() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{book.title}</h1>
             <div className="flex items-center gap-2 mt-1 text-sm text-gray-500 dark:text-gray-400">
-              <Badge color={st.color}>{st.label}</Badge>
-              {book.page_count ? <span>{book.page_count} sahifa</span> : null}
+              <Badge color={statusColor}>{statusLabel}</Badge>
+              {book.page_count ? (
+                <span>{t('pageCount', { count: Number(book.page_count) })}</span>
+              ) : null}
               {book.meta?.extraction_quality && (
                 <span
                   title={
                     book.meta.extraction_quality.low_pages?.length
-                      ? 'Past sifatli sahifalar: ' +
-                        book.meta.extraction_quality.low_pages
-                          .map((p) => `${p.page}-bet (${p.score}%)`)
-                          .join(', ')
-                      : 'Barcha sahifalar toza indekslangan'
+                      ? t('quality.lowPages', {
+                          pages: book.meta.extraction_quality.low_pages
+                            .map((p) => t('quality.lowPageItem', { page: p.page, score: p.score }))
+                            .join(', '),
+                        })
+                      : t('quality.allClean')
                   }
                 >
                   <Badge
@@ -96,16 +102,18 @@ export default function BookDetailPage() {
                           : 'red'
                     }
                   >
-                    Matn sifati: {book.meta.extraction_quality.avg}%
+                    {t('quality.badge', { avg: book.meta.extraction_quality.avg })}
                   </Badge>
                 </span>
               )}
               {book.meta?.vision_indexed && book.meta.vision_indexed.pages > 0 && (
-                <span title="Past sifatli/skanerlangan sahifalar Gemini vision orqali qayta o'qildi">
-                  <Badge color="purple">Vision: {book.meta.vision_indexed.pages} sahifa</Badge>
+                <span title={t('vision.title')}>
+                  <Badge color="purple">
+                    {t('vision.badge', { count: Number(book.meta.vision_indexed.pages) })}
+                  </Badge>
                 </span>
               )}
-              {book.grade ? <span>· {book.grade}-sinf</span> : null}
+              {book.grade ? <span>· {t('books:gradeValue', { grade: book.grade })}</span> : null}
               {book.subject_name ? <span>· {book.subject_name}</span> : null}
             </div>
           </div>
@@ -121,7 +129,7 @@ export default function BookDetailPage() {
             <Spinner size="sm" />
             <div className="flex-1">
               <p className="text-sm font-medium text-gray-900 dark:text-white">
-                {st.label}... ({book.progress}%)
+                {statusLabel}... ({book.progress}%)
               </p>
               <div className="mt-2 h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
                 <div
@@ -137,7 +145,7 @@ export default function BookDetailPage() {
       {(book.status === 'failed' || book.status === 'needs_ocr') && (
         <Card className="p-4 border-l-4 border-red-500">
           <p className="text-sm font-medium text-red-600 dark:text-red-400">
-            {book.status === 'failed' ? 'Xato yuz berdi' : 'Skanerlangan kitob'}
+            {book.status === 'failed' ? t('errorCard.failed') : t('errorCard.needsOcr')}
           </p>
           <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{book.status_error}</p>
         </Card>
@@ -158,35 +166,35 @@ export default function BookDetailPage() {
 // ── Qayta tahlil ────────────────────────────────────────────────────────────
 
 function ReanalyzeButton({ bookId }: { bookId: number }) {
+  const { t } = useTranslation('bookDetail');
   const qc = useQueryClient();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const mutation = useMutation({
     mutationFn: () => booksApi.reanalyze(bookId),
     onSuccess: () => {
-      toast.success('Qayta tahlil boshlandi');
+      toast.success(t('reanalyze.started'));
       setConfirmOpen(false);
       qc.invalidateQueries({ queryKey: ['book', bookId] });
       qc.invalidateQueries({ queryKey: ['book-topics', bookId] });
     },
-    onError: (e: any) => toast.error(e.response?.data?.message || 'Xato'),
+    onError: (e: any) => toast.error(e.response?.data?.message || t('common:state.error')),
   });
   return (
     <>
       <Button variant="outline" size="sm" onClick={() => setConfirmOpen(true)}>
-        <RefreshCw className="w-4 h-4" /> Qayta tahlil
+        <RefreshCw className="w-4 h-4" /> {t('reanalyze.button')}
       </Button>
-      <Modal open={confirmOpen} onClose={() => setConfirmOpen(false)} title="Qayta tahlil">
+      <Modal open={confirmOpen} onClose={() => setConfirmOpen(false)} title={t('reanalyze.modalTitle')}>
         <div className="space-y-4">
           <p className="text-sm text-gray-600 dark:text-gray-300">
-            Mavjud mavzular va draft savollar o'chirilib, AI tahlili qaytadan ishga tushadi
-            (tasdiqlangan savollar bazada qoladi). Davom etasizmi?
+            {t('reanalyze.body')}
           </p>
           <div className="flex justify-end gap-2">
             <Button variant="secondary" onClick={() => setConfirmOpen(false)}>
-              Bekor qilish
+              {t('common:actions.cancel')}
             </Button>
             <Button loading={mutation.isPending} onClick={() => mutation.mutate()}>
-              Boshlash
+              {t('actions.start')}
             </Button>
           </div>
         </div>
@@ -198,6 +206,7 @@ function ReanalyzeButton({ bookId }: { bookId: number }) {
 // ── Fan tasdiqlash ──────────────────────────────────────────────────────────
 
 function SubjectCard({ book }: { book: Book }) {
+  const { t } = useTranslation('bookDetail');
   const qc = useQueryClient();
   const proposal = book.meta?.proposed_subject;
   const [subjectId, setSubjectId] = useState<string>(
@@ -222,33 +231,49 @@ function SubjectCard({ book }: { book: Book }) {
         grade: grade ? Number(grade) : null,
       }),
     onSuccess: () => {
-      toast.success('Fan tasdiqlandi');
+      toast.success(t('subject.confirmed'));
       qc.invalidateQueries({ queryKey: ['book', book.id] });
       qc.invalidateQueries({ queryKey: ['subjects-dropdown'] });
     },
-    onError: (e: any) => toast.error(e.response?.data?.message || 'Xato'),
+    onError: (e: any) => toast.error(e.response?.data?.message || t('common:state.error')),
   });
 
   return (
     <Card className="p-4 space-y-3">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-semibold text-gray-900 dark:text-white">1. Fanni belgilash</h2>
+          <h2 className="font-semibold text-gray-900 dark:text-white">{t('subject.title')}</h2>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-            Bu kitobdan chiqadigan barcha savollar mobil ilovada shu fan ostida ko'rinadi
+            {t('subject.hint')}
           </p>
         </div>
         {book.subject_id ? (
-          <Badge color="green">Belgilangan: {book.subject_name}</Badge>
+          <Badge color="green">{t('subject.assigned', { name: book.subject_name ?? '' })}</Badge>
         ) : (
-          <Badge color="yellow">Belgilanmagan</Badge>
+          <Badge color="yellow">{t('common:state.notSet')}</Badge>
         )}
       </div>
 
       {proposal?.name && (
         <p className="text-sm text-gray-600 dark:text-gray-300">
-          AI taklifi: <b>{proposal.name}</b>
-          {proposal.is_new && ' (yangi fan)'} · ishonch:{' '}
+          {/* The proposed name comes from the AI: escape it so it is never parsed as markup. */}
+          {proposal.is_new ? (
+            <Trans
+              i18nKey="bookDetail:subject.proposalNew"
+              values={{ name: proposal.name }}
+              components={{ b: <b /> }}
+              shouldUnescape
+              tOptions={{ interpolation: { escapeValue: true } }}
+            />
+          ) : (
+            <Trans
+              i18nKey="bookDetail:subject.proposal"
+              values={{ name: proposal.name }}
+              components={{ b: <b /> }}
+              shouldUnescape
+              tOptions={{ interpolation: { escapeValue: true } }}
+            />
+          )}{' '}
           <Badge
             color={
               proposal.confidence === 'high'
@@ -258,7 +283,7 @@ function SubjectCard({ book }: { book: Book }) {
                   : 'red'
             }
           >
-            {proposal.confidence}
+            {t(`subject.confidenceLevel.${proposal.confidence}`, { defaultValue: proposal.confidence })}
           </Badge>
         </p>
       )}
@@ -266,18 +291,18 @@ function SubjectCard({ book }: { book: Book }) {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
         {creatingNew ? (
           <Input
-            label="Yangi fan nomi"
+            label={t('subject.newName')}
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            placeholder="Masalan: Tarix"
+            placeholder={t('subject.newNamePlaceholder')}
           />
         ) : (
           <Select
-            label="Fan"
+            label={t('common:table.subject')}
             value={subjectId}
             onChange={(e) => setSubjectId(e.target.value)}
           >
-            <option value="">— Tanlang —</option>
+            <option value="">{`— ${t('common:state.select')} —`}</option>
             {subjects?.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.name}
@@ -286,7 +311,7 @@ function SubjectCard({ book }: { book: Book }) {
           </Select>
         )}
         <Input
-          label="Sinf (1-11)"
+          label={t('subject.gradeLabel')}
           type="number"
           min={1}
           max={11}
@@ -298,14 +323,14 @@ function SubjectCard({ book }: { book: Book }) {
           onClick={() => setCreatingNew(!creatingNew)}
           className="whitespace-nowrap"
         >
-          {creatingNew ? 'Mavjud fandan tanlash' : '+ Yangi fan yaratish'}
+          {creatingNew ? t('subject.pickExisting') : t('subject.createNew')}
         </Button>
         <Button
           loading={mutation.isPending}
           disabled={creatingNew ? !newName.trim() : !subjectId}
           onClick={() => mutation.mutate()}
         >
-          <Check className="w-4 h-4" /> Tasdiqlash
+          <Check className="w-4 h-4" /> {t('common:actions.confirm')}
         </Button>
       </div>
     </Card>
@@ -315,6 +340,7 @@ function SubjectCard({ book }: { book: Book }) {
 // ── Mavzular ────────────────────────────────────────────────────────────────
 
 function TopicsSection({ book }: { book: Book }) {
+  const { t } = useTranslation('bookDetail');
   const qc = useQueryClient();
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editRow, setEditRow] = useState<{ title: string; start_page: string; end_page: string }>({
@@ -349,25 +375,25 @@ function TopicsSection({ book }: { book: Book }) {
       setEditingId(null);
       invalidate();
     },
-    onError: (e: any) => toast.error(e.response?.data?.message || 'Xato'),
+    onError: (e: any) => toast.error(e.response?.data?.message || t('common:state.error')),
   });
 
   const confirmAllMutation = useMutation({
     mutationFn: () => booksApi.confirmAllTopics(book.id),
     onSuccess: () => {
-      toast.success('Barcha mavzular tasdiqlandi');
+      toast.success(t('topics.toast.allConfirmed'));
       invalidate();
     },
-    onError: (e: any) => toast.error(e.response?.data?.message || 'Xato'),
+    onError: (e: any) => toast.error(e.response?.data?.message || t('common:state.error')),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (topicId: number) => booksApi.deleteTopic(book.id, topicId),
     onSuccess: () => {
-      toast.success("Mavzu o'chirildi");
+      toast.success(t('topics.toast.deleted'));
       invalidate();
     },
-    onError: (e: any) => toast.error(e.response?.data?.message || 'Xato'),
+    onError: (e: any) => toast.error(e.response?.data?.message || t('common:state.error')),
   });
 
   const createMutation = useMutation({
@@ -378,12 +404,12 @@ function TopicsSection({ book }: { book: Book }) {
         end_page: Number(newTopic.end_page),
       }),
     onSuccess: () => {
-      toast.success("Mavzu qo'shildi");
+      toast.success(t('topics.toast.added'));
       setAdding(false);
       setNewTopic({ title: '', start_page: '', end_page: '' });
       invalidate();
     },
-    onError: (e: any) => toast.error(e.response?.data?.message || 'Xato'),
+    onError: (e: any) => toast.error(e.response?.data?.message || t('common:state.error')),
   });
 
   return (
@@ -391,21 +417,25 @@ function TopicsSection({ book }: { book: Book }) {
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <h2 className="font-semibold text-gray-900 dark:text-white">
-            2. Mavzular va sahifa chegaralari{' '}
+            {t('topics.title')}{' '}
             <span className="text-sm font-normal text-gray-500">
-              ({topics?.filter((t) => t.is_confirmed).length ?? 0}/{topics?.length ?? 0} tasdiqlangan)
+              {t('topics.confirmedCount', {
+                done: topics?.filter((topic) => topic.is_confirmed).length ?? 0,
+                total: topics?.length ?? 0,
+              })}
             </span>
           </h2>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 max-w-2xl">
-            Savollar aynan shu sahifa oralig'idagi matndan tuziladi — 👁 bilan chegarani tekshirib
-            tasdiqlang. <b>"Mobil ilova mavzusi"</b>: savol qo'shilganda ilovadagi qaysi mavzu ostiga
-            tushishini belgilaydi — tanlamasangiz, kitob mavzusi nomi bilan yangi mavzu avtomatik
-            ochiladi.
+            <Trans
+              i18nKey="bookDetail:topics.hint"
+              values={{ appTopic: t('topics.table.appTopic') }}
+              components={{ b: <b /> }}
+            />
           </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => setAdding(true)}>
-            + Mavzu qo'shish
+            {t('topics.add')}
           </Button>
           <Button
             size="sm"
@@ -413,7 +443,7 @@ function TopicsSection({ book }: { book: Book }) {
             onClick={() => confirmAllMutation.mutate()}
             disabled={!topics?.length}
           >
-            <CheckCheck className="w-4 h-4" /> Hammasini tasdiqlash
+            <CheckCheck className="w-4 h-4" /> {t('topics.confirmAll')}
           </Button>
         </div>
       </div>
@@ -423,13 +453,21 @@ function TopicsSection({ book }: { book: Book }) {
           <Spinner />
         </div>
       ) : !topics?.length ? (
-        <EmptyState message="Mavzular topilmadi — qo'lda qo'shishingiz mumkin" />
+        <EmptyState message={t('topics.empty')} />
       ) : (
         <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 dark:bg-gray-800/50">
               <tr>
-                {['#', 'Mavzu', 'Sahifalar', 'Mobil ilova mavzusi', 'Savollar', 'Chegara', ''].map((h) => (
+                {[
+                  '#',
+                  t('common:table.topic'),
+                  t('topics.table.pages'),
+                  t('topics.table.appTopic'),
+                  t('topics.table.questions'),
+                  t('topics.table.boundary'),
+                  '',
+                ].map((h) => (
                   <th
                     key={h}
                     className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase"
@@ -492,16 +530,19 @@ function TopicsSection({ book }: { book: Book }) {
                         }
                         disabled={!book.subject_id}
                       >
-                        <option value="">Avto: yangi mavzu ochiladi</option>
-                        {realTopics?.map((t: any) => (
-                          <option key={t.id} value={t.id}>
-                            {t.name}
+                        <option value="">{t('topics.autoOption')}</option>
+                        {realTopics?.map((rt: any) => (
+                          <option key={rt.id} value={rt.id}>
+                            {rt.name}
                           </option>
                         ))}
                       </select>
                     </td>
                     <td className="px-3 py-2 text-gray-600 dark:text-gray-300">
-                      {Number(topic.draft_count) || 0} draft / {Number(topic.approved_count) || 0} ✓
+                      {t('topics.draftApproved', {
+                        count: Number(topic.draft_count) || 0,
+                        approved: Number(topic.approved_count) || 0,
+                      })}
                     </td>
                     <td className="px-3 py-2">
                       <button
@@ -511,12 +552,12 @@ function TopicsSection({ book }: { book: Book }) {
                             body: { is_confirmed: !topic.is_confirmed },
                           })
                         }
-                        title={topic.is_confirmed ? 'Tasdiqni bekor qilish' : 'Tasdiqlash'}
+                        title={topic.is_confirmed ? t('topics.unconfirm') : t('common:actions.confirm')}
                       >
                         {topic.is_confirmed ? (
-                          <Badge color="green">Chegara OK</Badge>
+                          <Badge color="green">{t('topics.boundaryOk')}</Badge>
                         ) : (
-                          <Badge color="yellow">Tekshirilmagan</Badge>
+                          <Badge color="yellow">{t('topics.unchecked')}</Badge>
                         )}
                       </button>
                     </td>
@@ -525,7 +566,7 @@ function TopicsSection({ book }: { book: Book }) {
                         <Button
                           variant="ghost"
                           size="sm"
-                          title="Sahifa matnini ko'rish"
+                          title={t('topics.viewPage')}
                           onClick={() => setPreview({ topic })}
                         >
                           <Eye className="w-4 h-4" />
@@ -596,22 +637,22 @@ function TopicsSection({ book }: { book: Book }) {
       />
 
       {/* Qo'lda mavzu qo'shish */}
-      <Modal open={adding} onClose={() => setAdding(false)} title="Mavzu qo'shish">
+      <Modal open={adding} onClose={() => setAdding(false)} title={t('topics.addModal.title')}>
         <div className="space-y-3">
           <Input
-            label="Mavzu nomi"
+            label={t('topics.addModal.name')}
             value={newTopic.title}
             onChange={(e) => setNewTopic({ ...newTopic, title: e.target.value })}
           />
           <div className="grid grid-cols-2 gap-3">
             <Input
-              label="Boshlanish sahifasi"
+              label={t('topics.addModal.startPage')}
               type="number"
               value={newTopic.start_page}
               onChange={(e) => setNewTopic({ ...newTopic, start_page: e.target.value })}
             />
             <Input
-              label="Tugash sahifasi"
+              label={t('topics.addModal.endPage')}
               type="number"
               value={newTopic.end_page}
               onChange={(e) => setNewTopic({ ...newTopic, end_page: e.target.value })}
@@ -619,14 +660,14 @@ function TopicsSection({ book }: { book: Book }) {
           </div>
           <div className="flex justify-end gap-2">
             <Button variant="secondary" onClick={() => setAdding(false)}>
-              Bekor qilish
+              {t('common:actions.cancel')}
             </Button>
             <Button
               loading={createMutation.isPending}
               disabled={!newTopic.title || !newTopic.start_page || !newTopic.end_page}
               onClick={() => createMutation.mutate()}
             >
-              Qo'shish
+              {t('common:actions.add')}
             </Button>
           </div>
         </div>
@@ -644,6 +685,7 @@ function PagePreviewModal({
   topic: BookTopic | null;
   onClose: () => void;
 }) {
+  const { t } = useTranslation('bookDetail');
   const [from, setFrom] = useState<number | null>(null);
   const effectiveFrom = from ?? topic?.start_page ?? 1;
 
@@ -661,7 +703,7 @@ function PagePreviewModal({
         setFrom(null);
         onClose();
       }}
-      title={topic ? `"${topic.title}" — sahifa tekshiruvi` : ''}
+      title={topic ? t('preview.title', { title: topic.title }) : ''}
       size="lg"
     >
       <div className="space-y-3">
@@ -671,13 +713,17 @@ function PagePreviewModal({
             size="sm"
             onClick={() => setFrom(Math.max(1, effectiveFrom - 1))}
           >
-            ← Oldingi
+            ← {t('common:actions.previous')}
           </Button>
           <span className="text-sm text-gray-600 dark:text-gray-300">
-            {effectiveFrom}-sahifa (mavzu: {topic?.start_page}–{topic?.end_page})
+            {t('preview.pageInfo', {
+              page: effectiveFrom,
+              start: topic?.start_page ?? '',
+              end: topic?.end_page ?? '',
+            })}
           </span>
           <Button variant="outline" size="sm" onClick={() => setFrom(effectiveFrom + 1)}>
-            Keyingi →
+            {t('common:actions.next')} →
           </Button>
         </div>
         {isLoading ? (
@@ -688,9 +734,11 @@ function PagePreviewModal({
           <div className="max-h-96 overflow-y-auto space-y-4">
             {pages?.map((p) => (
               <div key={p.page_no}>
-                <p className="text-xs font-semibold text-gray-400 mb-1">— {p.page_no}-sahifa —</p>
+                <p className="text-xs font-semibold text-gray-400 mb-1">
+                  {t('preview.pageHeading', { page: p.page_no })}
+                </p>
                 <pre className="whitespace-pre-wrap text-xs text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  {p.text || '(bo\'sh sahifa yoki matn qatlami yo\'q)'}
+                  {p.text || t('preview.emptyPage')}
                 </pre>
               </div>
             ))}
@@ -704,6 +752,7 @@ function PagePreviewModal({
 // ── Generatsiya ─────────────────────────────────────────────────────────────
 
 function GenerationSection({ book }: { book: Book }) {
+  const { t } = useTranslation('bookDetail');
   const qc = useQueryClient();
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [count, setCount] = useState('20');
@@ -735,22 +784,22 @@ function GenerationSection({ book }: { book: Book }) {
         },
       }),
     onSuccess: () => {
-      toast.success('Generatsiya boshlandi');
+      toast.success(t('generation.toast.started'));
       qc.invalidateQueries({ queryKey: ['book-jobs', book.id] });
     },
-    onError: (e: any) => toast.error(e.response?.data?.message || 'Xato'),
+    onError: (e: any) => toast.error(e.response?.data?.message || t('common:state.error')),
   });
 
   const cancelMutation = useMutation({
     mutationFn: (jobId: number) => booksApi.cancelJob(jobId),
     onSuccess: () => {
-      toast.success('Job bekor qilindi');
+      toast.success(t('generation.toast.cancelled'));
       qc.invalidateQueries({ queryKey: ['book-jobs', book.id] });
     },
-    onError: (e: any) => toast.error(e.response?.data?.message || 'Xato'),
+    onError: (e: any) => toast.error(e.response?.data?.message || t('common:state.error')),
   });
 
-  const confirmedTopics = useMemo(() => topics?.filter((t) => t.is_confirmed) ?? [], [topics]);
+  const confirmedTopics = useMemo(() => topics?.filter((topic) => topic.is_confirmed) ?? [], [topics]);
   const allSelected = confirmedTopics.length > 0 && selected.size === confirmedTopics.length;
   const diffSum =
     (Number(difficulty.easy) || 0) + (Number(difficulty.medium) || 0) + (Number(difficulty.hard) || 0);
@@ -772,7 +821,7 @@ function GenerationSection({ book }: { book: Book }) {
   return (
     <Card className="p-4 space-y-4">
       <h2 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-        <Sparkles className="w-4 h-4 text-primary-600" /> 3. Savol generatsiyasi
+        <Sparkles className="w-4 h-4 text-primary-600" /> {t('generation.title')}
       </h2>
 
       {activeJob ? (
@@ -786,32 +835,34 @@ function GenerationSection({ book }: { book: Book }) {
                 checked={allSelected}
                 onChange={() =>
                   setSelected(
-                    allSelected ? new Set() : new Set(confirmedTopics.map((t) => t.id))
+                    allSelected ? new Set() : new Set(confirmedTopics.map((topic) => topic.id))
                   )
                 }
               />
-              Hammasini tanlash ({confirmedTopics.length} mavzu)
+              {t('generation.selectAll', {
+                topics: t('generation.topicsCount', { count: confirmedTopics.length }),
+              })}
             </label>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-1 max-h-48 overflow-y-auto border border-gray-200 dark:border-gray-800 rounded-lg p-2">
-            {confirmedTopics.map((t) => (
+            {confirmedTopics.map((topic) => (
               <label
-                key={t.id}
+                key={topic.id}
                 className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 py-0.5"
               >
                 <input
                   type="checkbox"
-                  checked={selected.has(t.id)}
+                  checked={selected.has(topic.id)}
                   onChange={() => {
                     const next = new Set(selected);
-                    if (next.has(t.id)) next.delete(t.id);
-                    else next.add(t.id);
+                    if (next.has(topic.id)) next.delete(topic.id);
+                    else next.add(topic.id);
                     setSelected(next);
                   }}
                 />
-                <span className="truncate">{t.title}</span>
+                <span className="truncate">{topic.title}</span>
                 <span className="text-xs text-gray-400 whitespace-nowrap">
-                  ({t.start_page}–{t.end_page})
+                  ({topic.start_page}–{topic.end_page})
                 </span>
               </label>
             ))}
@@ -819,7 +870,7 @@ function GenerationSection({ book }: { book: Book }) {
 
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3 items-end">
             <Input
-              label="Har mavzuga savol"
+              label={t('generation.perTopic')}
               type="number"
               min={1}
               max={50}
@@ -827,19 +878,19 @@ function GenerationSection({ book }: { book: Book }) {
               onChange={(e) => setCount(e.target.value)}
             />
             <Input
-              label="Oson %"
+              label={`${t('difficulty.easy')} %`}
               type="number"
               value={difficulty.easy}
               onChange={(e) => setDifficulty({ ...difficulty, easy: e.target.value })}
             />
             <Input
-              label="O'rta %"
+              label={`${t('difficulty.medium')} %`}
               type="number"
               value={difficulty.medium}
               onChange={(e) => setDifficulty({ ...difficulty, medium: e.target.value })}
             />
             <Input
-              label="Qiyin %"
+              label={`${t('difficulty.hard')} %`}
               type="number"
               value={difficulty.hard}
               onChange={(e) => setDifficulty({ ...difficulty, hard: e.target.value })}
@@ -849,31 +900,42 @@ function GenerationSection({ book }: { book: Book }) {
               disabled={selected.size === 0 || diffSum <= 0}
               onClick={() => generateMutation.mutate()}
             >
-              <Play className="w-4 h-4" /> Boshlash
+              <Play className="w-4 h-4" /> {t('actions.start')}
             </Button>
           </div>
           {diffSum <= 0 ? (
             <p className="text-xs text-red-500">
-              Kamida bitta qiyinlik darajasiga 0 dan katta qiymat kiriting
+              {t('generation.diffError')}
             </p>
           ) : (
             diffSum !== 100 && (
               <p className="text-xs text-gray-400">
-                Nisbatlar avtomatik 100% ga keltiriladi: oson{' '}
-                {Math.round(((Number(difficulty.easy) || 0) / diffSum) * 100)}% · o'rta{' '}
-                {Math.round(((Number(difficulty.medium) || 0) / diffSum) * 100)}% · qiyin{' '}
-                {Math.round(((Number(difficulty.hard) || 0) / diffSum) * 100)}%
+                {t('generation.diffNormalized', {
+                  easy: Math.round(((Number(difficulty.easy) || 0) / diffSum) * 100),
+                  medium: Math.round(((Number(difficulty.medium) || 0) / diffSum) * 100),
+                  hard: Math.round(((Number(difficulty.hard) || 0) / diffSum) * 100),
+                })}
               </p>
             )
           )}
           <p className="text-xs text-gray-400">
-            Tanlangan: {selected.size} mavzu × {count} savol = ~{selected.size * (Number(count) || 0)}{' '}
-            savol
+            {t('generation.selectedSummary', {
+              topics: t('generation.topicsCount', { count: selected.size }),
+              perTopic: t('generation.questionsCount', { count: Number(count) || 0 }),
+              total: t('generation.questionsCount', { count: selected.size * (Number(count) || 0) }),
+            })}
             {estimate && (
               <>
-                {' · '}smeta: ~{Math.round((estimate.input_tokens + estimate.output_tokens) / 1000)}K
-                token · <b className="text-gray-600 dark:text-gray-300">~${estimate.est_cost_usd}</b>
-                {estimate.batch_mode && ' (batch, 50% chegirma hisobga olingan)'}
+                {' · '}
+                <Trans
+                  i18nKey="bookDetail:generation.estimate"
+                  values={{
+                    tokens: Math.round((estimate.input_tokens + estimate.output_tokens) / 1000),
+                    cost: estimate.est_cost_usd,
+                  }}
+                  components={{ b: <b className="text-gray-600 dark:text-gray-300" /> }}
+                />
+                {estimate.batch_mode && ` ${t('generation.batchNote')}`}
               </>
             )}
           </p>
@@ -887,10 +949,22 @@ function GenerationSection({ book }: { book: Book }) {
             .slice(0, 3)
             .map((j) => (
               <p key={j.id}>
-                Job #{j.id}: <b>{j.status}</b> — {j.questions_created} savol,{' '}
-                {j.topics_done}/{j.topics_total} mavzu, {(j.input_tokens / 1000).toFixed(0)}K in /{' '}
-                {(j.output_tokens / 1000).toFixed(0)}K out token
-                {j.error ? ` · xato: ${j.error}` : ''}
+                <Trans
+                  i18nKey="bookDetail:generation.jobLine"
+                  values={{
+                    id: j.id,
+                    status: t(`common:status.${j.status}`, { defaultValue: j.status }),
+                    questions: t('generation.questionsCount', {
+                      count: Number(j.questions_created) || 0,
+                    }),
+                    done: j.topics_done,
+                    total: j.topics_total,
+                    inTokens: (j.input_tokens / 1000).toFixed(0),
+                    outTokens: (j.output_tokens / 1000).toFixed(0),
+                  }}
+                  components={{ b: <b /> }}
+                />
+                {j.error ? ` · ${t('generation.jobError', { error: j.error })}` : ''}
               </p>
             ))}
         </div>
@@ -906,6 +980,7 @@ function JobProgress({
   job: GenerationJob;
   onCancel: (id: number) => void;
 }) {
+  const { t } = useTranslation('bookDetail');
   const pct = job.topics_total ? Math.round((job.topics_done / job.topics_total) * 100) : 0;
   return (
     <div className="space-y-2">
@@ -913,11 +988,15 @@ function JobProgress({
         <p className="text-sm font-medium text-gray-900 dark:text-white flex items-center gap-2">
           <Spinner size="sm" />
           {job.batch_name
-            ? `Batch rejimda ishlanmoqda (50% tejamkor) — natija bir yo'la keladi`
-            : `Generatsiya ketmoqda: ${job.topics_done}/${job.topics_total} mavzu · ${job.questions_created} savol yaratildi`}
+            ? t('job.batchRunning')
+            : t('job.running', {
+                count: Number(job.questions_created) || 0,
+                done: job.topics_done,
+                total: job.topics_total,
+              })}
         </p>
         <Button variant="outline" size="sm" onClick={() => onCancel(job.id)}>
-          <StopCircle className="w-4 h-4" /> To'xtatish
+          <StopCircle className="w-4 h-4" /> {t('job.stop')}
         </Button>
       </div>
       <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
@@ -927,8 +1006,10 @@ function JobProgress({
         />
       </div>
       <p className="text-xs text-gray-400">
-        Token: {(job.input_tokens / 1000).toFixed(0)}K in / {(job.output_tokens / 1000).toFixed(0)}K
-        out
+        {t('job.tokens', {
+          inTokens: (job.input_tokens / 1000).toFixed(0),
+          outTokens: (job.output_tokens / 1000).toFixed(0),
+        })}
       </p>
     </div>
   );
@@ -937,6 +1018,7 @@ function JobProgress({
 // ── Draft savollar (review) ────────────────────────────────────────────────
 
 function DraftsSection({ book }: { book: Book }) {
+  const { t } = useTranslation('bookDetail');
   const qc = useQueryClient();
   const [topicFilter, setTopicFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('pending');
@@ -981,19 +1063,19 @@ function DraftsSection({ book }: { book: Book }) {
   const approveMutation = useMutation({
     mutationFn: (qid: number) => booksApi.approveDraft(qid),
     onSuccess: () => {
-      toast.success("✓ Savol bazaga qo'shildi — mobil ilovada chiqadi");
+      toast.success(t('drafts.toast.approved'));
       invalidate();
     },
-    onError: (e: any) => toast.error(e.response?.data?.message || 'Xato'),
+    onError: (e: any) => toast.error(e.response?.data?.message || t('common:state.error')),
   });
 
   const rejectMutation = useMutation({
     mutationFn: (qid: number) => booksApi.rejectDraft(qid),
     onSuccess: () => {
-      toast('Savol rad etildi — hech qayerda ishlatilmaydi', { icon: '🗑' });
+      toast(t('drafts.toast.rejected'), { icon: '🗑' });
       invalidate();
     },
-    onError: (e: any) => toast.error(e.response?.data?.message || 'Xato'),
+    onError: (e: any) => toast.error(e.response?.data?.message || t('common:state.error')),
   });
 
   const bulkApproveMutation = useMutation({
@@ -1003,11 +1085,13 @@ function DraftsSection({ book }: { book: Book }) {
         scope === 'book' ? { all_ready: true } : { book_topic_id: Number(topicFilter) }
       ),
     onSuccess: (res) => {
-      toast.success(`${res.data.data.approved_count} ta savol bazaga qo'shildi`);
+      toast.success(
+        t('drafts.toast.bulkApproved', { count: Number(res.data.data.approved_count) || 0 })
+      );
       setBulkConfirm(null);
       invalidate();
     },
-    onError: (e: any) => toast.error(e.response?.data?.message || 'Xato'),
+    onError: (e: any) => toast.error(e.response?.data?.message || t('common:state.error')),
   });
 
   const drafts = data?.data ?? [];
@@ -1017,29 +1101,30 @@ function DraftsSection({ book }: { book: Book }) {
     (summary?.approved ?? 0) +
     (summary?.rejected ?? 0);
   const reviewed = (summary?.approved ?? 0) + (summary?.rejected ?? 0);
+  const readyCount = Number(summary?.ready ?? 0) || 0;
 
   const statusTabs: Array<{ value: string; label: string; count: number; color: string }> = [
     {
       value: 'pending',
-      label: 'Kutilmoqda',
+      label: t('common:status.pending'),
       count: summary?.pending ?? 0,
       color: 'text-yellow-600',
     },
     {
       value: 'needs_review',
-      label: 'Diqqat kerak',
+      label: t('drafts.tabs.needsReview'),
       count: summary?.needs_review ?? 0,
       color: 'text-orange-600',
     },
     {
       value: 'approved',
-      label: "Bazaga qo'shilgan",
+      label: t('drafts.tabs.approved'),
       count: summary?.approved ?? 0,
       color: 'text-green-600',
     },
     {
       value: 'rejected',
-      label: 'Rad etilgan',
+      label: t('common:status.rejected'),
       count: summary?.rejected ?? 0,
       color: 'text-red-500',
     },
@@ -1050,12 +1135,14 @@ function DraftsSection({ book }: { book: Book }) {
       <div className="flex items-start justify-between flex-wrap gap-2">
         <div>
           <h2 className="font-semibold text-gray-900 dark:text-white">
-            4. Savollarni bazaga qo'shish
+            {t('drafts.title')}
           </h2>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-2xl">
-            AI yaratgan savollar avval shu yerda "draft" bo'lib turadi va{' '}
-            <b>mobil ilovada ko'rinmaydi</b>. Siz "Bazaga qo'shish" bosgan savollargina o'quvchilarga
-            chiqadi. "Diqqat kerak" dagilarni tahrirlab qo'shing yoki rad eting.
+            <Trans
+              i18nKey="bookDetail:drafts.hint"
+              values={{ approve: t('card.approve'), review: t('drafts.tabs.needsReview') }}
+              components={{ b: <b /> }}
+            />
           </p>
         </div>
         <div className="flex flex-col items-end gap-1">
@@ -1067,12 +1154,12 @@ function DraftsSection({ book }: { book: Book }) {
           >
             <CheckCheck className="w-4 h-4" />
             {topicFilter
-              ? `Shu mavzu tayyorlarini qo'shish (${summary?.ready ?? 0})`
-              : `Barcha tayyorlarni qo'shish (${summary?.ready ?? 0})`}
+              ? t('drafts.bulkAddTopic', { ready: summary?.ready ?? 0 })
+              : t('drafts.bulkAddBook', { ready: summary?.ready ?? 0 })}
           </Button>
           {total > 0 && (
             <p className="text-xs text-gray-400">
-              {total} tadan {reviewed} tasi ko'rib chiqilgan
+              {t('drafts.reviewedOf', { total, reviewed })}
             </p>
           )}
         </div>
@@ -1087,10 +1174,10 @@ function DraftsSection({ book }: { book: Book }) {
           }}
           className="w-64"
         >
-          <option value="">Barcha mavzular</option>
-          {topics?.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.title}
+          <option value="">{t('drafts.allTopics')}</option>
+          {topics?.map((topic) => (
+            <option key={topic.id} value={topic.id}>
+              {topic.title}
             </option>
           ))}
         </Select>
@@ -1125,9 +1212,7 @@ function DraftsSection({ book }: { book: Book }) {
       ) : drafts.length === 0 ? (
         <EmptyState
           message={
-            statusFilter === 'pending'
-              ? "Bu bo'limda savol qolmadi — boshqa tabni tekshiring"
-              : "Bu bo'limda savol yo'q"
+            statusFilter === 'pending' ? t('drafts.empty.pending') : t('drafts.empty.other')
           }
         />
       ) : (
@@ -1160,24 +1245,24 @@ function DraftsSection({ book }: { book: Book }) {
       <Modal
         open={!!bulkConfirm}
         onClose={() => setBulkConfirm(null)}
-        title="Ommaviy bazaga qo'shish"
+        title={t('drafts.bulk.title')}
       >
         <div className="space-y-4">
           <p className="text-sm text-gray-600 dark:text-gray-300">
             {bulkConfirm === 'book'
-              ? `Kitobdagi barcha tayyor (manbasi tasdiqlangan, "Kutilmoqda" holatidagi) ${summary?.ready ?? 0} ta savol bazaga qo'shiladi va mobil ilovada chiqa boshlaydi.`
-              : `Shu mavzudagi ${summary?.ready ?? 0} ta tayyor savol bazaga qo'shiladi.`}{' '}
-            "Diqqat kerak" dagilar qo'shilmaydi — ularni alohida ko'rib chiqasiz. Davom etasizmi?
+              ? t('drafts.bulk.bodyBook', { count: readyCount, pending: t('common:status.pending') })
+              : t('drafts.bulk.bodyTopic', { count: readyCount })}{' '}
+            {t('drafts.bulk.bodyTail', { review: t('drafts.tabs.needsReview') })}
           </p>
           <div className="flex justify-end gap-2">
             <Button variant="secondary" onClick={() => setBulkConfirm(null)}>
-              Bekor qilish
+              {t('common:actions.cancel')}
             </Button>
             <Button
               loading={bulkApproveMutation.isPending}
               onClick={() => bulkConfirm && bulkApproveMutation.mutate(bulkConfirm)}
             >
-              <CheckCheck className="w-4 h-4" /> Qo'shish
+              <CheckCheck className="w-4 h-4" /> {t('common:actions.add')}
             </Button>
           </div>
         </div>
@@ -1199,6 +1284,7 @@ function DraftCard({
   onApprove: () => void;
   onReject: () => void;
 }) {
+  const { t } = useTranslation('bookDetail');
   const options =
     typeof draft.options === 'string' ? JSON.parse(draft.options as any) : draft.options;
   const reviewed = ['approved', 'rejected'].includes(draft.review_status);
@@ -1226,10 +1312,12 @@ function DraftCard({
                 draft.quality_score >= 8 ? 'green' : draft.quality_score >= 7 ? 'blue' : 'orange'
               }
             >
-              Sifat: {draft.quality_score}/10
+              {t('card.quality', { score: draft.quality_score })}
             </Badge>
           )}
-          <Badge color={DIFFICULTY_COLORS[draft.difficulty] ?? 'gray'}>{draft.difficulty}</Badge>
+          <Badge color={DIFFICULTY_COLORS[draft.difficulty] ?? 'gray'}>
+            {t(`difficulty.${draft.difficulty}`, { defaultValue: draft.difficulty })}
+          </Badge>
         </div>
       </div>
 
@@ -1249,18 +1337,24 @@ function DraftCard({
       </ul>
 
       {draft.explanation && (
-        <p className="text-xs text-gray-500 dark:text-gray-400">Izoh: {draft.explanation}</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          {t('card.explanation', { text: draft.explanation })}
+        </p>
       )}
 
       <div className="flex items-center justify-between flex-wrap gap-2 pt-1">
         <div className="flex items-center gap-2">
           {draft.grounded ? (
             <span title={draft.source_quote || ''}>
-              <Badge color="green">Manba tasdiqlangan · {draft.source_page}-sahifa</Badge>
+              <Badge color="green">
+                {t('card.sourceVerified', { page: draft.source_page ?? '' })}
+              </Badge>
             </span>
           ) : (
             <span title={draft.flag_reason || ''}>
-              <Badge color="orange">Diqqat: {draft.flag_reason || 'manba tasdiqlanmagan'}</Badge>
+              <Badge color="orange">
+                {t('card.attention', { reason: draft.flag_reason || t('card.sourceUnverified') })}
+              </Badge>
             </span>
           )}
           {draft.source_quote && (
@@ -1272,21 +1366,21 @@ function DraftCard({
         {reviewed ? (
           <div className="flex items-center gap-2">
             {draft.review_status === 'approved' ? (
-              <Badge color="green">✓ Bazaga qo'shilgan — mobil ilovada chiqadi</Badge>
+              <Badge color="green">{t('card.approvedBadge')}</Badge>
             ) : (
-              <Badge color="red">Rad etilgan — ishlatilmaydi</Badge>
+              <Badge color="red">{t('card.rejectedBadge')}</Badge>
             )}
           </div>
         ) : (
           <div className="flex gap-1.5">
-            <Button variant="outline" size="sm" onClick={onEdit} title="Savolni tahrirlash">
-              <Pencil className="w-4 h-4" /> Tahrirlash
+            <Button variant="outline" size="sm" onClick={onEdit} title={t('card.editTitle')}>
+              <Pencil className="w-4 h-4" /> {t('common:actions.edit')}
             </Button>
-            <Button variant="outline" size="sm" onClick={onReject} title="Savol yaroqsiz — ishlatilmasin">
-              <ThumbsDown className="w-4 h-4 text-red-500" /> Rad etish
+            <Button variant="outline" size="sm" onClick={onReject} title={t('card.rejectTitle')}>
+              <ThumbsDown className="w-4 h-4 text-red-500" /> {t('card.reject')}
             </Button>
-            <Button size="sm" onClick={onApprove} title="Savol bazaga qo'shiladi va mobil ilovada chiqadi">
-              <ThumbsUp className="w-4 h-4" /> Bazaga qo'shish
+            <Button size="sm" onClick={onApprove} title={t('card.approveTitle')}>
+              <ThumbsUp className="w-4 h-4" /> {t('card.approve')}
             </Button>
           </div>
         )}
@@ -1304,6 +1398,7 @@ function DraftEditModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useTranslation('bookDetail');
   const [form, setForm] = useState<{
     question_text: string;
     difficulty: string;
@@ -1339,34 +1434,34 @@ function DraftEditModal({
         options: form!.options.map((o, i) => ({ ...o, order_index: i })),
       }),
     onSuccess: () => {
-      toast.success('Draft yangilandi');
+      toast.success(t('edit.toast.updated'));
       onSaved();
     },
-    onError: (e: any) => toast.error(e.response?.data?.message || 'Xato'),
+    onError: (e: any) => toast.error(e.response?.data?.message || t('common:state.error')),
   });
 
   if (!draft || !form) return null;
 
   return (
-    <Modal open={!!draft} onClose={onClose} title="Savolni tahrirlash" size="lg">
+    <Modal open={!!draft} onClose={onClose} title={t('edit.title')} size="lg">
       <div className="space-y-3">
         <Input
-          label="Savol matni"
+          label={t('edit.questionText')}
           value={form.question_text}
           onChange={(e) => setForm({ ...form, question_text: e.target.value })}
         />
         <Select
-          label="Qiyinlik"
+          label={t('common:table.difficulty')}
           value={form.difficulty}
           onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
         >
-          <option value="easy">Oson</option>
-          <option value="medium">O'rta</option>
-          <option value="hard">Qiyin</option>
+          <option value="easy">{t('difficulty.easy')}</option>
+          <option value="medium">{t('difficulty.medium')}</option>
+          <option value="hard">{t('difficulty.hard')}</option>
         </Select>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Variantlar (to'g'ri javobni belgilang)
+            {t('edit.options')}
           </label>
           {form.options.map((o, i) => (
             <div key={i} className="flex items-center gap-2">
@@ -1397,16 +1492,16 @@ function DraftEditModal({
           ))}
         </div>
         <Input
-          label="Izoh"
+          label={t('edit.explanation')}
           value={form.explanation}
           onChange={(e) => setForm({ ...form, explanation: e.target.value })}
         />
         <div className="flex justify-end gap-2">
           <Button variant="secondary" onClick={onClose}>
-            Bekor qilish
+            {t('common:actions.cancel')}
           </Button>
           <Button loading={mutation.isPending} onClick={() => mutation.mutate()}>
-            Saqlash
+            {t('common:actions.save')}
           </Button>
         </div>
       </div>

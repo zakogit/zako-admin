@@ -1,21 +1,16 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
+import { useTranslation, Trans } from 'react-i18next';
 import { Trophy, Save, Send, Eye, Clock, RotateCcw, UserX, Medal } from 'lucide-react';
 import { Button, Card, Spinner, Table, Badge, Modal, EmptyState } from '../../components/ui';
 import { leaderboardApi } from '../../api/services';
 import type { TopPlayerRow } from '../../api/services';
-import { formatDate, formatNumber, getStaticFileUrl } from '../../utils/helpers';
+import { getIntlLocale } from '../../i18n';
+import { formatNumber, getStaticFileUrl } from '../../utils/helpers';
 
-const DAYS = [
-  'Yakshanba',
-  'Dushanba',
-  'Seshanba',
-  'Chorshanba',
-  'Payshanba',
-  'Juma',
-  'Shanba',
-];
+// Indeks = server qiymati: 0 = Yakshanba (Sunday) .. 6 = Shanba (Saturday). Nomlar `days.*` kalitlarida.
+const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const;
 
 const LIMITS = [10, 50, 100] as const;
 type Limit = (typeof LIMITS)[number];
@@ -23,11 +18,16 @@ type Limit = (typeof LIMITS)[number];
 const rankColor = (rank: number) =>
   rank === 1 ? 'text-yellow-500' : rank === 2 ? 'text-gray-400' : rank === 3 ? 'text-amber-700' : 'text-gray-500';
 
+/** Ro'yxatdan o'tgan sana (faqat kun) — joriy til bo'yicha formatlanadi. */
+const formatDay = (value: string) =>
+  new Date(value).toLocaleDateString(getIntlLocale(), { day: '2-digit', month: 'short', year: 'numeric' });
+
 /**
  * Leaderboard (spec §6): umumiy reyting Top 10/50/100 + XP reset / player remove,
  * pastda haftalik TOP-10 Telegram posti jadvali.
  */
 export default function LeaderboardPage() {
+  const { t } = useTranslation('leaderboard');
   const qc = useQueryClient();
   const [limit, setLimit] = useState<Limit>(10);
   const [target, setTarget] = useState<TopPlayerRow | null>(null);
@@ -48,12 +48,12 @@ export default function LeaderboardPage() {
   const resetXp = useMutation({
     mutationFn: (id: number) => leaderboardApi.resetXp(id).then((r) => r.data),
     onSuccess: (d) => {
-      toast.success(`${d.message} (oldingi: ${formatNumber(d.data.previous_xp)} XP)`);
+      toast.success(t('toast.resetDone', { message: d.message, xp: formatNumber(d.data.previous_xp) }));
       setResetModal(false);
       setTarget(null);
       invalidateTop();
     },
-    onError: (e: any) => toast.error(e?.response?.data?.message || 'XP reset xatolik'),
+    onError: (e: any) => toast.error(e?.response?.data?.message || t('toast.resetError')),
   });
 
   const remove = useMutation({
@@ -65,7 +65,7 @@ export default function LeaderboardPage() {
       setRemoveReason('');
       invalidateTop();
     },
-    onError: (e: any) => toast.error(e?.response?.data?.message || 'Chiqarishda xatolik'),
+    onError: (e: any) => toast.error(e?.response?.data?.message || t('toast.removeError')),
   });
 
   // ── Haftalik TOP-10 Telegram jadvali ───────────────────────────────────
@@ -91,25 +91,25 @@ export default function LeaderboardPage() {
   const save = useMutation({
     mutationFn: () => leaderboardApi.updateSchedule({ enabled, day, time }).then((r) => r.data),
     onSuccess: () => {
-      toast.success('Saqlandi');
+      toast.success(t('common:toast.saved'));
       qc.invalidateQueries({ queryKey: ['lb-schedule'] });
     },
-    onError: (e: any) => toast.error(e?.response?.data?.message || 'Saqlashda xatolik'),
+    onError: (e: any) => toast.error(e?.response?.data?.message || t('toast.saveError')),
   });
 
   const preview = useMutation({
     mutationFn: () => leaderboardApi.preview().then((r) => r.data),
     onSuccess: (d) => {
       setPreviewUrl(`${getStaticFileUrl(d.data.image_url)}?t=${Date.now()}`);
-      toast.success(`${d.data.entries.length} ta o'yinchi`);
+      toast.success(t('toast.previewReady', { count: d.data.entries.length }));
     },
-    onError: (e: any) => toast.error(e?.response?.data?.message || 'Xatolik'),
+    onError: (e: any) => toast.error(e?.response?.data?.message || t('common:status.error')),
   });
 
   const send = useMutation({
     mutationFn: () => leaderboardApi.sendNow().then((r) => r.data),
     onSuccess: (d) => (d.success ? toast.success(d.message) : toast.error(d.message)),
-    onError: (e: any) => toast.error(e?.response?.data?.message || 'Yuborishda xatolik'),
+    onError: (e: any) => toast.error(e?.response?.data?.message || t('toast.sendError')),
   });
 
   if (isLoading) {
@@ -120,6 +120,8 @@ export default function LeaderboardPage() {
     );
   }
 
+  const dayName = (d: number) => (DAY_KEYS[d] ? t(`days.${DAY_KEYS[d]}`) : '');
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Umumiy reyting */}
@@ -127,9 +129,9 @@ export default function LeaderboardPage() {
         <div className="flex items-center gap-2">
           <Medal className="w-6 h-6 text-primary-500" />
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Reyting</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('title')}</h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Umumiy XP bo'yicha eng yaxshi o'yinchilar · bloklanganlar ko'rsatilmaydi
+              {t('subtitle')}
             </p>
           </div>
         </div>
@@ -144,7 +146,7 @@ export default function LeaderboardPage() {
                   : 'px-4 py-2 font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
               }
             >
-              Top {l}
+              {t('topN', { limit: l })}
             </button>
           ))}
         </div>
@@ -154,9 +156,9 @@ export default function LeaderboardPage() {
         {topLoading ? (
           <div className="flex justify-center py-12"><Spinner /></div>
         ) : !top || top.length === 0 ? (
-          <EmptyState message="Reyting bo'sh" />
+          <EmptyState message={t('empty')} />
         ) : (
-          <Table headers={['#', "O'yinchi", 'Liga', 'XP', 'Reyting', 'Duellar', 'Viloyat', "Ro'yxatdan", '']}>
+          <Table headers={['#', t('table.player'), t('table.league'), 'XP', t('table.rating'), t('table.duels'), t('common:table.region'), t('table.registered'), '']}>
             {top.map((p) => (
               <tr key={p.id}>
                 <td className={`px-4 py-3 font-bold ${rankColor(p.rank)}`}>
@@ -186,13 +188,13 @@ export default function LeaderboardPage() {
                   {p.win_rate !== null && <span className="text-xs text-gray-400 ml-1">({p.win_rate}%)</span>}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-500">{p.region ?? '—'}</td>
-                <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">{formatDate(p.created_at).split(',')[0]}</td>
+                <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">{formatDay(p.created_at)}</td>
                 <td className="px-4 py-3">
                   <div className="flex gap-2">
-                    <Button size="sm" variant="outline" title="XP reset" onClick={() => { setTarget(p); setResetModal(true); }}>
+                    <Button size="sm" variant="outline" title={t('actions.resetXp')} onClick={() => { setTarget(p); setResetModal(true); }}>
                       <RotateCcw className="w-4 h-4" />
                     </Button>
-                    <Button size="sm" variant="danger" title="Reytingdan chiqarish" onClick={() => { setTarget(p); setRemoveModal(true); }}>
+                    <Button size="sm" variant="danger" title={t('actions.removeFromLeaderboard')} onClick={() => { setTarget(p); setRemoveModal(true); }}>
                       <UserX className="w-4 h-4" />
                     </Button>
                   </div>
@@ -207,9 +209,9 @@ export default function LeaderboardPage() {
       <div className="flex items-center gap-2 pt-2">
         <Trophy className="w-6 h-6 text-amber-500" />
         <div>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Haftalik TOP-10</h2>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('weekly.title')}</h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            "Xaftaning eng yaxshilari" — Telegram kanalga avtomatik yuborish
+            {t('weekly.subtitle')}
           </p>
         </div>
       </div>
@@ -224,10 +226,10 @@ export default function LeaderboardPage() {
           />
           <span>
             <span className="block text-sm font-semibold text-gray-900 dark:text-white">
-              Avtomatik yuborishni yoqish
+              {t('weekly.enable')}
             </span>
             <span className="block text-xs text-gray-500 dark:text-gray-400">
-              Yoqilganda, belgilangan kun va soatda TOP-10 avtomatik kanalga yuboriladi.
+              {t('weekly.enableHint')}
             </span>
           </span>
         </label>
@@ -235,23 +237,23 @@ export default function LeaderboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Kun
+              {t('weekly.day')}
             </label>
             <select
               value={day}
               onChange={(e) => setDay(Number(e.target.value))}
               className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
             >
-              {DAYS.map((d, i) => (
+              {DAY_KEYS.map((_, i) => (
                 <option key={i} value={i}>
-                  {d}
+                  {dayName(i)}
                 </option>
               ))}
             </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Soat (Toshkent vaqti)
+              {t('weekly.time')}
             </label>
             <div className="relative">
               <Clock className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -266,8 +268,19 @@ export default function LeaderboardPage() {
         </div>
 
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          Joriy: <b>{DAYS[day]}</b> kuni <b>{time}</b> da{' '}
-          {enabled ? 'yuboriladi' : '(o‘chirilgan)'}.
+          {enabled ? (
+            <Trans
+              i18nKey="leaderboard:weekly.summaryOn"
+              values={{ day: dayName(day), time }}
+              components={{ b: <b /> }}
+            />
+          ) : (
+            <Trans
+              i18nKey="leaderboard:weekly.summaryOff"
+              values={{ day: dayName(day), time }}
+              components={{ b: <b /> }}
+            />
+          )}
         </p>
 
         <div className="flex flex-wrap justify-end gap-3">
@@ -278,18 +291,18 @@ export default function LeaderboardPage() {
             className="flex items-center gap-2"
           >
             <Eye className="w-4 h-4" />
-            Ko‘rib chiqish
+            {t('actions.preview')}
           </Button>
           <Button
             variant="secondary"
             onClick={() => {
-              if (confirm("TOP-10 hozir Telegram kanalga yuborilsinmi?")) send.mutate();
+              if (confirm(t('confirm.sendNow'))) send.mutate();
             }}
             loading={send.isPending}
             className="flex items-center gap-2"
           >
             <Send className="w-4 h-4" />
-            Hozir yuborish
+            {t('actions.sendNow')}
           </Button>
           <Button
             onClick={() => save.mutate()}
@@ -297,7 +310,7 @@ export default function LeaderboardPage() {
             className="flex items-center gap-2"
           >
             <Save className="w-4 h-4" />
-            Saqlash
+            {t('common:actions.save')}
           </Button>
         </div>
       </Card>
@@ -305,28 +318,31 @@ export default function LeaderboardPage() {
       {previewUrl && (
         <Card className="p-6">
           <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
-            Ko‘rinishi (joriy hafta ma’lumoti)
+            {t('weekly.previewTitle')}
           </h2>
           <img
             src={previewUrl}
-            alt="Leaderboard preview"
+            alt={t('weekly.previewAlt')}
             className="max-w-sm w-full mx-auto rounded-xl border border-gray-200 dark:border-gray-700"
           />
         </Card>
       )}
 
       {/* XP reset modal */}
-      <Modal open={resetModal} onClose={() => { setResetModal(false); setTarget(null); }} title="XP reset">
+      <Modal open={resetModal} onClose={() => { setResetModal(false); setTarget(null); }} title={t('modal.resetXp.title')}>
         {target && (
           <div className="space-y-4">
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              <b>{target.name}</b> (@{target.username}) ning umumiy XP'si <b>{formatNumber(target.xp)}</b> dan <b>0</b> ga tushiriladi.
-              Joriy haftaning haftalik XP yozuvi ham o'chiriladi. Reyting (ELO) o'zgarmaydi.
+              <Trans shouldUnescape tOptions={{ interpolation: { escapeValue: true } }}
+                i18nKey="leaderboard:modal.resetXp.body"
+                values={{ name: target.name, username: target.username, xp: formatNumber(target.xp) }}
+                components={{ b: <b /> }}
+              />
             </p>
             <div className="flex gap-3 pt-2">
-              <Button variant="outline" className="flex-1" onClick={() => setResetModal(false)}>Bekor qilish</Button>
+              <Button variant="outline" className="flex-1" onClick={() => setResetModal(false)}>{t('common:actions.cancel')}</Button>
               <Button variant="danger" className="flex-1" loading={resetXp.isPending} onClick={() => resetXp.mutate(target.id)}>
-                <RotateCcw className="w-4 h-4 mr-2" /> XP reset
+                <RotateCcw className="w-4 h-4 mr-2" /> {t('actions.resetXp')}
               </Button>
             </div>
           </div>
@@ -334,31 +350,35 @@ export default function LeaderboardPage() {
       </Modal>
 
       {/* Remove modal */}
-      <Modal open={removeModal} onClose={() => { setRemoveModal(false); setTarget(null); }} title="Reytingdan chiqarish">
+      <Modal open={removeModal} onClose={() => { setRemoveModal(false); setTarget(null); }} title={t('modal.remove.title')}>
         {target && (
           <div className="space-y-4">
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              <b>{target.name}</b> (@{target.username}) XP'si 0 ga tushiriladi va akkaunt <b>bloklanadi</b> (is_banned).
-              Users sahifasida blokdan chiqarish mumkin — u holda o'yinchi 0 XP bilan qaytadi.
+              <Trans shouldUnescape tOptions={{ interpolation: { escapeValue: true } }}
+                i18nKey="leaderboard:modal.remove.body"
+                values={{ name: target.name, username: target.username }}
+                components={{ b: <b /> }}
+              />
             </p>
             <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Sabab</label>
+              <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">{t('modal.remove.reason')}</label>
               <input
                 value={removeReason}
                 onChange={(e) => setRemoveReason(e.target.value)}
-                placeholder="Masalan: cheating"
+                placeholder={t('modal.remove.reasonPlaceholder')}
                 className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               />
             </div>
             <div className="flex gap-3 pt-2">
-              <Button variant="outline" className="flex-1" onClick={() => setRemoveModal(false)}>Bekor qilish</Button>
+              <Button variant="outline" className="flex-1" onClick={() => setRemoveModal(false)}>{t('common:actions.cancel')}</Button>
               <Button
                 variant="danger"
                 className="flex-1"
                 loading={remove.isPending}
+                // i18n-ignore: default ban reason is the API payload (stored in the DB / audit log), not UI text
                 onClick={() => remove.mutate({ id: target.id, reason: removeReason || 'Reytingdan chiqarildi (admin)' })}
               >
-                <UserX className="w-4 h-4 mr-2" /> Chiqarish
+                <UserX className="w-4 h-4 mr-2" /> {t('actions.remove')}
               </Button>
             </div>
           </div>

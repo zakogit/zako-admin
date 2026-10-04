@@ -1,0 +1,41 @@
+{
+  "title": "Adminlar",
+  "subtitle": "Admin panel foydalanuvchilari (Super admin boshqaradi)",
+  "empty": "Admin yo'q",
+  "you": "(siz)",
+  "actions": {
+    "add": "Admin qo'shish",
+    "changePassword": "Parol o'zgartirish",
+    "deleteDeactivate": "O'chirish (deaktivatsiya)",
+    "change": "O'zgartirish"
+  },
+  "table": {
+    "role": "Rol"
+  },
+  "status": {
+    "deactivated": "O'chirilgan"
+  },
+  "form": {
+    "password_one": "Parol * (kamida {{count}} belgi)",
+    "password_other": "Parol * (kamida {{count}} belgi)",
+    "newPassword_one": "Yangi parol (kamida {{count}} belgi)",
+    "newPassword_other": "Yangi parol (kamida {{count}} belgi)",
+    "role": "Rol"
+  },
+  "modal": {
+    "create": {
+      "title": "Admin qo'shish"
+    },
+    "password": {
+      "title": "Parol",
+      "titleFor": "Parol: {{username}}"
+    }
+  },
+  "confirm": {
+    "delete": "{{username}} o'chirilsinmi?"
+  },
+  "toast": {
+    "created": "Admin yaratildi",
+    "passwordChanged": "Parol o'zgartirildi"
+  }
+}

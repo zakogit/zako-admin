@@ -5,6 +5,7 @@ import { Table, Badge, Button, Modal, EmptyState } from '../../components/ui';
 import { formatNumber } from '../../utils/helpers';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import api from '../../api/client';
 
 /**
@@ -54,6 +55,7 @@ function discountActive(p: ProductPackage): boolean {
 }
 
 export default function StorePage() {
+  const { t } = useTranslation('store');
   const qc = useQueryClient();
   const [createModal, setCreateModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
@@ -89,32 +91,32 @@ export default function StorePage() {
   const createMutation = useMutation({
     mutationFn: (d: any) => api.post('/admin/store-packages', buildBody(d)).then((r) => r.data),
     onSuccess: () => {
-      toast.success('Paket yaratildi');
+      toast.success(t('toast.created'));
       setCreateModal(false);
       createForm.reset();
       qc.invalidateQueries({ queryKey: ['store-packages'] });
     },
-    onError: (e: any) => toast.error(e.response?.data?.message || 'Yaratishda xatolik'),
+    onError: (e: any) => toast.error(e.response?.data?.message || t('toast.createFailed')),
   });
 
   const updateMutation = useMutation({
     mutationFn: (d: any) => api.put(`/admin/store-packages/${selected!.id}`, buildBody(d)).then((r) => r.data),
     onSuccess: () => {
-      toast.success('Paket yangilandi');
+      toast.success(t('toast.updated'));
       setEditModal(false);
       setSelected(null);
       qc.invalidateQueries({ queryKey: ['store-packages'] });
     },
-    onError: (e: any) => toast.error(e.response?.data?.message || 'Yangilashda xatolik'),
+    onError: (e: any) => toast.error(e.response?.data?.message || t('toast.updateFailed')),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => api.delete(`/admin/store-packages/${id}`).then((r) => r.data),
     onSuccess: () => {
-      toast.success('Paket o‘chirildi');
+      toast.success(t('toast.deleted'));
       qc.invalidateQueries({ queryKey: ['store-packages'] });
     },
-    onError: () => toast.error('O‘chirishda xatolik'),
+    onError: () => toast.error(t('toast.deleteFailed')),
   });
 
   const openEdit = (p: ProductPackage) => {
@@ -140,110 +142,115 @@ export default function StorePage() {
     'w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white';
 
   // Offer/discount tahrirlash bloki (create/edit uchun umumiy)
-  const OfferFields = ({ form }: { form: any }) => (
-    <div className="rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50/50 dark:bg-amber-900/10 p-4 space-y-4">
-      <div className="flex items-center gap-2 text-sm font-semibold text-amber-700 dark:text-amber-400">
-        <Tag className="w-4 h-4" /> Maxsus taklif & chegirma
+  const OfferFields = ({ form }: { form: any }) => {
+    const { t } = useTranslation('store');
+    return (
+      <div className="rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50/50 dark:bg-amber-900/10 p-4 space-y-4">
+        <div className="flex items-center gap-2 text-sm font-semibold text-amber-700 dark:text-amber-400">
+          <Tag className="w-4 h-4" /> {t('offer.heading')}
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">{t('offer.type')}</label>
+            <select {...form.register('offer_type')} className={inputCls}>
+              <option value="simple">{t('offer.simple')}</option>
+              <option value="special_offer">{t('offer.specialBadge')}</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">{t('offer.discountPercent')}</label>
+            <input type="number" min={0} max={95} {...form.register('discount_percent', { valueAsNumber: true })} className={inputCls} placeholder="0" />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">{t('offer.discountStart')}</label>
+            <input type="datetime-local" {...form.register('discount_starts_at')} className={inputCls} />
+            <p className="text-xs text-gray-400 mt-1">{t('offer.discountStartHint')}</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">{t('offer.discountEnd')}</label>
+            <input type="datetime-local" {...form.register('discount_ends_at')} className={inputCls} />
+            <p className="text-xs text-gray-400 mt-1">{t('offer.discountEndHint')}</p>
+          </div>
+        </div>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          {t('offer.note')}
+        </p>
       </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">Taklif turi</label>
-          <select {...form.register('offer_type')} className={inputCls}>
-            <option value="simple">Oddiy</option>
-            <option value="special_offer">Maxsus taklif (badge)</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">Chegirma (%)</label>
-          <input type="number" min={0} max={95} {...form.register('discount_percent', { valueAsNumber: true })} className={inputCls} placeholder="0" />
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">Chegirma boshlanishi</label>
-          <input type="datetime-local" {...form.register('discount_starts_at')} className={inputCls} />
-          <p className="text-xs text-gray-400 mt-1">Bo‘sh = darhol</p>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">Chegirma tugashi</label>
-          <input type="datetime-local" {...form.register('discount_ends_at')} className={inputCls} />
-          <p className="text-xs text-gray-400 mt-1">Countdown shu vaqtga</p>
-        </div>
-      </div>
-      <p className="text-xs text-gray-500 dark:text-gray-400">
-        Chegirma % &gt; 0 va oyna faol bo‘lganda: narx arzonlashadi (ko‘rsatiladigan VA
-        olinadigan summa) + barcha foydalanuvchilarga push yuboriladi.
-      </p>
-    </div>
-  );
+    );
+  };
 
-  const BasicFields = ({ form }: { form: any }) => (
-    <>
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">Nomi *</label>
-          <input {...form.register('name', { required: true })} className={inputCls} placeholder="500 Tanga" />
+  const BasicFields = ({ form }: { form: any }) => {
+    const { t } = useTranslation('store');
+    return (
+      <>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">{t('common:table.name')} *</label>
+            <input {...form.register('name', { required: true })} className={inputCls} placeholder={t('form.namePlaceholder')} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">{t('common:table.type')}</label>
+            <select {...form.register('product_type')} className={inputCls}>
+              <option value="coins">{t('productType.coins')}</option>
+              <option value="premium">{t('productType.premium')}</option>
+              <option value="cards">{t('productType.cards')}</option>
+            </select>
+          </div>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">Turi</label>
-          <select {...form.register('product_type')} className={inputCls}>
-            <option value="coins">coins</option>
-            <option value="premium">premium</option>
-            <option value="cards">cards</option>
-          </select>
+          <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">{t('common:table.description')}</label>
+          <textarea {...form.register('description')} rows={2} className={inputCls} />
         </div>
-      </div>
-      <div>
-        <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">Tavsif</label>
-        <textarea {...form.register('description')} rows={2} className={inputCls} />
-      </div>
-      <div className="grid grid-cols-3 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">Coins *</label>
-          <input type="number" {...form.register('coins', { valueAsNumber: true })} className={inputCls} placeholder="500" />
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">{t('common:table.coins')} *</label>
+            <input type="number" {...form.register('coins', { valueAsNumber: true })} className={inputCls} placeholder="500" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">{t('form.bonus')}</label>
+            <input type="number" {...form.register('bonus', { valueAsNumber: true })} className={inputCls} placeholder="0" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">{t('common:table.price')} ({t('common:units.som')}) *</label>
+            <input type="number" {...form.register('price_som', { required: true, valueAsNumber: true })} className={inputCls} placeholder="7000" />
+          </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">Bonus</label>
-          <input type="number" {...form.register('bonus', { valueAsNumber: true })} className={inputCls} placeholder="0" />
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">{t('form.sortOrder')}</label>
+            <input type="number" {...form.register('sort_order', { valueAsNumber: true })} className={inputCls} defaultValue={0} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">{t('common:table.status')}</label>
+            <select {...form.register('is_active')} className={inputCls}>
+              <option value="true">{t('common:status.active')}</option>
+              <option value="false">{t('common:status.inactive')}</option>
+            </select>
+          </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">Narx (so'm) *</label>
-          <input type="number" {...form.register('price_som', { required: true, valueAsNumber: true })} className={inputCls} placeholder="7000" />
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">Tartib (sort)</label>
-          <input type="number" {...form.register('sort_order', { valueAsNumber: true })} className={inputCls} defaultValue={0} />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">Holat</label>
-          <select {...form.register('is_active')} className={inputCls}>
-            <option value="true">Faol</option>
-            <option value="false">Faol emas</option>
-          </select>
-        </div>
-      </div>
-    </>
-  );
+      </>
+    );
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Do'kon paketlari</h1>
-          <p className="text-gray-600 dark:text-gray-400">App ko'rsatadigan paketlar (product_packages) + Maxsus taklif/chegirma</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('title')}</h1>
+          <p className="text-gray-600 dark:text-gray-400">{t('subtitle')}</p>
         </div>
         <Button onClick={() => { createForm.reset({ product_type: 'coins', is_active: 'true', offer_type: 'simple', discount_percent: 0 }); setCreateModal(true); }} className="flex items-center gap-2">
-          <Plus className="w-4 h-4" /> Paket qo'shish
+          <Plus className="w-4 h-4" /> {t('addPackage')}
         </Button>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
         {isLoading ? (
-          <div className="p-8 text-center">Yuklanmoqda...</div>
+          <div className="p-8 text-center">{t('common:state.loading')}</div>
         ) : packages.length > 0 ? (
-          <Table headers={['Paket', 'Coins', 'Narx (so\'m)', 'Taklif', 'Holat', '']}>
+          <Table headers={[t('table.package'), t('common:table.coins'), `${t('common:table.price')} (${t('common:units.som')})`, t('table.offer'), t('common:table.status'), '']}>
             {packages.map((pkg) => {
               const active = discountActive(pkg);
               const discounted = active ? Math.round((pkg.price_som * (100 - pkg.discount_percent)) / 100) : pkg.price_som;
@@ -256,7 +263,7 @@ export default function StorePage() {
                       </div>
                       <div>
                         <div className="font-medium text-gray-900 dark:text-white">{pkg.name}</div>
-                        <div className="text-xs text-gray-500">{pkg.product_type}</div>
+                        <div className="text-xs text-gray-500">{t(`productType.${pkg.product_type}`, { defaultValue: pkg.product_type })}</div>
                       </div>
                     </div>
                   </td>
@@ -276,7 +283,7 @@ export default function StorePage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
-                      {pkg.offer_type === 'special_offer' && <Badge color="purple">Maxsus taklif</Badge>}
+                      {pkg.offer_type === 'special_offer' && <Badge color="purple">{t('offer.special')}</Badge>}
                       {active && (
                         <Badge color="red">
                           <span className="flex items-center gap-1"><Clock className="w-3 h-3" />-{pkg.discount_percent}%</span>
@@ -286,12 +293,12 @@ export default function StorePage() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <Badge color={pkg.is_active ? 'green' : 'gray'}>{pkg.is_active ? 'Faol' : 'Faol emas'}</Badge>
+                    <Badge color={pkg.is_active ? 'green' : 'gray'}>{pkg.is_active ? t('common:status.active') : t('common:status.inactive')}</Badge>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
                       <Button variant="ghost" size="sm" onClick={() => openEdit(pkg)}><Edit2 className="w-4 h-4" /></Button>
-                      <Button variant="ghost" size="sm" onClick={() => confirm('O‘chirilsinmi?') && deleteMutation.mutate(pkg.id)} className="text-red-600 hover:text-red-700"><Trash2 className="w-4 h-4" /></Button>
+                      <Button variant="ghost" size="sm" onClick={() => confirm(t('confirm.delete')) && deleteMutation.mutate(pkg.id)} className="text-red-600 hover:text-red-700"><Trash2 className="w-4 h-4" /></Button>
                     </div>
                   </td>
                 </tr>
@@ -299,30 +306,30 @@ export default function StorePage() {
             })}
           </Table>
         ) : (
-          <EmptyState message="Paket yo'q. Birinchi paketni yarating." />
+          <EmptyState message={t('empty')} />
         )}
       </div>
 
       {/* Create */}
-      <Modal open={createModal} onClose={() => setCreateModal(false)} title="Paket qo'shish" size="lg">
+      <Modal open={createModal} onClose={() => setCreateModal(false)} title={t('addPackage')} size="lg">
         <form onSubmit={createForm.handleSubmit((d) => createMutation.mutate(d))} className="space-y-4">
           <BasicFields form={createForm} />
           <OfferFields form={createForm} />
           <div className="flex gap-3 pt-2">
-            <Button type="button" variant="outline" onClick={() => setCreateModal(false)}>Bekor</Button>
-            <Button type="submit" loading={createMutation.isPending}>Yaratish</Button>
+            <Button type="button" variant="outline" onClick={() => setCreateModal(false)}>{t('common:actions.cancel')}</Button>
+            <Button type="submit" loading={createMutation.isPending}>{t('common:actions.create')}</Button>
           </div>
         </form>
       </Modal>
 
       {/* Edit */}
-      <Modal open={editModal} onClose={() => { setEditModal(false); setSelected(null); }} title="Paketni tahrirlash" size="lg">
+      <Modal open={editModal} onClose={() => { setEditModal(false); setSelected(null); }} title={t('modal.editTitle')} size="lg">
         <form onSubmit={editForm.handleSubmit((d) => updateMutation.mutate(d))} className="space-y-4">
           <BasicFields form={editForm} />
           <OfferFields form={editForm} />
           <div className="flex gap-3 pt-2">
-            <Button type="button" variant="outline" onClick={() => setEditModal(false)}>Bekor</Button>
-            <Button type="submit" loading={updateMutation.isPending}>Saqlash</Button>
+            <Button type="button" variant="outline" onClick={() => setEditModal(false)}>{t('common:actions.cancel')}</Button>
+            <Button type="submit" loading={updateMutation.isPending}>{t('common:actions.save')}</Button>
           </div>
         </form>
       </Modal>

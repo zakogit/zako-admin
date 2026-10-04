@@ -1,0 +1,36 @@
+{
+  "title": "Audit logs",
+  "searchPlaceholder": "Search audit logs...",
+  "empty": "No audit logs found",
+  "system": "System",
+  "filters": {
+    "allEntities": "All entities",
+    "allActions": "All actions"
+  },
+  "entity": {
+    "user": "User",
+    "question": "Question",
+    "subject": "Subject",
+    "topic": "Topic",
+    "card": "Card",
+    "region": "Region",
+    "avatar": "Avatar"
+  },
+  "action": {
+    "create": "Create",
+    "update": "Update",
+    "delete": "Delete",
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "table": {
+    "action": "Action",
+    "entity": "Entity"
+  },
+  "modal": {
+    "title": "Audit log details",
+    "logId": "Log ID",
+    "entityId": "Entity ID",
+    "timestamp": "Timestamp"
+  }
+}

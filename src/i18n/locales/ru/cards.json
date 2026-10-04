@@ -1,0 +1,80 @@
+{
+  "title": "Карты",
+  "searchPlaceholder": "Поиск карт...",
+  "empty": "Карты не найдены",
+  "actions": {
+    "add": "Добавить карту"
+  },
+  "units": {
+    "coins_one": "{{count, number}} монета",
+    "coins_few": "{{count, number}} монеты",
+    "coins_many": "{{count, number}} монет",
+    "coins_other": "{{count, number}} монеты"
+  },
+  "effectTypes": {
+    "loss_reduction": "Снижение потерь",
+    "loss_protection": "Защита от потерь",
+    "win_boost": "Бонус за победу"
+  },
+  "table": {
+    "card": "Карта",
+    "effect": "Эффект",
+    "duration": "Длительность",
+    "durationDuels_one": "{{count}} дуэль",
+    "durationDuels_few": "{{count}} дуэли",
+    "durationDuels_many": "{{count}} дуэлей",
+    "durationDuels_other": "{{count}} дуэли",
+    "weeklyLimit": "Лимит в неделю: {{limit}}",
+    "icon": "Иконка",
+    "regular": "Обычная",
+    "makePremium": "Сделать премиум",
+    "removePremium": "Убрать премиум"
+  },
+  "alt": {
+    "icon": "Иконка: {{name}}",
+    "image": "Изображение: {{name}}"
+  },
+  "colors": {
+    "title": "Цвета карты",
+    "gradientStart": "Начало градиента",
+    "gradientEnd": "Конец градиента",
+    "borderColor": "Цвет рамки",
+    "preview": "Предпросмотр"
+  },
+  "modal": {
+    "createTitle": "Создание карты",
+    "editTitle": "Редактирование карты",
+    "deleteTitle": "Удаление карты"
+  },
+  "form": {
+    "name": "Название карты",
+    "effectType": "Тип эффекта",
+    "selectType": "Выберите тип",
+    "effectValue": "Значение эффекта",
+    "price": "Цена (в монетах)",
+    "duration": "Длительность (в дуэлях)",
+    "weeklyLimit": "Недельный лимит (шт. на 1 пользователя)",
+    "weeklyLimitPlaceholder": "Без ограничений",
+    "weeklyLimitHint": "Сколько таких карт один пользователь может купить за неделю (неделя начинается с понедельника, по ташкентскому времени). Если оставить поле пустым, ограничений нет."
+  },
+  "validation": {
+    "nameRequired": "Укажите название карты",
+    "effectTypeRequired": "Выберите тип эффекта",
+    "priceRequired": "Укажите цену",
+    "durationRequired": "Укажите длительность"
+  },
+  "confirm": {
+    "deleteText": "Вы уверены, что хотите удалить эту карту? Это действие нельзя отменить."
+  },
+  "toast": {
+    "created": "Карта успешно создана",
+    "createFailed": "Не удалось создать карту",
+    "updated": "Карта успешно обновлена",
+    "updateFailed": "Не удалось обновить карту",
+    "deleted": "Карта успешно удалена",
+    "deleteFailed": "Не удалось удалить карту",
+    "premiumOn": "Карта стала премиальной",
+    "premiumOff": "Премиум-статус снят",
+    "premiumFailed": "Не удалось изменить премиум-статус"
+  }
+}

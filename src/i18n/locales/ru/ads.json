@@ -1,0 +1,20 @@
+{
+  "title": "Управление рекламой",
+  "subtitle": "Интеграция AdMob и настройки рекламы",
+  "mobileIntegration": "Интеграция с мобильным приложением",
+  "tabs": {
+    "settings": "Настройки"
+  },
+  "settings": {
+    "title": "Настройки рекламы",
+    "dailyLimit": "Дневной лимит",
+    "coinsPerAd": "Монеты за рекламу",
+    "adsEnabled": "Реклама включена",
+    "testMode": "Тестовый режим",
+    "admobAppId": "ID приложения AdMob ({{platform}})",
+    "rewardedUnitId": "ID рекламного блока Rewarded ({{platform}})"
+  },
+  "errors": {
+    "loadSettings": "Не удалось загрузить настройки"
+  }
+}

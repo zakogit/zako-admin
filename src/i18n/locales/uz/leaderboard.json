@@ -1,0 +1,65 @@
+{
+  "title": "Reyting",
+  "subtitle": "Umumiy XP bo'yicha eng yaxshi o'yinchilar · bloklanganlar ko'rsatilmaydi",
+  "topN": "Top {{limit}}",
+  "empty": "Reyting bo'sh",
+  "table": {
+    "player": "O'yinchi",
+    "league": "Liga",
+    "rating": "Reyting",
+    "duels": "Duellar",
+    "registered": "Ro'yxatdan"
+  },
+  "actions": {
+    "resetXp": "XP reset",
+    "removeFromLeaderboard": "Reytingdan chiqarish",
+    "remove": "Chiqarish",
+    "preview": "Ko'rib chiqish",
+    "sendNow": "Hozir yuborish"
+  },
+  "weekly": {
+    "title": "Haftalik TOP-10",
+    "subtitle": "\"Xaftaning eng yaxshilari\" — Telegram kanalga avtomatik yuborish",
+    "enable": "Avtomatik yuborishni yoqish",
+    "enableHint": "Yoqilganda, belgilangan kun va soatda TOP-10 avtomatik kanalga yuboriladi.",
+    "day": "Kun",
+    "time": "Soat (Toshkent vaqti)",
+    "summaryOn": "Joriy: <b>{{day}}</b> kuni <b>{{time}}</b> da yuboriladi.",
+    "summaryOff": "Joriy: <b>{{day}}</b> kuni <b>{{time}}</b> da (o'chirilgan).",
+    "previewTitle": "Ko'rinishi (joriy hafta ma'lumoti)",
+    "previewAlt": "Reyting jadvali ko'rinishi"
+  },
+  "days": {
+    "sun": "Yakshanba",
+    "mon": "Dushanba",
+    "tue": "Seshanba",
+    "wed": "Chorshanba",
+    "thu": "Payshanba",
+    "fri": "Juma",
+    "sat": "Shanba"
+  },
+  "modal": {
+    "resetXp": {
+      "title": "XP reset",
+      "body": "<b>{{name}}</b> (@{{username}}) ning umumiy XP'si <b>{{xp}}</b> dan <b>0</b> ga tushiriladi. Joriy haftaning haftalik XP yozuvi ham o'chiriladi. Reyting (ELO) o'zgarmaydi."
+    },
+    "remove": {
+      "title": "Reytingdan chiqarish",
+      "body": "<b>{{name}}</b> (@{{username}}) XP'si 0 ga tushiriladi va akkaunt <b>bloklanadi</b> (is_banned). Users sahifasida blokdan chiqarish mumkin — u holda o'yinchi 0 XP bilan qaytadi.",
+      "reason": "Sabab",
+      "reasonPlaceholder": "Masalan: cheating"
+    }
+  },
+  "confirm": {
+    "sendNow": "TOP-10 hozir Telegram kanalga yuborilsinmi?"
+  },
+  "toast": {
+    "resetDone": "{{message}} (oldingi: {{xp}} XP)",
+    "resetError": "XP reset xatolik",
+    "removeError": "Chiqarishda xatolik",
+    "saveError": "Saqlashda xatolik",
+    "previewReady_one": "{{count}} ta o'yinchi",
+    "previewReady_other": "{{count}} ta o'yinchi",
+    "sendError": "Yuborishda xatolik"
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "title": "Premium avatarlarni boshqarish",
+  "subtitle": "Ijara paketlari va statistikani boshqarish",
+  "avatarAlt": "Avatar",
+  "tabs": {
+    "overview": "Umumiy",
+    "packages": "Paketlar",
+    "rentals": "Ijaralar",
+    "analytics": "Analitika"
+  },
+  "units": {
+    "coins_one": "{{count, number}} tanga",
+    "coins_other": "{{count, number}} tanga",
+    "coinsCaption": "tanga"
+  },
+  "gender": {
+    "male": "Erkak",
+    "female": "Ayol",
+    "both": "Ikkalasi"
+  },
+  "stats": {
+    "totalPackages": "Jami paketlar",
+    "totalRevenue": "Jami daromad",
+    "totalRentals": "Jami ijaralar",
+    "activeRentals": "Faol ijaralar"
+  },
+  "overview": {
+    "performanceTitle": "Paketlar samaradorligi",
+    "quickActions": "Tezkor amallar",
+    "managePackages": "Paketlarni boshqarish",
+    "cleanupExpired": "Muddati o'tganlarni tozalash",
+    "viewAnalytics": "Analitikani ko'rish"
+  },
+  "table": {
+    "package": "Paket",
+    "duration": "Muddat",
+    "totalRentals": "Jami ijaralar",
+    "activeRentals": "Faol ijaralar",
+    "revenue": "Daromad",
+    "performance": "Samaradorlik",
+    "avatar": "Avatar",
+    "daysRemaining": "Qolgan kunlar"
+  },
+  "packages": {
+    "title": "Ijara paketlarini boshqarish",
+    "new": "Yangi paket",
+    "empty": "Hech qanday paket topilmadi"
+  },
+  "rentals": {
+    "title": "Barcha ijaralar",
+    "subtitle": "Oxirgi 20 ta ijara (faol va tugagan). \"{{status}}\" ustunida ko'rinadi.",
+    "empty": "Hech qanday ijara topilmadi",
+    "noAvatar": "yo'q"
+  },
+  "analytics": {
+    "title": "Analitika va hisobotlar",
+    "popularTitle": "Eng mashhur premium avatarlar",
+    "avatarNumber": "Avatar #{{id}}",
+    "rentedTimes_one": "{{count}} marta ijaraga olingan",
+    "rentedTimes_other": "{{count}} marta ijaraga olingan",
+    "totalRevenue": "Jami daromad:",
+    "extraTitle": "Qo'shimcha ma'lumotlar",
+    "systemTitle": "Tizim holati",
+    "totalPremium": "Jami premium avatarlar:",
+    "notShown": "Ko'rsatilmagan",
+    "avgDuration": "O'rtacha ijara muddati:",
+    "recommendations": "Tavsiyalar",
+    "tip1": "Eng mashhur avatarlarni premium qiling",
+    "tip2": "Kam foydalaniladigan paketlarni qayta ko'rib chiqing",
+    "tip3": "Mavsumiy chegirmalar qo'shing"
+  },
+  "modal": {
+    "createTitle": "Yangi paket yaratish",
+    "editTitle": "Paketni tahrirlash",
+    "deleteTitle": "Paketni o'chirish"
+  },
+  "form": {
+    "name": "Paket nomi",
+    "namePlaceholder": "Masalan: 3 kunlik",
+    "days": "Muddat (kunlar)",
+    "price": "Narx (tangalar)"
+  },
+  "validation": {
+    "nameRequired": "Paket nomi majburiy",
+    "daysRequired": "Muddat majburiy",
+    "priceRequired": "Narx majburiy"
+  },
+  "confirm": {
+    "deleteText": "Bu paketni o'chirishni tasdiqlaysizmi? Bu amalni bekor qilib bo'lmaydi."
+  },
+  "toast": {
+    "created": "Paket muvaffaqiyatli yaratildi",
+    "createFailed": "Paket yaratishda xatolik",
+    "updated": "Paket muvaffaqiyatli yangilandi",
+    "updateFailed": "Paket yangilashda xatolik",
+    "deleted": "Paket muvaffaqiyatli o'chirildi",
+    "deleteFailed": "Paket o'chirishda xatolik",
+    "cleaned_one": "{{count}} ta muddati o'tgan ijara tozalandi",
+    "cleaned_other": "{{count}} ta muddati o'tgan ijara tozalandi",
+    "cleanupFailed": "Tozalashda xatolik"
+  }
+}

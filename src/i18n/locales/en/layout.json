@@ -1,0 +1,45 @@
+{
+  "language": "Language",
+  "brand": "Admin",
+  "toggleSidebar": "Toggle menu",
+  "theme": {
+    "toLight": "Switch to light mode",
+    "toDark": "Switch to dark mode"
+  },
+  "logout": "Log out",
+  "notifications": "Notifications",
+  "fallbackTitle": "Admin",
+  "sections": {
+    "content": "Content",
+    "platform": "Platform",
+    "system": "System"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "questions": "Questions",
+    "subjects": "Subjects",
+    "topics": "Topics",
+    "books": "AI Books",
+    "aiTests": "AI Tests",
+    "articles": "Articles",
+    "cards": "Cards",
+    "avatars": "Avatars",
+    "premiumAvatars": "Premium avatars",
+    "store": "Store",
+    "seasons": "Seasons",
+    "dailyRewards": "Daily rewards",
+    "leagues": "Leagues",
+    "leaderboard": "Weekly TOP-10",
+    "subscriptions": "Premium subscription",
+    "duels": "Duels",
+    "friends": "Friends",
+    "regions": "Regions",
+    "payments": "Payments",
+    "ads": "Ads",
+    "appVersion": "App version",
+    "admins": "Admins",
+    "notifications": "Notifications",
+    "auditLogs": "Audit logs"
+  }
+}

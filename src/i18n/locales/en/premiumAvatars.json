@@ -1,0 +1,102 @@
+{
+  "title": "Premium avatar management",
+  "subtitle": "Manage rental packages and statistics",
+  "avatarAlt": "Avatar",
+  "tabs": {
+    "overview": "Overview",
+    "packages": "Packages",
+    "rentals": "Rentals",
+    "analytics": "Analytics"
+  },
+  "units": {
+    "coins_one": "{{count, number}} coin",
+    "coins_other": "{{count, number}} coins",
+    "coinsCaption": "coins"
+  },
+  "gender": {
+    "male": "Male",
+    "female": "Female",
+    "both": "Both"
+  },
+  "stats": {
+    "totalPackages": "Total packages",
+    "totalRevenue": "Total revenue",
+    "totalRentals": "Total rentals",
+    "activeRentals": "Active rentals"
+  },
+  "overview": {
+    "performanceTitle": "Package performance",
+    "quickActions": "Quick actions",
+    "managePackages": "Manage packages",
+    "cleanupExpired": "Clean up expired",
+    "viewAnalytics": "View analytics"
+  },
+  "table": {
+    "package": "Package",
+    "duration": "Duration",
+    "totalRentals": "Total rentals",
+    "activeRentals": "Active rentals",
+    "revenue": "Revenue",
+    "performance": "Performance",
+    "avatar": "Avatar",
+    "daysRemaining": "Days left"
+  },
+  "packages": {
+    "title": "Rental package management",
+    "new": "New package",
+    "empty": "No packages found"
+  },
+  "rentals": {
+    "title": "All rentals",
+    "subtitle": "Last 20 rentals (active and ended). Shown in the \"{{status}}\" column.",
+    "empty": "No rentals found",
+    "noAvatar": "none"
+  },
+  "analytics": {
+    "title": "Analytics and reports",
+    "popularTitle": "Most popular premium avatars",
+    "avatarNumber": "Avatar #{{id}}",
+    "rentedTimes_one": "Rented {{count}} time",
+    "rentedTimes_other": "Rented {{count}} times",
+    "totalRevenue": "Total revenue:",
+    "extraTitle": "Additional information",
+    "systemTitle": "System status",
+    "totalPremium": "Total premium avatars:",
+    "notShown": "Not shown",
+    "avgDuration": "Average rental duration:",
+    "recommendations": "Recommendations",
+    "tip1": "Make the most popular avatars premium",
+    "tip2": "Review packages that are rarely used",
+    "tip3": "Add seasonal discounts"
+  },
+  "modal": {
+    "createTitle": "Create new package",
+    "editTitle": "Edit package",
+    "deleteTitle": "Delete package"
+  },
+  "form": {
+    "name": "Package name",
+    "namePlaceholder": "e.g. 3 days",
+    "days": "Duration (days)",
+    "price": "Price (coins)"
+  },
+  "validation": {
+    "nameRequired": "Package name is required",
+    "daysRequired": "Duration is required",
+    "priceRequired": "Price is required"
+  },
+  "confirm": {
+    "deleteText": "Are you sure you want to delete this package? This action cannot be undone."
+  },
+  "toast": {
+    "created": "Package created successfully",
+    "createFailed": "Failed to create package",
+    "updated": "Package updated successfully",
+    "updateFailed": "Failed to update package",
+    "deleted": "Package deleted successfully",
+    "deleteFailed": "Failed to delete package",
+    "cleaned_one": "Cleaned up {{count}} expired rental",
+    "cleaned_other": "Cleaned up {{count}} expired rentals",
+    "cleanupFailed": "Failed to clean up"
+  }
+}

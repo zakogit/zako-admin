@@ -1,0 +1,43 @@
+{
+  "title": "Maqolalar",
+  "subtitle": "Landing saytining «Maqolalar» bo'limi — bu yerda qo'shilgan maqolalar zakoapp.uz da chiqadi",
+  "addArticle": "Maqola qo'shish",
+  "empty": "Maqolalar topilmadi",
+  "uploadCover": "Muqova yuklash",
+  "table": {
+    "cover": "Muqova"
+  },
+  "form": {
+    "titlePlaceholder": "ZAKO nima? Bilim jang maydoni haqida batafsil",
+    "excerpt": "Qisqa tavsif (excerpt)",
+    "excerptPlaceholder": "Ro'yxatda ko'rinadigan qisqa matn",
+    "body": "Matn (Markdown)",
+    "bodyPlaceholder": "## Sarlavha\n\nParagraf matni. **Qalin**, *kursiv* va ro'yxatlar:\n\n- birinchi band\n- ikkinchi band",
+    "markdownHint": "Markdown qo'llab-quvvatlanadi: # sarlavha, **qalin**, *kursiv*, - ro'yxat, [havola](url).",
+    "published": "E'lon qilingan (saytda ko'rinadi)",
+    "coverHint": "Muqova rasm jadvaldagi yuklash tugmasi orqali alohida yuklanadi (avval maqolani saqlang)."
+  },
+  "validation": {
+    "titleRequired": "Sarlavha majburiy",
+    "bodyRequired": "Matn majburiy",
+    "imageOnly": "Faqat rasm fayllari qabul qilinadi",
+    "fileTooLarge": "Fayl hajmi 5MB dan oshmasligi kerak"
+  },
+  "modal": {
+    "editTitle": "Maqolani tahrirlash",
+    "deleteTitle": "Maqolani o'chirish"
+  },
+  "confirm": {
+    "delete": "<b>{{title}}</b> maqolasini o'chirishni tasdiqlaysizmi? Bu amalni qaytarib bo'lmaydi."
+  },
+  "toast": {
+    "created": "Maqola yaratildi",
+    "createFailed": "Maqola yaratishda xatolik",
+    "updated": "Maqola yangilandi",
+    "updateFailed": "Maqolani yangilashda xatolik",
+    "coverUploaded": "Muqova yuklandi",
+    "coverFailed": "Muqova yuklashda xatolik",
+    "deleted": "Maqola o'chirildi",
+    "deleteFailed": "Maqolani o'chirishda xatolik"
+  }
+}

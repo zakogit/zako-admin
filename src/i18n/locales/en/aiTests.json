@@ -1,0 +1,137 @@
+{
+  "title": "AI Tests",
+  "subtitle": "Tests users created with diamonds — status, cost and content",
+  "stats": {
+    "totalTests": "Total tests",
+    "successRate": "{{rate}}% successful",
+    "failed": "Failed",
+    "inProgress": "{{n}} in progress",
+    "diamondsSpent": "Diamonds spent",
+    "diamondsRefunded": "{{n}} refunded",
+    "aiCost": "AI cost",
+    "avgGeneration": "avg. {{seconds}}s to generate"
+  },
+  "filters": {
+    "search": "Search",
+    "searchPlaceholder": "Subject, topic, username or name",
+    "aiLevel": "AI level",
+    "source": "Source",
+    "dateFrom": "From",
+    "dateTo": "To"
+  },
+  "table": {
+    "subjectTopic": "Subject / Topic",
+    "source": "Source",
+    "level": "Level",
+    "questions": "Questions",
+    "diamonds": "Diamonds",
+    "cost": "Cost",
+    "duration": "Duration",
+    "stage": "Stage",
+    "model": "Model",
+    "tokens": "Tokens",
+    "result": "Result",
+    "time": "Time",
+    "correct": "Correct",
+    "wrong": "Wrong",
+    "score": "Score"
+  },
+  "empty": {
+    "filtered": "No tests match the filters",
+    "none": "No tests have been created yet",
+    "notFound": "Test not found",
+    "noCalls": "No AI calls recorded",
+    "noQuestions": "No questions found"
+  },
+  "badge": {
+    "refunded": "refunded",
+    "diamondsRefunded": "diamonds refunded"
+  },
+  "status": {
+    "queued": "Queued",
+    "running": "Generating",
+    "completed": "Ready",
+    "failed": "Failed"
+  },
+  "sourceType": {
+    "text": "Text",
+    "image": "Image"
+  },
+  "testType": {
+    "ai": "AI chooses",
+    "facts": "Facts",
+    "logic": "Logic"
+  },
+  "difficulty": {
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard"
+  },
+  "language": {
+    "uz": "Uzbek",
+    "ru": "Russian",
+    "en": "English"
+  },
+  "units": {
+    "ms": "{{value}}ms",
+    "sec": "{{value}}s",
+    "minSec": "{{min}}m {{sec}}s"
+  },
+  "actions": {
+    "backToList": "Back to list",
+    "retry": "Restart",
+    "refund": "Refund diamonds"
+  },
+  "detail": {
+    "title": "AI Test #{{id}}",
+    "errorReason": "Error reason",
+    "sourceType": "Source type",
+    "questionType": "Question type",
+    "language": "Language",
+    "questionCount": "Number of questions",
+    "tokensHint": "input / output",
+    "started": "Started",
+    "finished": "Finished"
+  },
+  "source": {
+    "title": "Source",
+    "chars_one": "{{count}} character",
+    "chars_other": "{{count}} characters",
+    "truncated": "(only the beginning is shown)",
+    "unnamedFile": "Unnamed file",
+    "fileStored": "File is stored on the server",
+    "fileDeleted": "File was deleted — the test can't be restarted"
+  },
+  "calls": {
+    "title": "AI calls",
+    "ok": "OK"
+  },
+  "attempts": {
+    "title": "Attempts"
+  },
+  "questions": {
+    "title": "Generated questions"
+  },
+  "confirm": {
+    "retry": {
+      "title": "Restart test",
+      "body": "The test is put back in the queue and generation starts from scratch. <b>No diamonds are charged to the user.</b>",
+      "refundedNote": "Note: the diamonds for this test have already been refunded — re-generating it will be free for the user.",
+      "button": "Restart"
+    },
+    "refund": {
+      "title": "Refund diamonds",
+      "body_one": "<b>{{count}} diamond</b> will be returned to the user's balance. This can only be done once and cannot be undone.",
+      "body_other": "<b>{{count}} diamonds</b> will be returned to the user's balance. This can only be done once and cannot be undone.",
+      "button": "Refund"
+    },
+    "delete": {
+      "title": "Delete test",
+      "body": "The test, all its questions and attempts will be deleted. The source file will be deleted too. This action cannot be undone."
+    }
+  },
+  "toast": {
+    "done": "Done",
+    "actionFailed": "Couldn't complete the action"
+  }
+}

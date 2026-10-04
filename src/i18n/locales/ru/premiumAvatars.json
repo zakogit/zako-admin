@@ -1,0 +1,108 @@
+{
+  "title": "Управление премиум-аватарами",
+  "subtitle": "Управление пакетами аренды и статистикой",
+  "avatarAlt": "Аватар",
+  "tabs": {
+    "overview": "Обзор",
+    "packages": "Пакеты",
+    "rentals": "Аренды",
+    "analytics": "Аналитика"
+  },
+  "units": {
+    "coins_one": "{{count, number}} монета",
+    "coins_few": "{{count, number}} монеты",
+    "coins_many": "{{count, number}} монет",
+    "coins_other": "{{count, number}} монеты",
+    "coinsCaption": "монет"
+  },
+  "gender": {
+    "male": "Мужской",
+    "female": "Женский",
+    "both": "Оба"
+  },
+  "stats": {
+    "totalPackages": "Всего пакетов",
+    "totalRevenue": "Общий доход",
+    "totalRentals": "Всего аренд",
+    "activeRentals": "Активные аренды"
+  },
+  "overview": {
+    "performanceTitle": "Эффективность пакетов",
+    "quickActions": "Быстрые действия",
+    "managePackages": "Управление пакетами",
+    "cleanupExpired": "Очистить просроченные",
+    "viewAnalytics": "Открыть аналитику"
+  },
+  "table": {
+    "package": "Пакет",
+    "duration": "Срок",
+    "totalRentals": "Всего аренд",
+    "activeRentals": "Активные аренды",
+    "revenue": "Доход",
+    "performance": "Эффективность",
+    "avatar": "Аватар",
+    "daysRemaining": "Осталось дней"
+  },
+  "packages": {
+    "title": "Управление пакетами аренды",
+    "new": "Новый пакет",
+    "empty": "Пакеты не найдены"
+  },
+  "rentals": {
+    "title": "Все аренды",
+    "subtitle": "Последние 20 аренд (активные и завершённые). Статус указан в столбце «{{status}}».",
+    "empty": "Аренды не найдены",
+    "noAvatar": "нет"
+  },
+  "analytics": {
+    "title": "Аналитика и отчёты",
+    "popularTitle": "Самые популярные премиум-аватары",
+    "avatarNumber": "Аватар #{{id}}",
+    "rentedTimes_one": "Арендован {{count}} раз",
+    "rentedTimes_few": "Арендован {{count}} раза",
+    "rentedTimes_many": "Арендован {{count}} раз",
+    "rentedTimes_other": "Арендован {{count}} раза",
+    "totalRevenue": "Общий доход:",
+    "extraTitle": "Дополнительная информация",
+    "systemTitle": "Состояние системы",
+    "totalPremium": "Всего премиум-аватаров:",
+    "notShown": "Не отображается",
+    "avgDuration": "Средний срок аренды:",
+    "recommendations": "Рекомендации",
+    "tip1": "Сделайте самые популярные аватары премиальными",
+    "tip2": "Пересмотрите малоиспользуемые пакеты",
+    "tip3": "Добавьте сезонные скидки"
+  },
+  "modal": {
+    "createTitle": "Создание нового пакета",
+    "editTitle": "Редактирование пакета",
+    "deleteTitle": "Удаление пакета"
+  },
+  "form": {
+    "name": "Название пакета",
+    "namePlaceholder": "Например: на 3 дня",
+    "days": "Срок (в днях)",
+    "price": "Цена (в монетах)"
+  },
+  "validation": {
+    "nameRequired": "Укажите название пакета",
+    "daysRequired": "Укажите срок",
+    "priceRequired": "Укажите цену"
+  },
+  "confirm": {
+    "deleteText": "Вы уверены, что хотите удалить этот пакет? Это действие нельзя отменить."
+  },
+  "toast": {
+    "created": "Пакет успешно создан",
+    "createFailed": "Не удалось создать пакет",
+    "updated": "Пакет успешно обновлён",
+    "updateFailed": "Не удалось обновить пакет",
+    "deleted": "Пакет успешно удалён",
+    "deleteFailed": "Не удалось удалить пакет",
+    "cleaned_one": "Очищена {{count}} просроченная аренда",
+    "cleaned_few": "Очищено {{count}} просроченные аренды",
+    "cleaned_many": "Очищено {{count}} просроченных аренд",
+    "cleaned_other": "Очищено {{count}} просроченной аренды",
+    "cleanupFailed": "Не удалось выполнить очистку"
+  }
+}

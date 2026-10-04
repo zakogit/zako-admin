@@ -7,8 +7,10 @@ import { formatDate, getStaticFileUrl } from '../../utils/helpers';
 import type { Subject } from '../../types';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export default function SubjectsPage() {
+  const { t } = useTranslation('subjects');
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -30,35 +32,35 @@ export default function SubjectsPage() {
   const createMutation = useMutation({
     mutationFn: subjectsApi.create,
     onSuccess: () => {
-      toast.success('Subject created successfully');
+      toast.success(t('toast.created'));
       setEditModal(false);
       reset();
       qc.invalidateQueries({ queryKey: ['admin-subjects'] });
     },
-    onError: () => toast.error('Failed to create subject'),
+    onError: () => toast.error(t('toast.createFailed')),
   });
 
   const updateMutation = useMutation({
     mutationFn: (data: any) => subjectsApi.update(selected!.id, data),
     onSuccess: () => {
-      toast.success('Subject updated successfully');
+      toast.success(t('toast.updated'));
       setEditModal(false);
       setSelected(null);
       reset();
       qc.invalidateQueries({ queryKey: ['admin-subjects'] });
     },
-    onError: () => toast.error('Failed to update subject'),
+    onError: () => toast.error(t('toast.updateFailed')),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => subjectsApi.delete(id),
     onSuccess: () => {
-      toast.success('Subject deleted successfully');
+      toast.success(t('toast.deleted'));
       setDeleteModal(false);
       setSelected(null);
       qc.invalidateQueries({ queryKey: ['admin-subjects'] });
     },
-    onError: () => toast.error('Failed to delete subject'),
+    onError: () => toast.error(t('toast.deleteFailed')),
   });
 
   // Filter subjects by search and paginate on frontend
@@ -125,7 +127,7 @@ export default function SubjectsPage() {
         };
         reader.readAsDataURL(file);
       } else {
-        toast.error('Please select an image file');
+        toast.error(t('toast.notImage'));
       }
     }
   };
@@ -136,7 +138,7 @@ export default function SubjectsPage() {
       {/* Toolbar */}
       <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-          Subjects <span className="text-gray-400 font-normal text-base">({total})</span>
+          {t('title')} <span className="text-gray-400 font-normal text-base">({total})</span>
         </h2>
 
         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
@@ -146,14 +148,14 @@ export default function SubjectsPage() {
             <input 
               value={search} 
               onChange={e => { setSearch(e.target.value); setPage(1); }}
-              placeholder="Search subjects..."
+              placeholder={t('filters.searchPlaceholder')}
               className="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
             />
           </div>
 
           <Button onClick={() => openEditModal()} className="whitespace-nowrap">
             <Plus className="w-4 h-4 mr-2" />
-            Add Subject
+            {t('actions.add')}
           </Button>
         </div>
       </div>
@@ -161,12 +163,12 @@ export default function SubjectsPage() {
       {/* Table */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
         {isLoading ? (
-          <div className="p-8 text-center">Loading...</div>
+          <div className="p-8 text-center">{t('common:state.loading')}</div>
         ) : subjects.length === 0 ? (
-          <EmptyState message="No subjects found" />
+          <EmptyState message={t('empty.list')} />
         ) : (
           <>
-            <Table headers={['Subject', 'Slug', 'Topics', 'Questions', 'Status', 'Created', '']}>
+            <Table headers={[t('common:table.subject'), t('slug'), t('table.topics'), t('table.questions'), t('common:table.status'), t('common:table.created'), '']}>
               {subjects.map((subject) => (
                 <tr key={subject.id}>
                   <td className="px-4 py-3">
@@ -202,7 +204,7 @@ export default function SubjectsPage() {
                   </td>
                   <td className="px-4 py-3">
                     <Badge color={subject.is_active ? 'green' : 'red'}>
-                      {subject.is_active ? 'Active' : 'Inactive'}
+                      {subject.is_active ? t('common:status.active') : t('common:status.inactive')}
                     </Badge>
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-500">
@@ -237,22 +239,22 @@ export default function SubjectsPage() {
       </div>
 
       {/* Edit Modal */}
-      <Modal open={editModal} onClose={() => { setEditModal(false); setSelected(null); }} title={selected ? 'Edit Subject' : 'Create Subject'}>
+      <Modal open={editModal} onClose={() => { setEditModal(false); setSelected(null); }} title={selected ? t('modal.edit') : t('modal.create')}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Subject Name</label>
+              <label className="block text-sm font-medium mb-2">{t('form.name')}</label>
               <input 
-                {...register('name', { required: 'Subject name is required' })}
+                {...register('name', { required: t('validation.name') })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
               />
               {errors.name && <p className="text-red-500 text-xs mt-1">{String(errors.name.message)}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Slug</label>
+              <label className="block text-sm font-medium mb-2">{t('slug')}</label>
               <input 
-                {...register('slug', { required: 'Slug is required' })}
+                {...register('slug', { required: t('validation.slug') })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
               />
               {errors.slug && <p className="text-red-500 text-xs mt-1">{String(errors.slug.message)}</p>}
@@ -260,7 +262,7 @@ export default function SubjectsPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Description</label>
+            <label className="block text-sm font-medium mb-2">{t('common:table.description')}</label>
             <textarea 
               {...register('description')}
               rows={3}
@@ -269,16 +271,16 @@ export default function SubjectsPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Subject Icon</label>
+            <label className="block text-sm font-medium mb-2">{t('form.icon')}</label>
             <div className="space-y-3">
               {imagePreview && (
                 <div className="flex items-center gap-3">
                   <img 
                     src={imagePreview} 
-                    alt="Preview" 
+                    alt={t('form.iconPreviewAlt')} 
                     className="w-12 h-12 rounded object-cover border border-gray-300 dark:border-gray-600"
                   />
-                  <span className="text-sm text-gray-500">Current icon</span>
+                  <span className="text-sm text-gray-500">{t('form.currentIcon')}</span>
                 </div>
               )}
               <div className="flex items-center gap-3">
@@ -294,7 +296,7 @@ export default function SubjectsPage() {
                   className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition"
                 >
                   <Upload className="w-4 h-4" />
-                  <span className="text-sm">Choose Image</span>
+                  <span className="text-sm">{t('form.chooseImage')}</span>
                 </label>
                 {imageFile && (
                   <span className="text-sm text-green-600 dark:text-green-400">
@@ -312,42 +314,42 @@ export default function SubjectsPage() {
                 {...register('is_active')}
                 className="rounded border-gray-300 dark:border-gray-600"
               />
-              <span className="text-sm font-medium">Active</span>
+              <span className="text-sm font-medium">{t('common:status.active')}</span>
             </label>
           </div>
 
           <div className="flex gap-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setEditModal(false)}>
-              Cancel
+              {t('common:actions.cancel')}
             </Button>
             <Button type="submit" loading={createMutation.isPending || updateMutation.isPending}>
-              {selected ? 'Update' : 'Create'}
+              {selected ? t('common:actions.update') : t('common:actions.create')}
             </Button>
           </div>
         </form>
       </Modal>
 
       {/* Delete Modal */}
-      <Modal open={deleteModal} onClose={() => setDeleteModal(false)} title="Delete Subject">
+      <Modal open={deleteModal} onClose={() => setDeleteModal(false)} title={t('modal.delete')}>
         <div className="space-y-4">
-          <p>Are you sure you want to delete this subject? This action cannot be undone.</p>
+          <p>{t('confirm.delete')}</p>
           {selected && (
             <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded">
               <p className="font-medium">{selected.name}</p>
-              <p className="text-sm text-gray-500">{selected.topic_count || 0} topics • {selected.question_count || 0} questions</p>
+              <p className="text-sm text-gray-500">{t('count.topics', { count: selected.topic_count || 0 })} • {t('count.questions', { count: selected.question_count || 0 })}</p>
             </div>
           )}
           
           <div className="flex gap-3 pt-4">
             <Button variant="outline" onClick={() => setDeleteModal(false)}>
-              Cancel
+              {t('common:actions.cancel')}
             </Button>
             <Button 
               variant="danger" 
               onClick={() => selected && deleteMutation.mutate(selected.id)}
               loading={deleteMutation.isPending}
             >
-              Delete
+              {t('common:actions.delete')}
             </Button>
           </div>
         </div>

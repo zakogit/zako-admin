@@ -1,0 +1,65 @@
+{
+  "title": "Leaderboard",
+  "subtitle": "Top players by total XP · banned players are not shown",
+  "topN": "Top {{limit}}",
+  "empty": "The leaderboard is empty",
+  "table": {
+    "player": "Player",
+    "league": "League",
+    "rating": "Rating",
+    "duels": "Duels",
+    "registered": "Registered"
+  },
+  "actions": {
+    "resetXp": "Reset XP",
+    "removeFromLeaderboard": "Remove from leaderboard",
+    "remove": "Remove",
+    "preview": "Preview",
+    "sendNow": "Send now"
+  },
+  "weekly": {
+    "title": "Weekly TOP-10",
+    "subtitle": "\"Xaftaning eng yaxshilari\" (\"Best of the week\") — automatic posting to the Telegram channel",
+    "enable": "Enable automatic sending",
+    "enableHint": "When enabled, the TOP-10 is posted to the channel automatically on the selected day and time.",
+    "day": "Day",
+    "time": "Time (Tashkent time)",
+    "summaryOn": "Current: will be sent on <b>{{day}}</b> at <b>{{time}}</b>.",
+    "summaryOff": "Current: <b>{{day}}</b> at <b>{{time}}</b> (disabled).",
+    "previewTitle": "Preview (current week's data)",
+    "previewAlt": "Leaderboard preview"
+  },
+  "days": {
+    "sun": "Sunday",
+    "mon": "Monday",
+    "tue": "Tuesday",
+    "wed": "Wednesday",
+    "thu": "Thursday",
+    "fri": "Friday",
+    "sat": "Saturday"
+  },
+  "modal": {
+    "resetXp": {
+      "title": "Reset XP",
+      "body": "The total XP of <b>{{name}}</b> (@{{username}}) will be reduced from <b>{{xp}}</b> to <b>0</b>. The weekly XP record for the current week will also be deleted. The rating (ELO) is not changed."
+    },
+    "remove": {
+      "title": "Remove from leaderboard",
+      "body": "The XP of <b>{{name}}</b> (@{{username}}) will be reset to 0 and the account will be <b>banned</b> (is_banned). The player can be unbanned on the Users page — they will then come back with 0 XP.",
+      "reason": "Reason",
+      "reasonPlaceholder": "For example: cheating"
+    }
+  },
+  "confirm": {
+    "sendNow": "Send the TOP-10 to the Telegram channel now?"
+  },
+  "toast": {
+    "resetDone": "{{message}} (previous: {{xp}} XP)",
+    "resetError": "Failed to reset XP",
+    "removeError": "Failed to remove the player",
+    "saveError": "Failed to save",
+    "previewReady_one": "{{count}} player",
+    "previewReady_other": "{{count}} players",
+    "sendError": "Failed to send"
+  }
+}

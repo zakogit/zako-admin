@@ -1,0 +1,54 @@
+{
+  "title": "Темы",
+  "filters": {
+    "allSubjects": "Все предметы",
+    "searchPlaceholder": "Поиск тем..."
+  },
+  "actions": {
+    "add": "Добавить тему"
+  },
+  "empty": {
+    "list": "Темы не найдены"
+  },
+  "stats": {
+    "total": "Всего тем",
+    "active": "Активные темы",
+    "inactive": "Неактивные темы",
+    "avgQuestions": "Среднее число вопросов на тему"
+  },
+  "table": {
+    "questions": "Вопросы"
+  },
+  "count": {
+    "questions_one": "{{count}} вопрос",
+    "questions_few": "{{count}} вопроса",
+    "questions_many": "{{count}} вопросов",
+    "questions_other": "{{count}} вопроса"
+  },
+  "modal": {
+    "create": "Создание темы",
+    "edit": "Редактирование темы",
+    "delete": "Удаление темы"
+  },
+  "form": {
+    "name": "Название темы",
+    "selectSubject": "Выберите предмет",
+    "orderIndex": "Порядковый номер"
+  },
+  "validation": {
+    "name": "Введите название темы",
+    "subject": "Выберите предмет",
+    "orderIndex": "Укажите порядковый номер"
+  },
+  "confirm": {
+    "delete": "Вы уверены, что хотите удалить эту тему? Это действие нельзя отменить."
+  },
+  "toast": {
+    "created": "Тема успешно создана",
+    "createFailed": "Не удалось создать тему",
+    "updated": "Тема успешно обновлена",
+    "updateFailed": "Не удалось обновить тему",
+    "deleted": "Тема успешно удалена",
+    "deleteFailed": "Не удалось удалить тему"
+  }
+}

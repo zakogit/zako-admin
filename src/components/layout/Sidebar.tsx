@@ -2,73 +2,15 @@ import { NavLink } from "react-router-dom";
 import { useUIStore } from "../../store/uiStore";
 import { useAuthStore } from "../../store/authStore";
 import { cn } from "../../utils/helpers";
-import {
-  LayoutDashboard,
-  Users,
-  HelpCircle,
-  BookOpen,
-  List,
-  Layers,
-  Image,
-  Swords,
-  UserCheck,
-  MapPin,
-  Bell,
-  ClipboardList,
-  ChevronLeft,
-  Zap,
-  LogOut,
-  CreditCard,
-  Coins,
-  Trophy,
-  Smartphone,
-  Diamond,
-  Crown,
-  Medal,
-  RefreshCw,
-  Sparkles,
-  Newspaper,
-  Award,
-  ShieldCheck,
-  Gift,
-  FlaskConical,
-} from "lucide-react";
-
-const nav = [
-  { label: "Dashboard", icon: LayoutDashboard, to: "/" },
-  { label: "Users", icon: Users, to: "/users" },
-  { section: "Content" },
-  { label: "Questions", icon: HelpCircle, to: "/questions" },
-  { label: "Subjects", icon: BookOpen, to: "/subjects" },
-  { label: "Topics", icon: List, to: "/topics" },
-  { label: "AI Kitoblar", icon: Sparkles, to: "/books" },
-  { label: "AI Testlar", icon: FlaskConical, to: "/ai-tests" },
-  { label: "Maqolalar", icon: Newspaper, to: "/articles" },
-  { section: "Platform" },
-  { label: "Cards", icon: Layers, to: "/cards" },
-  { label: "Avatars", icon: Image, to: "/avatars" },
-  { label: "Premium Avatarlar", icon: Crown, to: "/premium-avatars" },
-  { label: "Store", icon: Coins, to: "/store" },
-  { label: "Seasons", icon: Trophy, to: "/seasons" },
-  { label: "Kunlik sovg'alar", icon: Gift, to: "/daily-rewards" },
-  { label: "Leagues", icon: Medal, to: "/leagues" },
-  { label: "Haftalik TOP-10", icon: Award, to: "/leaderboard" },
-  { label: "Premium Obuna", icon: Diamond, to: "/subscriptions" },
-  { label: "Duels", icon: Swords, to: "/duels" },
-  { label: "Friends", icon: UserCheck, to: "/friends" },
-  { label: "Regions", icon: MapPin, to: "/regions" },
-  { section: "System" },
-  { label: "Payments", icon: CreditCard, to: "/payments" },
-  { label: "Ads", icon: Smartphone, to: "/ads" },
-  { label: "App Version", icon: RefreshCw, to: "/app-version" },
-  { label: "Adminlar", icon: ShieldCheck, to: "/admins" },
-  { label: "Notifications", icon: Bell, to: "/notifications" },
-  { label: "Audit Logs", icon: ClipboardList, to: "/audit-logs" },
-];
+import { ChevronLeft, Zap, LogOut } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { NAV } from "./navItems";
 
 export default function Sidebar() {
   const { sidebarOpen, toggleSidebar } = useUIStore();
   const { admin, logout } = useAuthStore();
+  const { t } = useTranslation("layout");
+  const roleLabel = admin?.role ? t(`common:roles.${admin.role}`, { defaultValue: admin.role }) : "";
 
   return (
     <>
@@ -98,7 +40,7 @@ export default function Sidebar() {
               </div>
               <span className="text-lg font-bold text-white">ZAKO</span>
               <span className="text-xs text-primary-400 font-medium">
-                Admin
+                {t("brand")}
               </span>
             </div>
           )}
@@ -109,6 +51,7 @@ export default function Sidebar() {
           )}
           <button
             onClick={toggleSidebar}
+            aria-label={t("toggleSidebar")}
             className={cn(
               "p-1 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition",
               !sidebarOpen && "hidden lg:flex",
@@ -125,24 +68,25 @@ export default function Sidebar() {
 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto py-3 scrollbar-thin">
-          {nav.map((item, i) => {
+          {NAV.map((item, i) => {
             if ("section" in item) {
               return sidebarOpen ? (
                 <p
                   key={i}
                   className="px-4 pt-4 pb-1 text-xs font-semibold text-gray-500 uppercase tracking-wider"
                 >
-                  {item.section}
+                  {t(`sections.${item.section}`)}
                 </p>
               ) : (
                 <hr key={i} className="my-2 border-gray-800" />
               );
             }
-            const Icon = item.icon!;
+            const Icon = item.icon;
+            const label = t(`nav.${item.key}`);
             return (
               <NavLink
                 key={item.to}
-                to={item.to!}
+                to={item.to}
                 className={({ isActive }) =>
                   cn(
                     "flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm font-medium transition-all duration-150",
@@ -153,10 +97,10 @@ export default function Sidebar() {
                   )
                 }
                 end={item.to === "/"}
-                title={!sidebarOpen ? item.label : undefined}
+                title={!sidebarOpen ? label : undefined}
               >
                 <Icon className="w-5 h-5 flex-shrink-0" />
-                {sidebarOpen && <span>{item.label}</span>}
+                {sidebarOpen && <span>{label}</span>}
               </NavLink>
             );
           })}
@@ -173,10 +117,12 @@ export default function Sidebar() {
                 <p className="text-sm font-medium text-white truncate">
                   {admin?.username}
                 </p>
-                <p className="text-xs text-gray-500 truncate">{admin?.role}</p>
+                <p className="text-xs text-gray-500 truncate">{roleLabel}</p>
               </div>
               <button
                 onClick={logout}
+                title={t("logout")}
+                aria-label={t("logout")}
                 className="p-1.5 rounded-lg text-gray-400 hover:text-red-400 hover:bg-gray-800 transition"
               >
                 <LogOut className="w-4 h-4" />
@@ -185,6 +131,8 @@ export default function Sidebar() {
           ) : (
             <button
               onClick={logout}
+              title={t("logout")}
+              aria-label={t("logout")}
               className="flex justify-center w-full p-2 text-gray-400 hover:text-red-400 hover:bg-gray-800 rounded-lg transition"
             >
               <LogOut className="w-5 h-5" />

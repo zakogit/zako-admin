@@ -1,0 +1,36 @@
+{
+  "title": "Audit jurnali",
+  "searchPlaceholder": "Audit jurnalidan qidirish...",
+  "empty": "Audit yozuvlari topilmadi",
+  "system": "Tizim",
+  "filters": {
+    "allEntities": "Barcha obyektlar",
+    "allActions": "Barcha amallar"
+  },
+  "entity": {
+    "user": "Foydalanuvchi",
+    "question": "Savol",
+    "subject": "Fan",
+    "topic": "Mavzu",
+    "card": "Karta",
+    "region": "Hudud",
+    "avatar": "Avatar"
+  },
+  "action": {
+    "create": "Yaratish",
+    "update": "Yangilash",
+    "delete": "O'chirish",
+    "login": "Kirish",
+    "logout": "Chiqish"
+  },
+  "table": {
+    "action": "Amal",
+    "entity": "Obyekt"
+  },
+  "modal": {
+    "title": "Audit yozuvi tafsilotlari",
+    "logId": "Yozuv ID",
+    "entityId": "Obyekt ID",
+    "timestamp": "Sana va vaqt"
+  }
+}

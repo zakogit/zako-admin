@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { seasonsApi } from '../../api/services';
 
 
 const CreateSeasonPage: React.FC = () => {
+  const { t } = useTranslation('seasons');
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -25,15 +27,15 @@ const CreateSeasonPage: React.FC = () => {
 
 
   const validateForm = (): string | null => {
-    if (!formData.title.trim()) return 'Mavsum nomi kiritilmagan';
-    if (!formData.start_date) return 'Boshlanish sanasi kiritilmagan';
-    if (!formData.end_date) return 'Tugash sanasi kiritilmagan';
-    
+    if (!formData.title.trim()) return t('create.validation.name');
+    if (!formData.start_date) return t('create.validation.startRequired');
+    if (!formData.end_date) return t('create.validation.endRequired');
+
     const startDate = new Date(formData.start_date);
     const endDate = new Date(formData.end_date);
-    
-    if (startDate >= endDate) return 'Boshlanish sanasi tugash sanasidan oldin bo\'lishi kerak';
-    if (startDate < new Date()) return 'Boshlanish sanasi kelajakda bo\'lishi kerak';
+
+    if (startDate >= endDate) return t('create.validation.startBeforeEnd');
+    if (startDate < new Date()) return t('create.validation.startInFuture');
     
     return null;
   };
@@ -61,11 +63,11 @@ const CreateSeasonPage: React.FC = () => {
 
       await seasonsApi.create(payload);
       navigate('/seasons', { 
-        state: { message: 'Mavsum muvaffaqiyatli yaratildi' }
+        state: { message: t('toast.created') }
       });
     } catch (err) {
       console.error('Error creating season:', err);
-      alert('Mavsum yaratishda xatolik yuz berdi');
+      alert(t('toast.createError'));
     } finally {
       setLoading(false);
     }
@@ -78,27 +80,27 @@ const CreateSeasonPage: React.FC = () => {
         <Link
           to="/seasons"
           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          title="Orqaga"
+          title={t('common:actions.back')}
         >
           <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Yangi Mavsum Yaratish</h1>
-          <p className="text-gray-600">Mavsum ma'lumotlarini kiriting. Mavsumlar avtomatik 14 kun davom etadi.</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('create.title')}</h1>
+          <p className="text-gray-600">{t('create.subtitle')}</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Basic Information */}
         <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Asosiy Ma'lumotlar</h2>
-          
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('create.basicInfo')}</h2>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Mavsum Nomi *
+                {t('form.name')}
               </label>
               <input
                 type="text"
@@ -106,14 +108,14 @@ const CreateSeasonPage: React.FC = () => {
                 value={formData.title}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Masalan: Qish Mavsumi 2024"
+                placeholder={t('create.namePlaceholder')}
                 required
               />
             </div>
 
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tavsif
+                {t('common:table.description')}
               </label>
               <textarea
                 name="description"
@@ -121,13 +123,13 @@ const CreateSeasonPage: React.FC = () => {
                 onChange={handleInputChange}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Mavsum haqida qisqacha ma'lumot..."
+                placeholder={t('create.descriptionPlaceholder')}
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Boshlanish Sanasi *
+                {t('common:table.startDate')} *
               </label>
               <input
                 type="datetime-local"
@@ -141,7 +143,7 @@ const CreateSeasonPage: React.FC = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tugash Sanasi *
+                {t('common:table.endDate')} *
               </label>
               <input
                 type="datetime-local"
@@ -155,7 +157,7 @@ const CreateSeasonPage: React.FC = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Maksimal Qatnashuvchilar
+                {t('create.maxParticipants')}
               </label>
               <input
                 type="number"
@@ -163,14 +165,14 @@ const CreateSeasonPage: React.FC = () => {
                 value={formData.max_participants}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Cheksiz uchun bo'sh qoldiring"
+                placeholder={t('create.maxParticipantsPlaceholder')}
                 min="1"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Banner Rasm URL
+                {t('create.bannerUrl')}
               </label>
               <input
                 type="url"
@@ -193,11 +195,11 @@ const CreateSeasonPage: React.FC = () => {
               </svg>
             </div>
             <div>
-              <h3 className="text-lg font-medium text-blue-900 mb-2">Ma'lumot</h3>
+              <h3 className="text-lg font-medium text-blue-900 mb-2">{t('create.info.title')}</h3>
               <ul className="text-blue-800 space-y-1 text-sm">
-                <li>• Har bir mavsum 14 kun davom etadi</li>
-                <li>• Mavsumlar avtomatik ravishda ketma-ket boshlanadi</li>
-                <li>• Mavsum yakunida TOP o'yinchilarga nishonlar (badge) taqsimlanadi</li>
+                <li>• {t('create.info.duration')}</li>
+                <li>• {t('create.info.sequential')}</li>
+                <li>• {t('create.info.badges')}</li>
               </ul>
             </div>
           </div>
@@ -209,7 +211,7 @@ const CreateSeasonPage: React.FC = () => {
             to="/seasons"
             className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
           >
-            Bekor qilish
+            {t('common:actions.cancel')}
           </Link>
           <button
             type="submit"
@@ -219,7 +221,7 @@ const CreateSeasonPage: React.FC = () => {
             {loading && (
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
             )}
-            Mavsum Yaratish
+            {t('create.submit')}
           </button>
         </div>
       </form>

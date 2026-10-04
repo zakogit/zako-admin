@@ -1,0 +1,156 @@
+{
+  "title": "To'lovlar va buyurtmalar",
+  "tabs": {
+    "orders": "Buyurtmalar",
+    "transactions": "Tranzaksiyalar",
+    "webhooks": "Webhooklar",
+    "stats": "Statistika",
+    "test": "Test"
+  },
+  "status": {
+    "paid": "To'langan",
+    "refunded": "Qaytarilgan"
+  },
+  "productTypes": {
+    "coins": "Tangalar",
+    "premium": "Premium",
+    "cards": "Kartalar",
+    "diamonds": "Olmoslar",
+    "season_premium": "Mavsum premiumi",
+    "zako_pass_premium": "Zako Pass Premium"
+  },
+  "filters": {
+    "searchPlaceholder": "Buyurtmalarni qidirish...",
+    "allStatuses": "Barcha holatlar",
+    "allProducts": "Barcha mahsulotlar"
+  },
+  "table": {
+    "order": "Buyurtma",
+    "product": "Mahsulot",
+    "transactionId": "Tranzaksiya ID",
+    "provider": "To'lov tizimi",
+    "request": "So'rov",
+    "response": "Javob"
+  },
+  "actions": {
+    "cancel": "Bekor qilish",
+    "complete": "Yakunlash",
+    "cancelOrder": "Buyurtmani bekor qilish",
+    "completeOrder": "Buyurtmani yakunlash",
+    "createTestOrder": "Test buyurtma yaratish",
+    "createPaymeTest": "Payme test yaratish",
+    "createClickTest": "Click.uz test yaratish"
+  },
+  "empty": {
+    "orders": "Buyurtmalar topilmadi",
+    "transactions": "Tranzaksiyalar topilmadi",
+    "webhooks": "Webhook jurnallari topilmadi"
+  },
+  "stats": {
+    "total": "Jami: {{amount}} {{currency}}"
+  },
+  "units": {
+    "tiyin": "tiyin"
+  },
+  "webhooks": {
+    "viewRequest": "So'rovni ko'rish",
+    "viewResponse": "Javobni ko'rish"
+  },
+  "test": {
+    "loadingStatus": "Integratsiya holati yuklanmoqda...",
+    "loadError": "Integratsiya holatini yuklab bo'lmadi",
+    "statusLine": "Holat: {{status}}",
+    "overall": {
+      "ready": "Tayyor",
+      "notConfigured": "Sozlanmagan"
+    },
+    "set": "✓ O'rnatilgan",
+    "notSet": "✗ O'rnatilmagan",
+    "exists": "✓ Mavjud",
+    "missing": "✗ Mavjud emas",
+    "connected": "✓ Ulangan",
+    "disconnected": "✗ Ulanmagan",
+    "configuration": "Konfiguratsiya",
+    "database": "Ma'lumotlar bazasi",
+    "ordersTable": "Buyurtmalar jadvali",
+    "recentOrders24h": "So'nggi buyurtmalar (24 soat)",
+    "merchantId": "Merchant ID",
+    "secretKey": "Maxfiy kalit",
+    "serviceId": "Service ID",
+    "testMode": "Test rejimi",
+    "integrationStatus": "Integratsiya holati",
+    "recommendations": "Tavsiyalar"
+  },
+  "payme": {
+    "title": "Payme integratsiyasi holati",
+    "ready": "Payme integratsiyasi to'g'ri sozlangan va ishga tayyor",
+    "needsConfig": "Payme integratsiyasini sozlash kerak",
+    "testTitle": "To'lov integratsiyasini sinash",
+    "testDescription": "Payme integratsiyasini tekshirish uchun test buyurtmalar yarating. Oddiy test buyurtma yoki Payme uchun maxsus test buyurtmani tanlang.",
+    "instructionsTitle": "Test yo'riqnomasi",
+    "steps": {
+      "step1": "1. \"{{button}}\" tugmasini bosing",
+      "step2": "2. Paket ID va foydalanuvchi ID raqamini kiriting",
+      "step3": "3. Tizim buyurtma yaratadi va Payme to'lov URL'ini ochadi",
+      "step4": "4. To'lovni Payme test muhitida yakunlang",
+      "step5": "5. To'lov jarayonini tekshirish uchun webhook jurnallarini ko'ring",
+      "step6": "6. Buyurtma holati o'zgarib, \"{{status}}\" bo'lganini tekshiring"
+    }
+  },
+  "click": {
+    "title": "Click.uz integratsiyasi holati",
+    "ready": "Click.uz integratsiyasi to'g'ri sozlangan va ishga tayyor",
+    "needsConfig": "Click.uz integratsiyasini sozlash kerak",
+    "testTitle": "Click.uz integratsiyasini sinash",
+    "testDescription": "Click.uz integratsiyasini tekshirish uchun test buyurtmalar yarating. Bu Click Button va Click Pay by Card URL'larini ham yaratadi.",
+    "instructionsTitle": "Click.uz test yo'riqnomasi",
+    "steps": {
+      "step1": "1. \"{{button}}\" tugmasini bosing",
+      "step2": "2. Foydalanuvchi ID va summani kiriting (so'mda)",
+      "step3": "3. Tizim buyurtma yaratadi va to'lov URL variantlarini ko'rsatadi",
+      "step4": "4. Click Button URL yoki Click Pay by Card URL dan birini tanlang",
+      "step5": "5. To'lovni Click.uz test muhitida yakunlang",
+      "step6": "6. To'lov jarayonini tekshirish uchun callback jurnallarini ko'ring",
+      "step7": "7. Buyurtma holati o'zgarib, \"{{status}}\" bo'lganini tekshiring"
+    }
+  },
+  "modal": {
+    "orderDetails": "Buyurtma tafsilotlari",
+    "orderNumber": "Buyurtma raqami",
+    "cancelReason": "Bekor qilish sababi",
+    "cancelReasonPlaceholder": "Bekor qilish sababini kiriting...",
+    "notesOptional": "Izohlar (ixtiyoriy)",
+    "notesPlaceholder": "Qo'lda yakunlash haqida izoh qoldiring...",
+    "packageId": "Paket ID *",
+    "packageIdPlaceholder": "Paket ID raqamini kiriting (masalan, 1)",
+    "packageIdHint": "Sinab ko'riladigan tanga/premium paketining ID raqami",
+    "userId": "Foydalanuvchi ID *",
+    "userIdPlaceholder": "Foydalanuvchi ID raqamini kiriting (masalan, 1)",
+    "userIdHint": "Buyurtma yaratiladigan foydalanuvchining ID raqami",
+    "testNote": "<b>Eslatma:</b> Bu haqiqiy buyurtma yaratadi va Payme to'lov URL'ini yangi oynada ochadi. Payme muhitida test ma'lumotlaridan foydalaning."
+  },
+  "validation": {
+    "reasonRequired": "Sabab kiritilishi shart",
+    "packageIdRequired": "Paket ID kiritilishi shart",
+    "userIdRequired": "Foydalanuvchi ID kiritilishi shart"
+  },
+  "toast": {
+    "cancelled": "Buyurtma muvaffaqiyatli bekor qilindi",
+    "cancelError": "Buyurtmani bekor qilishda xatolik yuz berdi",
+    "completed": "Buyurtma muvaffaqiyatli yakunlandi",
+    "completeError": "Buyurtmani yakunlashda xatolik yuz berdi",
+    "testOrderCreated": "Test buyurtma muvaffaqiyatli yaratildi",
+    "testOrderError": "Test buyurtma yaratishda xatolik yuz berdi",
+    "paymeTestCreated": "Payme test buyurtmasi muvaffaqiyatli yaratildi",
+    "paymeTestError": "Payme test buyurtmasini yaratishda xatolik yuz berdi",
+    "clickTestCreated": "Click.uz test buyurtmasi muvaffaqiyatli yaratildi",
+    "clickTestError": "Click.uz test buyurtmasini yaratishda xatolik yuz berdi"
+  },
+  "confirm": {
+    "clickUrls": "Test buyurtma yaratildi! To'lov URL'larini ochishni xohlaysizmi?\n\nOK - Click Button URL\nBekor qilish - Click Pay by Card URL"
+  },
+  "prompts": {
+    "userId": "Foydalanuvchi ID raqamini kiriting:",
+    "amount": "Miqdorni kiriting (so'mda):"
+  }
+}

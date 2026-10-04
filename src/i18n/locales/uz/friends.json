@@ -1,0 +1,37 @@
+{
+  "title": "Do'stliklar",
+  "empty": "Do'stliklar topilmadi",
+  "stats": {
+    "friendships": "Do'stliklar",
+    "pendingRequests": "Kutilayotgan so'rovlar",
+    "rejected": "Rad etilgan",
+    "newThisWeek": "Shu hafta yangi"
+  },
+  "filters": {
+    "allStatuses": "Barcha holatlar"
+  },
+  "status": {
+    "pending": "Kutilmoqda",
+    "accepted": "Qabul qilingan",
+    "rejected": "Rad etilgan"
+  },
+  "table": {
+    "users": "Foydalanuvchilar"
+  },
+  "modal": {
+    "viewTitle": "Do'stlik tafsilotlari",
+    "friendshipId": "Do'stlik ID",
+    "requester": "So'rov yuboruvchi",
+    "addressee": "So'rov oluvchi",
+    "deleteTitle": "Do'stlikni o'chirish"
+  },
+  "confirm": {
+    "delete": "Haqiqatan ham bu do'stlikni o'chirmoqchimisiz? Bu amalni bekor qilib bo'lmaydi.",
+    "friendship": "Do'stlik #{{id}}",
+    "status": "Holati: {{status}}"
+  },
+  "toast": {
+    "deleted": "Do'stlik muvaffaqiyatli o'chirildi",
+    "deleteFailed": "Do'stlikni o'chirib bo'lmadi"
+  }
+}

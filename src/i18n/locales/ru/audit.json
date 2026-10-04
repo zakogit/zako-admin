@@ -1,0 +1,36 @@
+{
+  "title": "Журнал аудита",
+  "searchPlaceholder": "Поиск по журналу аудита...",
+  "empty": "Записи аудита не найдены",
+  "system": "Система",
+  "filters": {
+    "allEntities": "Все объекты",
+    "allActions": "Все действия"
+  },
+  "entity": {
+    "user": "Пользователь",
+    "question": "Вопрос",
+    "subject": "Предмет",
+    "topic": "Тема",
+    "card": "Карта",
+    "region": "Регион",
+    "avatar": "Аватар"
+  },
+  "action": {
+    "create": "Создание",
+    "update": "Обновление",
+    "delete": "Удаление",
+    "login": "Вход",
+    "logout": "Выход"
+  },
+  "table": {
+    "action": "Действие",
+    "entity": "Объект"
+  },
+  "modal": {
+    "title": "Сведения о записи аудита",
+    "logId": "ID записи",
+    "entityId": "ID объекта",
+    "timestamp": "Дата и время"
+  }
+}

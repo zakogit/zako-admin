@@ -1,0 +1,46 @@
+{
+  "title": "Hududlar",
+  "searchPlaceholder": "Hududlarni qidirish...",
+  "addRegion": "Hudud qo'shish",
+  "empty": "Hududlar topilmadi",
+  "table": {
+    "users": "Foydalanuvchilar",
+    "avgRating": "O'rtacha reyting",
+    "duels": "Duellar"
+  },
+  "stats": {
+    "totalRegions": "Jami hududlar",
+    "totalUsers": "Jami foydalanuvchilar",
+    "averageRating": "O'rtacha reyting",
+    "totalDuels": "Jami duellar"
+  },
+  "form": {
+    "name": "Hudud nomi",
+    "namePlaceholder": "Hudud nomini kiriting"
+  },
+  "validation": {
+    "nameRequired": "Hudud nomi majburiy"
+  },
+  "modal": {
+    "createTitle": "Hudud yaratish",
+    "editTitle": "Hududni tahrirlash",
+    "deleteTitle": "Hududni o'chirish"
+  },
+  "confirm": {
+    "delete": "Haqiqatan ham bu hududni o'chirmoqchimisiz? Bu amalni bekor qilib bo'lmaydi."
+  },
+  "count": {
+    "users_one": "{{count}} foydalanuvchi",
+    "users_other": "{{count}} foydalanuvchi",
+    "duels_one": "{{count}} duel",
+    "duels_other": "{{count}} duel"
+  },
+  "toast": {
+    "created": "Hudud muvaffaqiyatli yaratildi",
+    "createFailed": "Hududni yaratib bo'lmadi",
+    "updated": "Hudud muvaffaqiyatli yangilandi",
+    "updateFailed": "Hududni yangilab bo'lmadi",
+    "deleted": "Hudud muvaffaqiyatli o'chirildi",
+    "deleteFailed": "Hududni o'chirib bo'lmadi"
+  }
+}

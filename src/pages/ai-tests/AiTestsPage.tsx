@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import {
   Sparkles,
   ListChecks,
@@ -11,6 +12,7 @@ import {
   X,
 } from 'lucide-react';
 import { aiTestsApi } from '../../api/services';
+import { getIntlLocale } from '../../i18n';
 import type { AiTestFilters } from '../../types';
 import {
   Table,
@@ -24,10 +26,13 @@ import {
   Card,
 } from '../../components/ui';
 import {
-  STATUS_LABELS,
   ACTIVE_STATUSES,
-  MODEL_LABELS,
-  SOURCE_LABELS,
+  STATUS_VALUES,
+  MODEL_VALUES,
+  SOURCE_VALUES,
+  statusInfo,
+  modelInfo,
+  sourceLabel,
   userLabel,
   testDuration,
 } from './shared';
@@ -36,6 +41,7 @@ const LIMIT = 20;
 const EMPTY_FILTERS: AiTestFilters = {};
 
 export default function AiTestsPage() {
+  const { t } = useTranslation('aiTests');
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<AiTestFilters>(EMPTY_FILTERS);
@@ -60,7 +66,7 @@ export default function AiTestsPage() {
     queryFn: () => aiTestsApi.getAll({ ...filters, page, limit: LIMIT }).then((r) => r.data),
     // Navbatdagi/yaratilayotgan test bo'lsa jonli yangilanadi
     refetchInterval: (query) =>
-      query.state.data?.data?.some((t) => ACTIVE_STATUSES.includes(t.status)) ? 3000 : false,
+      query.state.data?.data?.some((row) => ACTIVE_STATUSES.includes(row.status)) ? 3000 : false,
   });
 
   const { data: stats } = useQuery({
@@ -75,39 +81,39 @@ export default function AiTestsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-          <Sparkles className="w-6 h-6 text-primary-600" /> AI Testlar
+          <Sparkles className="w-6 h-6 text-primary-600" /> {t('title')}
         </h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Foydalanuvchilar olmosga yaratgan testlar — holati, xarajati va kontenti
+          {t('subtitle')}
         </p>
       </div>
 
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <StatCard
-            title="Jami testlar"
+            title={t('stats.totalTests')}
             value={stats.totals.total}
             icon={<ListChecks className="w-5 h-5" />}
-            subtitle={`${stats.totals.success_rate}% muvaffaqiyatli`}
+            subtitle={t('stats.successRate', { rate: stats.totals.success_rate })}
           />
           <StatCard
-            title="Yiqilganlar"
+            title={t('stats.failed')}
             value={stats.totals.failed}
             icon={<AlertTriangle className="w-5 h-5" />}
             color="bg-red-500"
-            subtitle={`${stats.totals.active} ta jarayonda`}
+            subtitle={t('stats.inProgress', { n: stats.totals.active })}
           />
           <StatCard
-            title="Sarflangan olmos"
+            title={t('stats.diamondsSpent')}
             value={stats.totals.diamonds_spent}
             icon={<Diamond className="w-5 h-5" />}
-            subtitle={`${stats.totals.diamonds_refunded} qaytarilgan`}
+            subtitle={t('stats.diamondsRefunded', { n: stats.totals.diamonds_refunded })}
           />
           <StatCard
-            title="AI xarajati"
+            title={t('stats.aiCost')}
             value={`$${stats.totals.cost_usd}`}
             icon={<Coins className="w-5 h-5" />}
-            subtitle={`o'rtacha ${stats.totals.avg_seconds}s generatsiya`}
+            subtitle={t('stats.avgGeneration', { seconds: stats.totals.avg_seconds })}
           />
         </div>
       )}
@@ -122,56 +128,56 @@ export default function AiTestsPage() {
             }}
           >
             <Input
-              label="Qidiruv"
-              placeholder="Fan, mavzu, username yoki ism"
+              label={t('filters.search')}
+              placeholder={t('filters.searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </form>
           <Select
-            label="Status"
+            label={t('common:table.status')}
             value={filters.status ?? ''}
             onChange={(e) => applyFilter({ status: e.target.value || undefined })}
           >
-            <option value="">Barchasi</option>
-            {Object.entries(STATUS_LABELS).map(([value, s]) => (
+            <option value="">{t('common:state.all')}</option>
+            {STATUS_VALUES.map((value) => (
               <option key={value} value={value}>
-                {s.label}
+                {statusInfo(t, value).label}
               </option>
             ))}
           </Select>
           <Select
-            label="AI daraja"
+            label={t('filters.aiLevel')}
             value={filters.model ?? ''}
             onChange={(e) => applyFilter({ model: e.target.value || undefined })}
           >
-            <option value="">Barchasi</option>
-            {Object.entries(MODEL_LABELS).map(([value, m]) => (
+            <option value="">{t('common:state.all')}</option>
+            {MODEL_VALUES.map((value) => (
               <option key={value} value={value}>
-                {m.label}
+                {modelInfo(t, value).label}
               </option>
             ))}
           </Select>
           <Select
-            label="Manba"
+            label={t('filters.source')}
             value={filters.source_type ?? ''}
             onChange={(e) => applyFilter({ source_type: e.target.value || undefined })}
           >
-            <option value="">Barchasi</option>
-            {Object.entries(SOURCE_LABELS).map(([value, label]) => (
+            <option value="">{t('common:state.all')}</option>
+            {SOURCE_VALUES.map((value) => (
               <option key={value} value={value}>
-                {label}
+                {sourceLabel(t, value)}
               </option>
             ))}
           </Select>
           <Input
-            label="Sanadan"
+            label={t('filters.dateFrom')}
             type="date"
             value={filters.from ?? ''}
             onChange={(e) => applyFilter({ from: e.target.value || undefined })}
           />
           <Input
-            label="Sanagacha"
+            label={t('filters.dateTo')}
             type="date"
             value={filters.to ?? ''}
             onChange={(e) => applyFilter({ to: e.target.value || undefined })}
@@ -181,11 +187,11 @@ export default function AiTestsPage() {
               variant="secondary"
               onClick={() => applyFilter({ q: search.trim() || undefined })}
             >
-              <Search className="w-4 h-4" /> Qidirish
+              <Search className="w-4 h-4" /> {t('common:actions.search')}
             </Button>
             {hasFilters && (
               <Button variant="ghost" onClick={resetFilters}>
-                <X className="w-4 h-4" /> Tozalash
+                <X className="w-4 h-4" /> {t('common:actions.clear')}
               </Button>
             )}
           </div>
@@ -194,30 +200,30 @@ export default function AiTestsPage() {
 
       <Table
         headers={[
-          'ID',
-          'Foydalanuvchi',
-          'Fan / Mavzu',
-          'Manba',
-          'Daraja',
-          'Savol',
-          'Status',
-          'Olmos',
-          'Xarajat',
-          'Davomiylik',
-          'Sana',
+          t('common:table.id'),
+          t('common:table.user'),
+          t('table.subjectTopic'),
+          t('table.source'),
+          t('table.level'),
+          t('table.questions'),
+          t('common:table.status'),
+          t('table.diamonds'),
+          t('table.cost'),
+          t('table.duration'),
+          t('common:table.date'),
         ]}
         loading={isLoading}
       >
         {tests.length === 0 && !isLoading ? (
           <tr>
             <td colSpan={11}>
-              <EmptyState message={hasFilters ? 'Filtrga mos test topilmadi' : 'Hali test yaratilmagan'} />
+              <EmptyState message={hasFilters ? t('empty.filtered') : t('empty.none')} />
             </td>
           </tr>
         ) : (
           tests.map((test) => {
-            const st = STATUS_LABELS[test.status] ?? { label: test.status, color: 'gray' as const };
-            const md = MODEL_LABELS[test.model] ?? { label: test.model, color: 'gray' as const };
+            const st = statusInfo(t, test.status);
+            const md = modelInfo(t, test.model);
             const active = ACTIVE_STATUSES.includes(test.status);
             return (
               <tr
@@ -242,7 +248,7 @@ export default function AiTestsPage() {
                   )}
                 </td>
                 <td className="px-4 py-3 text-gray-600 dark:text-gray-300">
-                  {SOURCE_LABELS[test.source_type] ?? test.source_type}
+                  {sourceLabel(t, test.source_type)}
                 </td>
                 <td className="px-4 py-3">
                   <Badge color={md.color}>{md.label}</Badge>
@@ -254,7 +260,7 @@ export default function AiTestsPage() {
                   <div className="flex items-center gap-2">
                     <Badge color={st.color}>{st.label}</Badge>
                     {active && <span className="text-xs text-gray-400">{test.progress}%</span>}
-                    {test.refunded && <Badge color="orange">qaytarilgan</Badge>}
+                    {test.refunded && <Badge color="orange">{t('badge.refunded')}</Badge>}
                   </div>
                 </td>
                 <td className="px-4 py-3 text-gray-600 dark:text-gray-300">
@@ -264,10 +270,10 @@ export default function AiTestsPage() {
                   ${test.cost_usd}
                 </td>
                 <td className="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                  {testDuration(test)}
+                  {testDuration(t, test)}
                 </td>
                 <td className="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                  {new Date(test.created_at).toLocaleDateString()}
+                  {new Date(test.created_at).toLocaleDateString(getIntlLocale())}
                 </td>
               </tr>
             );

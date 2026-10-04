@@ -1,0 +1,74 @@
+{
+  "title": "Premium obunalar",
+  "subtitle": "Premium a'zolik va obunalarni boshqaring",
+  "stats": {
+    "total": "Jami obunachilar",
+    "active": "Faol obunachilar",
+    "monthlyRevenue": "Oylik daromad",
+    "newThisMonth": "Shu oy yangi"
+  },
+  "filters": {
+    "searchPlaceholder": "Foydalanuvchi qidirish...",
+    "allStatuses": "Barcha holatlar",
+    "allPlans": "Barcha rejalar"
+  },
+  "plans": {
+    "monthly": "Oylik",
+    "yearly": "Yillik"
+  },
+  "table": {
+    "plan": "Reja",
+    "period": "Muddat",
+    "autoRenew": "Avto-yangilanish",
+    "daysLeft_one": "{{count}} kun qoldi",
+    "daysLeft_other": "{{count}} kun qoldi"
+  },
+  "empty": {
+    "subscribers": "Premium obunachilar topilmadi"
+  },
+  "actions": {
+    "enableAutoRenew": "Avto-yangilanishni yoqish",
+    "disableAutoRenew": "Avto-yangilanishni o'chirish"
+  },
+  "extend": {
+    "title": "Muddatni uzaytirish",
+    "description": "<b>{{name}}</b> obunasini uzaytirish (hozir tugash: {{date}}).",
+    "customDays": "Yoki aniq kun kiriting",
+    "submit": "Uzaytirish"
+  },
+  "cancel": {
+    "title": "Obunani bekor qilish",
+    "action": "Bekor qilish",
+    "description": "<b>{{name}}</b> obunasi bekor qilinadi va premium darhol o'chiriladi.",
+    "reasonLabel": "Sabab *",
+    "reasonPlaceholder": "Bekor qilish sababi"
+  },
+  "details": {
+    "title": "Obuna ma'lumotlari",
+    "userId": "Foydalanuvchi ID",
+    "daysLeft": "Qolgan kun"
+  },
+  "grant": {
+    "title": "Manual premium berish",
+    "userLabel": "Foydalanuvchi *",
+    "changeUser": "Boshqa foydalanuvchi tanlash",
+    "searchPlaceholder": "Ism, username yoki telefon bo'yicha qidiring...",
+    "searching": "Qidirilmoqda...",
+    "duration": "Muddat (kun)",
+    "priceHint": "Manual berishda narx 0 {{currency}} (sovg'a) sifatida yoziladi.",
+    "submit": "Premium berish"
+  },
+  "toast": {
+    "extended": "Obuna muvaffaqiyatli uzaytirildi",
+    "extendError": "Obunani uzaytirishda xatolik yuz berdi",
+    "updated": "Obuna yangilandi",
+    "updateError": "Obunani yangilashda xatolik yuz berdi",
+    "granted": "Premium muvaffaqiyatli berildi",
+    "grantError": "Premium berishda xatolik yuz berdi",
+    "userIdRequired": "Foydalanuvchi ID kiriting",
+    "cancelled": "Obuna bekor qilindi",
+    "cancelError": "Bekor qilishda xatolik",
+    "minDays": "Kun 1 dan kam bo'lmasligi kerak",
+    "reasonRequired": "Bekor qilish sababini kiriting"
+  }
+}

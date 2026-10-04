@@ -1,0 +1,156 @@
+{
+  "title": "Платежи и заказы",
+  "tabs": {
+    "orders": "Заказы",
+    "transactions": "Транзакции",
+    "webhooks": "Вебхуки",
+    "stats": "Статистика",
+    "test": "Тест"
+  },
+  "status": {
+    "paid": "Оплачено",
+    "refunded": "Возвращено"
+  },
+  "productTypes": {
+    "coins": "Монеты",
+    "premium": "Премиум",
+    "cards": "Карты",
+    "diamonds": "Алмазы",
+    "season_premium": "Премиум сезона",
+    "zako_pass_premium": "Премиум Zako Pass"
+  },
+  "filters": {
+    "searchPlaceholder": "Поиск заказов...",
+    "allStatuses": "Все статусы",
+    "allProducts": "Все товары"
+  },
+  "table": {
+    "order": "Заказ",
+    "product": "Товар",
+    "transactionId": "ID транзакции",
+    "provider": "Платёжная система",
+    "request": "Запрос",
+    "response": "Ответ"
+  },
+  "actions": {
+    "cancel": "Отменить",
+    "complete": "Завершить",
+    "cancelOrder": "Отменить заказ",
+    "completeOrder": "Завершить заказ",
+    "createTestOrder": "Создать тестовый заказ",
+    "createPaymeTest": "Создать тест Payme",
+    "createClickTest": "Создать тест Click.uz"
+  },
+  "empty": {
+    "orders": "Заказы не найдены",
+    "transactions": "Транзакции не найдены",
+    "webhooks": "Журналы вебхуков не найдены"
+  },
+  "stats": {
+    "total": "Всего: {{amount}} {{currency}}"
+  },
+  "units": {
+    "tiyin": "тийин"
+  },
+  "webhooks": {
+    "viewRequest": "Показать запрос",
+    "viewResponse": "Показать ответ"
+  },
+  "test": {
+    "loadingStatus": "Загрузка статуса интеграции...",
+    "loadError": "Не удалось загрузить статус интеграции",
+    "statusLine": "Статус: {{status}}",
+    "overall": {
+      "ready": "Готово",
+      "notConfigured": "Не настроено"
+    },
+    "set": "✓ Задано",
+    "notSet": "✗ Не задано",
+    "exists": "✓ Существует",
+    "missing": "✗ Отсутствует",
+    "connected": "✓ Подключено",
+    "disconnected": "✗ Не подключено",
+    "configuration": "Конфигурация",
+    "database": "База данных",
+    "ordersTable": "Таблица заказов",
+    "recentOrders24h": "Недавние заказы (24 ч)",
+    "merchantId": "ID мерчанта",
+    "secretKey": "Секретный ключ",
+    "serviceId": "ID сервиса",
+    "testMode": "Тестовый режим",
+    "integrationStatus": "Статус интеграции",
+    "recommendations": "Рекомендации"
+  },
+  "payme": {
+    "title": "Статус интеграции Payme",
+    "ready": "Интеграция Payme настроена правильно и готова к работе",
+    "needsConfig": "Интеграцию Payme необходимо настроить",
+    "testTitle": "Тестирование платёжной интеграции",
+    "testDescription": "Создавайте тестовые заказы для проверки интеграции Payme. Выберите обычный тестовый заказ или тестовый заказ, специфичный для Payme.",
+    "instructionsTitle": "Инструкция по тестированию",
+    "steps": {
+      "step1": "1. Нажмите кнопку «{{button}}»",
+      "step2": "2. Укажите ID пакета и ID пользователя",
+      "step3": "3. Система создаст заказ и откроет ссылку на оплату Payme",
+      "step4": "4. Завершите оплату в тестовой среде Payme",
+      "step5": "5. Проверьте журналы вебхуков, чтобы убедиться, что платёжный процесс работает корректно",
+      "step6": "6. Убедитесь, что статус заказа изменился на «{{status}}»"
+    }
+  },
+  "click": {
+    "title": "Статус интеграции Click.uz",
+    "ready": "Интеграция Click.uz настроена правильно и готова к работе",
+    "needsConfig": "Интеграцию Click.uz необходимо настроить",
+    "testTitle": "Тестирование интеграции Click.uz",
+    "testDescription": "Создавайте тестовые заказы для проверки интеграции Click.uz. Будут созданы ссылки Click Button и Click Pay by Card.",
+    "instructionsTitle": "Инструкция по тестированию Click.uz",
+    "steps": {
+      "step1": "1. Нажмите кнопку «{{button}}»",
+      "step2": "2. Укажите ID пользователя и сумму (в сумах)",
+      "step3": "3. Система создаст заказ и покажет варианты ссылок на оплату",
+      "step4": "4. Выберите ссылку Click Button URL или Click Pay by Card URL",
+      "step5": "5. Завершите оплату в тестовой среде Click.uz",
+      "step6": "6. Проверьте журналы callback-запросов, чтобы убедиться, что платёжный процесс работает корректно",
+      "step7": "7. Убедитесь, что статус заказа изменился на «{{status}}»"
+    }
+  },
+  "modal": {
+    "orderDetails": "Детали заказа",
+    "orderNumber": "Номер заказа",
+    "cancelReason": "Причина отмены",
+    "cancelReasonPlaceholder": "Укажите причину отмены...",
+    "notesOptional": "Примечания (необязательно)",
+    "notesPlaceholder": "Добавьте примечания о ручном завершении...",
+    "packageId": "ID пакета *",
+    "packageIdPlaceholder": "Введите ID пакета (например, 1)",
+    "packageIdHint": "ID пакета монет/премиума для теста",
+    "userId": "ID пользователя *",
+    "userIdPlaceholder": "Введите ID пользователя (например, 1)",
+    "userIdHint": "ID пользователя, для которого создаётся заказ",
+    "testNote": "<b>Примечание:</b> будет создан реальный заказ, а ссылка на оплату Payme откроется в новой вкладке. Используйте тестовые учётные данные в среде Payme."
+  },
+  "validation": {
+    "reasonRequired": "Укажите причину",
+    "packageIdRequired": "Укажите ID пакета",
+    "userIdRequired": "Укажите ID пользователя"
+  },
+  "toast": {
+    "cancelled": "Заказ успешно отменён",
+    "cancelError": "Не удалось отменить заказ",
+    "completed": "Заказ успешно завершён",
+    "completeError": "Не удалось завершить заказ",
+    "testOrderCreated": "Тестовый заказ успешно создан",
+    "testOrderError": "Не удалось создать тестовый заказ",
+    "paymeTestCreated": "Тестовый заказ Payme успешно создан",
+    "paymeTestError": "Не удалось создать тестовый заказ Payme",
+    "clickTestCreated": "Тестовый заказ Click.uz успешно создан",
+    "clickTestError": "Не удалось создать тестовый заказ Click.uz"
+  },
+  "confirm": {
+    "clickUrls": "Тестовый заказ создан! Открыть ссылки на оплату?\n\nOK - Click Button URL\nОтмена - Click Pay by Card URL"
+  },
+  "prompts": {
+    "userId": "Введите ID пользователя:",
+    "amount": "Введите сумму (в сумах):"
+  }
+}

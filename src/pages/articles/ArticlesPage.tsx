@@ -7,6 +7,7 @@ import { getStaticFileUrl, formatDate } from '../../utils/helpers';
 import type { Article } from '../../types';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
+import { useTranslation, Trans } from 'react-i18next';
 
 interface ArticleFormValues {
   title: string;
@@ -16,6 +17,7 @@ interface ArticleFormValues {
 }
 
 export default function ArticlesPage() {
+  const { t } = useTranslation('articles');
   const qc = useQueryClient();
   const [selected, setSelected] = useState<Article | null>(null);
   const [editModal, setEditModal] = useState(false);
@@ -33,49 +35,49 @@ export default function ArticlesPage() {
   const createMutation = useMutation({
     mutationFn: (body: ArticleFormValues) => articlesApi.create(body),
     onSuccess: () => {
-      toast.success('Maqola yaratildi');
+      toast.success(t('toast.created'));
       setEditModal(false);
       reset();
       invalidate();
     },
     onError: (error: any) =>
-      toast.error(error.response?.data?.message || 'Maqola yaratishda xatolik'),
+      toast.error(error.response?.data?.message || t('toast.createFailed')),
   });
 
   const updateMutation = useMutation({
     mutationFn: (body: ArticleFormValues) => articlesApi.update(selected!.id, body),
     onSuccess: () => {
-      toast.success('Maqola yangilandi');
+      toast.success(t('toast.updated'));
       setEditModal(false);
       setSelected(null);
       reset();
       invalidate();
     },
     onError: (error: any) =>
-      toast.error(error.response?.data?.message || 'Maqolani yangilashda xatolik'),
+      toast.error(error.response?.data?.message || t('toast.updateFailed')),
   });
 
   const uploadCoverMutation = useMutation({
     mutationFn: ({ id, formData }: { id: number; formData: FormData }) =>
       articlesApi.uploadCover(id, formData),
     onSuccess: () => {
-      toast.success('Muqova yuklandi');
+      toast.success(t('toast.coverUploaded'));
       invalidate();
     },
     onError: (error: any) =>
-      toast.error(error.response?.data?.message || 'Muqova yuklashda xatolik'),
+      toast.error(error.response?.data?.message || t('toast.coverFailed')),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => articlesApi.delete(id),
     onSuccess: () => {
-      toast.success("Maqola o'chirildi");
+      toast.success(t('toast.deleted'));
       setDeleteModal(false);
       setSelected(null);
       invalidate();
     },
     onError: (error: any) =>
-      toast.error(error.response?.data?.message || "Maqolani o'chirishda xatolik"),
+      toast.error(error.response?.data?.message || t('toast.deleteFailed')),
   });
 
   const articles: Article[] = Array.isArray(articlesData?.data) ? articlesData.data : [];
@@ -109,11 +111,11 @@ export default function ArticlesPage() {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      toast.error('Faqat rasm fayllari qabul qilinadi');
+      toast.error(t('validation.imageOnly'));
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Fayl hajmi 5MB dan oshmasligi kerak');
+      toast.error(t('validation.fileTooLarge'));
       return;
     }
 
@@ -129,27 +131,27 @@ export default function ArticlesPage() {
         <div>
           <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <Newspaper className="w-5 h-5 text-primary-500" />
-            Maqolalar <span className="text-gray-400 font-normal text-base">({articles.length})</span>
+            {t('title')} <span className="text-gray-400 font-normal text-base">({articles.length})</span>
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Landing saytining «Maqolalar» bo'limi — bu yerda qo'shilgan maqolalar zakoapp.uz da chiqadi
+            {t('subtitle')}
           </p>
         </div>
 
         <Button onClick={() => openEditModal()} className="whitespace-nowrap">
           <Plus className="w-4 h-4 mr-2" />
-          Maqola qo'shish
+          {t('addArticle')}
         </Button>
       </div>
 
       {/* Table */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
         {isLoading ? (
-          <div className="p-8 text-center">Loading...</div>
+          <div className="p-8 text-center">{t('common:state.loading')}</div>
         ) : articles.length === 0 ? (
-          <EmptyState message="Maqolalar topilmadi" />
+          <EmptyState message={t('empty')} />
         ) : (
-          <Table headers={['Muqova', 'Sarlavha', 'Holat', 'Sana', '']}>
+          <Table headers={[t('table.cover'), t('common:table.title'), t('common:table.status'), t('common:table.date'), '']}>
             {articles.map((article) => (
               <tr key={article.id}>
                 <td className="px-4 py-3">
@@ -165,7 +167,7 @@ export default function ArticlesPage() {
                         <Newspaper className="w-5 h-5 text-gray-400" />
                       </div>
                     )}
-                    <label className="cursor-pointer text-blue-600 hover:text-blue-700" title="Muqova yuklash">
+                    <label className="cursor-pointer text-blue-600 hover:text-blue-700" title={t('uploadCover')}>
                       <Upload className="w-4 h-4" />
                       <input
                         type="file"
@@ -189,7 +191,7 @@ export default function ArticlesPage() {
                 </td>
                 <td className="px-4 py-3">
                   <Badge color={article.is_published ? 'green' : 'gray'}>
-                    {article.is_published ? 'Chop etilgan' : 'Qoralama'}
+                    {article.is_published ? t('common:status.published') : t('common:status.draft')}
                   </Badge>
                 </td>
                 <td className="px-4 py-3 text-gray-500 text-sm whitespace-nowrap">
@@ -219,41 +221,41 @@ export default function ArticlesPage() {
       <Modal
         open={editModal}
         onClose={() => { setEditModal(false); setSelected(null); }}
-        title={selected ? 'Maqolani tahrirlash' : 'Maqola qo\'shish'}
+        title={selected ? t('modal.editTitle') : t('addArticle')}
         size="lg"
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Sarlavha *</label>
+            <label className="block text-sm font-medium mb-2">{t('common:table.title')} *</label>
             <input
-              {...register('title', { required: 'Sarlavha majburiy' })}
-              placeholder="ZAKO nima? Bilim jang maydoni haqida batafsil"
+              {...register('title', { required: true })}
+              placeholder={t('form.titlePlaceholder')}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
             />
-            {errors.title && <p className="text-red-500 text-xs mt-1">{String(errors.title.message)}</p>}
+            {errors.title && <p className="text-red-500 text-xs mt-1">{t('validation.titleRequired')}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Qisqa tavsif (excerpt)</label>
+            <label className="block text-sm font-medium mb-2">{t('form.excerpt')}</label>
             <textarea
               {...register('excerpt')}
               rows={2}
-              placeholder="Ro'yxatda ko'rinadigan qisqa matn"
+              placeholder={t('form.excerptPlaceholder')}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Matn (Markdown) *</label>
+            <label className="block text-sm font-medium mb-2">{t('form.body')} *</label>
             <textarea
-              {...register('body', { required: 'Matn majburiy' })}
+              {...register('body', { required: true })}
               rows={12}
-              placeholder={"## Sarlavha\n\nParagraf matni. **Qalin**, *kursiv* va ro'yxatlar:\n\n- birinchi band\n- ikkinchi band"}
+              placeholder={t('form.bodyPlaceholder')}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 font-mono text-sm"
             />
-            {errors.body && <p className="text-red-500 text-xs mt-1">{String(errors.body.message)}</p>}
+            {errors.body && <p className="text-red-500 text-xs mt-1">{t('validation.bodyRequired')}</p>}
             <p className="text-xs text-gray-500 mt-1">
-              Markdown qo'llab-quvvatlanadi: # sarlavha, **qalin**, *kursiv*, - ro'yxat, [havola](url).
+              {t('form.markdownHint')}
             </p>
           </div>
 
@@ -264,42 +266,48 @@ export default function ArticlesPage() {
                 {...register('is_published')}
                 className="rounded border-gray-300 dark:border-gray-600"
               />
-              <span className="text-sm font-medium">Chop etilgan (saytda ko'rinadi)</span>
+              <span className="text-sm font-medium">{t('form.published')}</span>
             </label>
           </div>
 
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            Muqova rasm jadvaldagi yuklash tugmasi orqali alohida yuklanadi (avval maqolani saqlang).
+            {t('form.coverHint')}
           </p>
 
           <div className="flex gap-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setEditModal(false)}>
-              Bekor qilish
+              {t('common:actions.cancel')}
             </Button>
             <Button type="submit" loading={createMutation.isPending || updateMutation.isPending}>
-              {selected ? 'Saqlash' : 'Qo\'shish'}
+              {selected ? t('common:actions.save') : t('common:actions.add')}
             </Button>
           </div>
         </form>
       </Modal>
 
       {/* Delete Modal */}
-      <Modal open={deleteModal} onClose={() => setDeleteModal(false)} title="Maqolani o'chirish">
+      <Modal open={deleteModal} onClose={() => setDeleteModal(false)} title={t('modal.deleteTitle')}>
         <div className="space-y-4">
           <p>
-            <strong>{selected?.title}</strong> maqolasini o'chirishni tasdiqlaysizmi?
-            Bu amalni qaytarib bo'lmaydi.
+            <Trans
+              i18nKey="articles:confirm.delete"
+              values={{ title: selected?.title ?? '' }}
+              components={{ b: <strong /> }}
+              // the title is user data: escape it so markup inside it is shown literally, not parsed
+              shouldUnescape
+              tOptions={{ interpolation: { escapeValue: true } }}
+            />
           </p>
           <div className="flex gap-3 pt-4">
             <Button variant="outline" onClick={() => setDeleteModal(false)}>
-              Bekor qilish
+              {t('common:actions.cancel')}
             </Button>
             <Button
               variant="danger"
               onClick={() => selected && deleteMutation.mutate(selected.id)}
               loading={deleteMutation.isPending}
             >
-              O'chirish
+              {t('common:actions.delete')}
             </Button>
           </div>
         </div>

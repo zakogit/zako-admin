@@ -1,0 +1,93 @@
+{
+  "title": "Ежедневные награды",
+  "subtitle": "30-дневный справочник циклически повторяется и применяется к дням календаря. Обычная награда — только монеты; премиум — монеты/аватар/карта. Обе награды выдаются при условии набора {{xp}} XP.",
+  "tier": {
+    "regular": "Обычная",
+    "regularOption": "Обычная (Simple)"
+  },
+  "slot": {
+    "inactive": "{{label}} (неактивна)",
+    "coins_one": "{{count}} монета",
+    "coins_few": "{{count}} монеты",
+    "coins_many": "{{count}} монет",
+    "coins_other": "{{count}} монеты",
+    "avatar": "Аватар М#{{male}}/Ж#{{female}}",
+    "card": "Карта #{{id}} ×{{amount}}"
+  },
+  "picker": {
+    "empty": "Аватары не найдены",
+    "premiumTitle": "#{{id}} · премиум"
+  },
+  "settings": {
+    "premium": "Настройки премиума",
+    "calendar": "Настройки календаря"
+  },
+  "template": {
+    "title": "{{days}}-дневный шаблон (справочник)",
+    "description": "Задайте обычную и премиум-награду для каждого дня. Этот шаблон повторяется в календаре.",
+    "day": "ДЕНЬ {{day}}"
+  },
+  "calendar": {
+    "title": "Календарь наград",
+    "description": "Замените награду конкретного дня на отдельную, отвязав её от шаблона (переопределение). Изменять можно только <b>начиная с завтрашнего дня</b> — сегодняшний и прошедшие дни заблокированы.",
+    "todayLocked": "🔒 сегодня",
+    "past": "прошёл",
+    "dayShort": "д{{day}}",
+    "lockedToday": "Сегодняшний день — изменить нельзя",
+    "lockedPast": "Прошедший день — изменить нельзя",
+    "overrideMark": "(переопределено)",
+    "resetToTemplate": "Вернуть к шаблону"
+  },
+  "editor": {
+    "title": "Настройка награды",
+    "dayNumber": "Номер дня",
+    "rewardTier": "Тип награды",
+    "category": "Категория награды",
+    "categories": {
+      "coins": "Монеты",
+      "card": "Карты",
+      "avatar": "Аватары"
+    },
+    "premiumOnly": "Только премиум",
+    "coinAmount": "Количество монет",
+    "maleAvatar": "Мужской аватар *",
+    "femaleAvatar": "Женский аватар *",
+    "selectCard": "Выберите карту",
+    "selectPlaceholder": "— выберите —",
+    "name": "Название награды (необязательно)",
+    "namePlaceholder": "Например: 50 монет",
+    "descriptionLabel": "Описание (необязательно)",
+    "descriptionPlaceholder": "Коротко о награде...",
+    "activeHint": "Активна (если отключить, награда за этот день/тип выдаваться не будет)"
+  },
+  "premiumForm": {
+    "price": "Цена ({{currency}})",
+    "duration": "Срок (дней)",
+    "purchasable": "Доступно для покупки",
+    "temporaryDiscount": "Временная скидка",
+    "activeNow": "Действует сейчас",
+    "discountPrice": "Цена со скидкой ({{currency}})",
+    "discountBadge": "Скидка −{{percent}}%",
+    "discountHint": "Цена со скидкой должна быть ниже исходной",
+    "starts": "Начало",
+    "ends": "Окончание",
+    "removeDiscount": "Убрать скидку"
+  },
+  "calendarForm": {
+    "xpRequired": "Требуемый XP в день",
+    "cycleAnchor": "Дата начала цикла (anchor)",
+    "cycleHelp": "Длина цикла: {{length}}. Дата anchor считается 1-м днём.",
+    "cycleBadge": "Цикл: {{length}}"
+  },
+  "toast": {
+    "templateSaved": "Шаблон сохранён",
+    "overrideSaved": "Награда дня изменена",
+    "resetToTemplate": "Возвращено к шаблону",
+    "templateDeleted": "Награда удалена",
+    "selectMaleAvatar": "Выберите мужской аватар",
+    "selectFemaleAvatar": "Выберите женский аватар",
+    "premiumSaved": "Настройки премиума сохранены",
+    "discountRemoved": "Скидка убрана",
+    "calendarSaved": "Настройки календаря сохранены"
+  }
+}
