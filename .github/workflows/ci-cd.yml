@@ -81,6 +81,24 @@ jobs:
           name: admin-dist
           path: dist
 
+      # Fail fast with ONE message naming every missing secret (instead of discovering them one by one).
+      - name: Check required secrets
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          ADMIN_WEB_ROOT: ${{ secrets.ADMIN_WEB_ROOT }}
+        run: |
+          missing=""
+          for name in SERVER_HOST SERVER_USER SERVER_SSH_KEY ADMIN_WEB_ROOT; do
+            if [ -z "${!name}" ]; then missing="$missing $name"; fi
+          done
+          if [ -n "$missing" ]; then
+            echo "::error title=Missing secrets::Not set (or empty):$missing. Add them in zakogit/zako-admin > Settings > Secrets and variables > Actions as Repository secrets, or as Environment secrets of an environment named exactly 'production' (not as Variables or Dependabot secrets)."
+            exit 1
+          fi
+          echo "All required secrets are present."
+
       - name: Configure SSH
         env:
           SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
