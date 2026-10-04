@@ -152,5 +152,30 @@
   "prompts": {
     "userId": "Foydalanuvchi ID raqamini kiriting:",
     "amount": "Miqdorni kiriting (so'mda):"
+  },
+  "availability": {
+    "title": "Mobile to'lovlari",
+    "loadError": "To'lov holatini yuklab bo'lmadi.",
+    "toggle": {
+      "enabledAction": "Yoqilgan — o'chirish",
+      "disabledAction": "O'chirilgan — yoqish"
+    },
+    "master": {
+      "title": "Barcha to'lovlar (bosh kalit)",
+      "aria": "Mobile to'lovlarini yoqish",
+      "description": "Tanga, olmos va Premium xaridlarini <strong>barcha platformalarda</strong> boshqaradi. O'chirilganda xarid tugmalari yashiriladi va to'lov sahifalari yopiladi.",
+      "note": "Yangi buyurtmalar bloklanadi; ochiq ilovada holat har 30 soniyada tekshiriladi. Boshlangan to'lovlar, kvitansiya tekshiruvi va bepul mukofotlar ishlashda davom etadi."
+    },
+    "ios": {
+      "title": "App Store do'koni (faqat iOS)",
+      "aria": "iOS App Store do'konini yoqish",
+      "description": "O'chirilganda <strong>iOS'da pul do'koni butunlay yashiriladi</strong>. Android'dagi Payme/Click savdosi ishlayveradi — ya'ni App Store tomonidagi muammo (StoreKit uzilishi, mahsulot sozlanmagani) Android'ni to'xtatmaydi.",
+      "note": "iOS hech qachon Payme/Click'ga o'tmaydi: App Store Review 3.1.1 raqamli valyutani faqat Apple IAP orqali sotishga ruxsat beradi.",
+      "masterOff": "Bosh kalit o'chiq — iOS baribir yopiq."
+    },
+    "toast": {
+      "saved": "To'lov sozlamasi saqlandi",
+      "failed": "Sozlamani saqlab bo'lmadi"
+    }
   }
 }

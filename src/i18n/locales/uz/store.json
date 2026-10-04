@@ -1,47 +1,68 @@
 {
   "title": "Do'kon paketlari",
-  "subtitle": "Ilovada ko'rsatiladigan paketlar (product_packages) + maxsus taklif / chegirma",
-  "addPackage": "Paket qo'shish",
-  "empty": "Paket yo'q. Birinchi paketni yarating.",
+  "subtitle": "Ilovadagi tanga va olmos paketlari — narx, miqdor, chegirma",
+  "tabs": {
+    "coins": "Tanga",
+    "diamonds": "Olmos"
+  },
+  "addPackage": {
+    "coins": "Tanga paketi qo'shish",
+    "diamonds": "Olmos paketi qo'shish"
+  },
+  "editPackage": {
+    "coins": "Tanga paketini tahrirlash",
+    "diamonds": "Olmos paketini tahrirlash"
+  },
+  "empty": {
+    "coins": "Tanga paketi yo'q. Birinchi paketni yarating.",
+    "diamonds": "Olmos paketi yo'q. Birinchi paketni yarating."
+  },
   "table": {
     "package": "Paket",
+    "price": "Narx (so'm)",
     "offer": "Taklif"
   },
-  "form": {
-    "namePlaceholder": "500 Tanga",
-    "bonus": "Bonus",
-    "sortOrder": "Tartib (sort)"
+  "badge": {
+    "specialOffer": "Maxsus taklif"
   },
-  "productType": {
-    "coins": "Tangalar",
-    "premium": "Premium",
-    "cards": "Kartalar"
+  "form": {
+    "name": "Nomi *",
+    "namePlaceholder": {
+      "coins": "500 Tanga",
+      "diamonds": "Start"
+    },
+    "amount": {
+      "coins": "Tanga soni *",
+      "diamonds": "Olmos soni *"
+    },
+    "bonus": "Bonus",
+    "price": "Narx (so'm) *",
+    "sortOrder": "Tartib (sort)",
+    "sortHint": "Kichik son — ilovada birinchi",
+    "appleProductId": "Apple product ID (iOS)",
+    "appleHint": "Bo'sh = paket iOS'da ko'rinmaydi. iOS'da foydalanuvchi to'laydigan narx App Store Connect'dagi narx — yuqoridagi so'm narxi faqat Payme/Click uchun. Miqdor esa iOS'da ham shu yerdan olinadi."
   },
   "offer": {
-    "heading": "Maxsus taklif & chegirma",
+    "title": "Maxsus taklif & chegirma",
     "type": "Taklif turi",
     "simple": "Oddiy",
-    "special": "Maxsus taklif",
-    "specialBadge": "Maxsus taklif (badge)",
+    "special": "Maxsus taklif (badge)",
     "discountPercent": "Chegirma (%)",
-    "discountStart": "Chegirma boshlanishi",
-    "discountStartHint": "Bo'sh = darhol",
-    "discountEnd": "Chegirma tugashi",
-    "discountEndHint": "Countdown shu vaqtgacha",
+    "startsAt": "Chegirma boshlanishi",
+    "startsHint": "Bo'sh = darhol",
+    "endsAt": "Chegirma tugashi",
+    "endsHint": "Countdown shu vaqtga · bo'sh = muddatsiz",
     "note": "Chegirma % > 0 va oyna faol bo'lganda: narx arzonlashadi (ko'rsatiladigan VA olinadigan summa) + barcha foydalanuvchilarga push yuboriladi."
   },
-  "modal": {
-    "editTitle": "Paketni tahrirlash"
-  },
   "confirm": {
-    "delete": "Paket o'chirilsinmi?"
+    "deactivate": "Paket faolsizlantirilsinmi? (ilovada ko'rinmay qoladi)"
   },
   "toast": {
     "created": "Paket yaratildi",
-    "createFailed": "Yaratishda xatolik",
     "updated": "Paket yangilandi",
+    "deactivated": "Paket faolsizlantirildi",
+    "createFailed": "Yaratishda xatolik",
     "updateFailed": "Yangilashda xatolik",
-    "deleted": "Paket o'chirildi",
     "deleteFailed": "O'chirishda xatolik"
   }
 }

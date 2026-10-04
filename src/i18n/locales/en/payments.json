@@ -152,5 +152,30 @@
   "prompts": {
     "userId": "Enter user ID:",
     "amount": "Enter amount (in UZS):"
+  },
+  "availability": {
+    "title": "Mobile payments",
+    "loadError": "Could not load the payment state.",
+    "toggle": {
+      "enabledAction": "Enabled — switch off",
+      "disabledAction": "Disabled — switch on"
+    },
+    "master": {
+      "title": "All payments (master switch)",
+      "aria": "Enable mobile payments",
+      "description": "Controls coin, diamond and Premium purchases <strong>on all platforms</strong>. When switched off, purchase buttons are hidden and payment pages are closed.",
+      "note": "New orders are blocked; an open app re-checks the state every 30 seconds. Payments already in progress, receipt verification and free rewards keep working."
+    },
+    "ios": {
+      "title": "App Store shop (iOS only)",
+      "aria": "Enable the iOS App Store shop",
+      "description": "When switched off, <strong>the money shop is completely hidden on iOS</strong>. Payme/Click sales on Android keep running — so an App Store problem (StoreKit outage, product not configured) never stops Android.",
+      "note": "iOS never falls back to Payme/Click: App Store Review 3.1.1 only allows selling digital currency through Apple IAP.",
+      "masterOff": "The master switch is off — iOS is closed anyway."
+    },
+    "toast": {
+      "saved": "Payment setting saved",
+      "failed": "Could not save the setting"
+    }
   }
 }
