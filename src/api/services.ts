@@ -1,5 +1,5 @@
 import api from './client';
-import type { AuthState, DashboardStats, User, Question, Subject, Topic, CardType, Avatar, Region, Duel, Friendship, AuditLog, PaginatedResponse, ProductPackage, ProductPackageInput, Season, SeasonStats, BadgeType, UserBadge, LeaderboardEntry, League, Book, BookTopic, BookPage, GenerationJob, GeneratedQuestion, GenEstimate, AiStats, DraftsSummary, Article, AiTest, AiTestDetail, AiTestQuestion, AiTestStats, AiTestFilters } from '../types';
+import type { AuthState, DashboardStats, User, Question, Subject, Topic, CardType, Avatar, Region, Duel, Friendship, AuditLog, PaginatedResponse, ProductPackage, ProductPackageInput, Season, SeasonStats, BadgeType, UserBadge, LeaderboardEntry, League, Book, BookTopic, BookPage, GenerationJob, GeneratedQuestion, GenEstimate, AiStats, DraftsSummary, Article, Testimonial, AiTest, AiTestDetail, AiTestQuestion, AiTestStats, AiTestFilters } from '../types';
 
 // ── Auth ──────────────────────────────────────────────
 export const authApi = {
@@ -505,6 +505,19 @@ export const articlesApi = {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
   delete: (id: number) => api.delete(`/admin/articles/${id}`),
+};
+
+export const testimonialsApi = {
+  getAll: () => api.get<{ success: boolean; data: Testimonial[] }>('/admin/testimonials'),
+  create: (body: { author_name: string; title: string; body: string; sort_order?: number; is_published?: boolean }) =>
+    api.post<{ success: boolean; data: Testimonial }>('/admin/testimonials', body),
+  update: (id: number, body: Partial<Omit<Testimonial, 'id' | 'created_at' | 'updated_at'>>) =>
+    api.put<{ success: boolean; data: Testimonial }>(`/admin/testimonials/${id}`, body),
+  uploadAvatar: (id: number, formData: FormData) =>
+    api.post<{ success: boolean; data: Testimonial }>(`/admin/testimonials/${id}/avatar`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
+  delete: (id: number) => api.delete(`/admin/testimonials/${id}`),
 };
 
 // ── Regions ───────────────────────────────────────────
