@@ -87,17 +87,19 @@ jobs:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
           ADMIN_WEB_ROOT: ${{ secrets.ADMIN_WEB_ROOT }}
         run: |
           missing=""
-          for name in SERVER_HOST SERVER_USER SERVER_SSH_KEY ADMIN_WEB_ROOT; do
+          for name in SERVER_HOST SERVER_USER ADMIN_WEB_ROOT; do
             if [ -z "${!name}" ]; then missing="$missing $name"; fi
           done
+          if [ -z "$SERVER_SSH_KEY" ] && [ -z "$SERVER_PASSWORD" ]; then missing="$missing SERVER_SSH_KEY-or-SERVER_PASSWORD"; fi
           if [ -n "$missing" ]; then
             echo "::error title=Missing secrets::Not set (or empty):$missing. Add them in zakogit/zako-admin > Settings > Secrets and variables > Actions as Repository secrets, or as Environment secrets of an environment named exactly 'production' (not as Variables or Dependabot secrets)."
             exit 1
           fi
-          echo "All required secrets are present."
+          if [ -n "$SERVER_SSH_KEY" ]; then echo "Authentication: SSH key"; else echo "Authentication: password (SERVER_PASSWORD)"; fi
 
       - name: Configure SSH
         env:
@@ -107,13 +109,15 @@ jobs:
           KNOWN_HOSTS: ${{ secrets.SERVER_KNOWN_HOSTS }}
         run: |
           set -euo pipefail
-          if [ -z "$SSH_KEY" ] || [ -z "$SSH_HOST" ]; then
-            echo "::error::SERVER_SSH_KEY / SERVER_HOST secrets are not configured for this repository"
-            exit 1
-          fi
           install -m 700 -d ~/.ssh
-          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
+          if [ -n "$SSH_KEY" ]; then
+            printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+            chmod 600 ~/.ssh/deploy_key
+          else
+            # Password login (SERVER_PASSWORD): ssh cannot take a password non-interactively, sshpass feeds it.
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq sshpass
+          fi
           if [ -n "$KNOWN_HOSTS" ]; then
             printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts          # pinned host key (recommended)
           else
@@ -126,6 +130,7 @@ jobs:
           SSH_HOST: ${{ secrets.SERVER_HOST }}
           SSH_PORT: ${{ secrets.SERVER_PORT }}
           WEB_ROOT: ${{ secrets.ADMIN_WEB_ROOT }}
+          SSHPASS: ${{ secrets.SERVER_PASSWORD }} # read by `sshpass -e`; only used when no SSH key is configured
         run: |
           set -euo pipefail
           # WEB_ROOT is the directory nginx serves for admin.zakoapp.uz (its `root`). It gets `rsync --delete`d,
@@ -135,7 +140,11 @@ jobs:
             *) echo "::error::ADMIN_WEB_ROOT secret is empty or too short: '$WEB_ROOT'"; exit 1 ;;
           esac
 
-          SSH="ssh -i $HOME/.ssh/deploy_key -p ${SSH_PORT:-22} -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes"
+          if [ -f "$HOME/.ssh/deploy_key" ]; then
+            SSH="ssh -i $HOME/.ssh/deploy_key -p ${SSH_PORT:-22} -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes"
+          else
+            SSH="sshpass -e ssh -p ${SSH_PORT:-22} -o PubkeyAuthentication=no -o PreferredAuthentications=password,keyboard-interactive -o StrictHostKeyChecking=yes"
+          fi
           DEST="$SSH_USER@$SSH_HOST"
           RSYNC="rsync -rlt --chmod=D755,F644 -e"
 

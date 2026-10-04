@@ -23,7 +23,8 @@ approved by hand) and add these secrets to it (or to the repository):
 |---|---|
 | `SERVER_HOST` | the VPS host or IP (same server as the backend, `vps-39075eea`) |
 | `SERVER_USER` | `ubuntu` — must be able to **write** to `ADMIN_WEB_ROOT` |
-| `SERVER_SSH_KEY` | the **private** deploy key (see below) |
+| `SERVER_SSH_KEY` | the **private** deploy key (see below) — recommended. Needed unless `SERVER_PASSWORD` is set |
+| `SERVER_PASSWORD` | alternative to the key: the SSH password of `SERVER_USER` (fed through `sshpass`; the key is used instead when both are set). The server's sshd must allow password login (`PasswordAuthentication yes`); a key is safer, switch when convenient |
 | `SERVER_PORT` | optional, defaults to `22` |
 | `SERVER_KNOWN_HOSTS` | optional but recommended: output of `ssh-keyscan -H <host>`; without it the host key is trusted on first use in every run |
 | `ADMIN_WEB_ROOT` | the directory nginx serves for `admin.zakoapp.uz` (its `root`), e.g. `/home/ubuntu/apps/zako-admin/dist`. It is `rsync --delete`d, so it must be exactly that directory and not shallower than `/a/b/c`. |
