@@ -1,0 +1,20 @@
+{
+  "title": "Reklama boshqaruvi",
+  "subtitle": "AdMob integratsiyasi va reklama sozlamalari",
+  "mobileIntegration": "Mobil ilova integratsiyasi",
+  "tabs": {
+    "settings": "Sozlamalar"
+  },
+  "settings": {
+    "title": "Reklama sozlamalari",
+    "dailyLimit": "Kunlik limit",
+    "coinsPerAd": "Reklama uchun tangalar",
+    "adsEnabled": "Reklamalar faol",
+    "testMode": "Test rejimi",
+    "admobAppId": "AdMob App ID ({{platform}})",
+    "rewardedUnitId": "Rewarded Ad Unit ID ({{platform}})"
+  },
+  "errors": {
+    "loadSettings": "Sozlamalarni yuklashda xatolik"
+  }
+}

@@ -1,0 +1,157 @@
+{
+  "title": "Users",
+  "subtitle": "Manage and monitor all users",
+  "actions": {
+    "newUser": "New user",
+    "export": "Export",
+    "changePassword": "Change password",
+    "changeBalance": "Change balance",
+    "changeXp": "Change XP",
+    "ban": "Ban",
+    "unban": "Unban",
+    "verify": "Verify",
+    "unverify": "Revoke verification",
+    "change": "Change"
+  },
+  "stats": {
+    "weekly": "This week",
+    "monthly": "This month"
+  },
+  "list": {
+    "title": "User list ({{total}})"
+  },
+  "filters": {
+    "searchPlaceholder": "Search by username or phone...",
+    "advanced": "Advanced filters",
+    "verification": "Verification status",
+    "ban": "Ban status",
+    "premium": "Premium status",
+    "regular": "Regular",
+    "allRegions": "All regions",
+    "registeredFrom": "Registered from",
+    "registeredTo": "Registered to",
+    "online": "Online status",
+    "activeFilters": "Active filters:",
+    "chip": {
+      "verified": "Verified: {{value}}",
+      "banned": "Banned: {{value}}",
+      "premium": "Premium: {{value}}",
+      "region": "Region: {{name}}",
+      "from": "From: {{date}}",
+      "to": "To: {{date}}",
+      "online": "Online: {{value}}"
+    }
+  },
+  "table": {
+    "joined": "Joined"
+  },
+  "empty": {
+    "users": "No users found"
+  },
+  "details": {
+    "totalDuels": "Total duels",
+    "wonDuels": "Duels won",
+    "exams": "Exams",
+    "friends": "Friends",
+    "duelHistory": "Duel history",
+    "duelsTotal": "{{total}} total",
+    "noDuels": "No duels",
+    "duelTable": {
+      "opponent": "Opponent",
+      "score": "Score",
+      "result": "Result"
+    },
+    "bot": "bot",
+    "result": {
+      "won": "Won",
+      "lost": "Lost",
+      "draw": "Draw"
+    },
+    "duelStatus": {
+      "active": "In progress",
+      "pending": "Pending",
+      "cancelled": "Cancelled",
+      "expired": "Expired"
+    },
+    "devices": "Devices",
+    "devicesCount_one": "{{count}} device",
+    "devicesCount_other": "{{count}} devices",
+    "noDevices": "No devices registered for push notifications",
+    "tokenPreview": "token {{preview}}",
+    "lastUpdated": "last updated: {{date}}",
+    "recentTransactions": "Recent transactions"
+  },
+  "form": {
+    "firstName": "First name",
+    "lastName": "Last name",
+    "phoneNumber": "Phone number",
+    "password": "Password",
+    "newPassword": "New password",
+    "newPasswordPlaceholder_one": "At least {{count}} character",
+    "newPasswordPlaceholder_other": "At least {{count}} characters",
+    "birthday": "Birthday",
+    "selectRegion": "Select region",
+    "verifyImmediately": "Verify immediately"
+  },
+  "modal": {
+    "details": {
+      "title": "User details — {{username}}"
+    },
+    "balance": {
+      "title": "Change balance — {{username}}",
+      "amount": "Amount (negative number to subtract)",
+      "descriptionPlaceholder": "Changed by an admin..."
+    },
+    "ban": {
+      "title": "Ban user — {{username}}",
+      "reason": "Ban reason",
+      "reasonPlaceholder": "For violating the rules..."
+    },
+    "delete": {
+      "title": "Delete user",
+      "warning": "Warning!",
+      "confirm": "Are you sure you want to permanently delete user <b>{{username}}</b>? This action cannot be undone!"
+    },
+    "xp": {
+      "title": "Change XP — {{username}}",
+      "hint": "A positive number adds XP, a negative number subtracts it. The result never drops below 0. A positive change is also added to weekly/daily XP.",
+      "delta": "XP change (e.g. 100 or -50)",
+      "note": "Note (for audit)",
+      "notePlaceholder": "Why it was changed"
+    },
+    "create": {
+      "title": "Create new user"
+    },
+    "edit": {
+      "title": "Edit user — {{username}}"
+    },
+    "password": {
+      "title": "Change password — {{username}}",
+      "warning": "⚠️ The user will have to sign in again with the new password."
+    }
+  },
+  "validation": {
+    "usernameRequired": "Username is required",
+    "phoneRequired": "Phone number is required",
+    "passwordRequired": "Password is required",
+    "passwordMin_one": "Password must be at least {{count}} character",
+    "passwordMin_other": "Password must be at least {{count}} characters"
+  },
+  "toast": {
+    "balanceUpdated": "Balance updated",
+    "balanceError": "Failed to update balance",
+    "banned": "User banned",
+    "banError": "Failed to ban user",
+    "created": "User created",
+    "createError": "Failed to create user",
+    "updated": "User updated",
+    "updateError": "Failed to update user",
+    "passwordChanged": "Password changed",
+    "passwordError": "Failed to change password",
+    "xpError": "Failed to change XP",
+    "unbanned": "User unbanned",
+    "verified": "User verified",
+    "unverified": "User verification revoked",
+    "deleted": "User deleted"
+  }
+}

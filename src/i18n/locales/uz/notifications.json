@@ -1,0 +1,121 @@
+{
+  "title": "📢 Bildirishnomalarni boshqarish",
+  "subtitle": "Barcha foydalanuvchilar uchun bildirishnoma yuborish va boshqarish",
+  "totalCount_one": "({{count, number}} ta bildirishnoma)",
+  "totalCount_other": "({{count, number}} ta bildirishnoma)",
+  "empty": "Hech qanday bildirishnoma topilmadi",
+  "stats": {
+    "total": "Jami bildirishnomalar",
+    "today": "Bugungi",
+    "thisWeek": "Haftalik"
+  },
+  "status": {
+    "read": "O'qildi",
+    "unread": "O'qilmagan"
+  },
+  "actions": {
+    "sendMessage": "Xabar yuborish",
+    "templates": "Shablonlar"
+  },
+  "filters": {
+    "search": "Bildirishnoma qidiring (sarlavha yoki matn bo'yicha)..."
+  },
+  "types": {
+    "filter": {
+      "all": "🏷️ Barcha turlar",
+      "WELCOME": "🎉 Xush kelibsiz",
+      "BIRTHDAY_GIFT": "🎂 Tug'ilgan kun",
+      "ADMIN_MESSAGE": "👤 Admin xabari",
+      "BROADCAST": "📢 Broadcast",
+      "SYSTEM": "⚙️ Tizim"
+    },
+    "badge": {
+      "WELCOME": "🎉 Xush kelibsiz",
+      "BIRTHDAY_GIFT": "🎂 Tug'ilgan kun",
+      "ADMIN_MESSAGE": "👤 Admin",
+      "BROADCAST": "📢 Broadcast",
+      "SYSTEM": "⚙️ Tizim"
+    },
+    "form": {
+      "placeholder": "Turni tanlang",
+      "ADMIN_MESSAGE": "Admin xabari",
+      "BROADCAST": "Broadcast",
+      "SYSTEM": "Tizim",
+      "ANNOUNCEMENT": "E'lon",
+      "MAINTENANCE": "Texnik ishlar"
+    }
+  },
+  "target": {
+    "all": "Barcha foydalanuvchilar",
+    "verified": "Tasdiqlangan foydalanuvchilar",
+    "premium": "Premium foydalanuvchilar",
+    "specific": "Tanlangan foydalanuvchilar"
+  },
+  "table": {
+    "notification": "Bildirishnoma",
+    "target": "Maqsad",
+    "recipients": "Qabul qilinganlar",
+    "recipient": "Qabul qiluvchi: {{username}}",
+    "createdBy": "{{username}} tomonidan",
+    "users": "foydalanuvchi",
+    "deliveryReport": "Yetkazib berish hisoboti"
+  },
+  "delivery": {
+    "title": "📊 Yetkazib berish hisoboti - {{title}}",
+    "delivered": "Yetkazildi",
+    "readRate": "O'qilish foizi",
+    "recipientsList": "Qabul qiluvchilar ro'yxati",
+    "time": "Vaqt"
+  },
+  "deleteModal": {
+    "title": "🗑️ Bildirishnomani o'chirish",
+    "warningTitle": "Ogoh bo'ling!",
+    "warning": "Bu amalni qaytarib bo'lmaydi. Bildirishnoma butunlay o'chirib tashlanadi.",
+    "meta_one": "Yaratilgan: {{date}} | Yuborilgan: {{count, number}} ta foydalanuvchiga",
+    "meta_other": "Yaratilgan: {{date}} | Yuborilgan: {{count, number}} ta foydalanuvchiga"
+  },
+  "form": {
+    "titlePlaceholder": "Bildirishnoma sarlavhasi",
+    "messageLabel": "Xabar matni",
+    "messagePlaceholder": "Bildirishnoma xabari...",
+    "imageLabel": "Rasm (ixtiyoriy)",
+    "imageHint": "Push va inbox'da ko'rsatiladi",
+    "removeImage": "Olib tashlash",
+    "pickImage": "Rasm tanlash (JPG/PNG/WEBP, 5MB gacha)",
+    "sendTo": "Kimga yuborish",
+    "targetPlaceholder": "Qabul qiluvchilarni tanlang",
+    "targets": {
+      "all": "🌍 Barchaga",
+      "verified": "✅ Tasdiqlanganlarga",
+      "premium": "👑 Premium foydalanuvchilarga",
+      "specific": "🎯 Aniq foydalanuvchilarga"
+    },
+    "userIds": "Foydalanuvchi ID'lari (vergul bilan ajrating)",
+    "userIdsExample": "Masalan: 1, 2, 3, 4",
+    "templates": "Shablonlar:"
+  },
+  "templates": {
+    "title": "Bildirishnoma shablonlari",
+    "description": "Bu yerda mavjud shablonlarni ko'rishingiz va tahrirlashingiz mumkin:",
+    "empty": "Shablon topilmadi"
+  },
+  "toast": {
+    "sent_one": "✅ {{count, number}} ta foydalanuvchiga yuborildi",
+    "sent_other": "✅ {{count, number}} ta foydalanuvchiga yuborildi",
+    "pushOff": "(push o'chiq - faqat inbox)",
+    "sendError": "Xabar yuborishda xatolik",
+    "imageUploaded": "Rasm yuklandi",
+    "imageUploadError": "Rasm yuklashda xatolik",
+    "imageOnly": "Faqat rasm fayllari",
+    "imageTooLarge": "Rasm 5MB dan oshmasligi kerak",
+    "userIdsRequired": "Kamida bitta to'g'ri foydalanuvchi ID'sini kiriting",
+    "deleted": "Bildirishnoma o'chirildi",
+    "deleteError": "Bildirishnomani o'chirishda xatolik"
+  },
+  "validation": {
+    "title": "Sarlavha majburiy",
+    "type": "Turi majburiy",
+    "message": "Xabar majburiy",
+    "target": "Qabul qiluvchilarni tanlash majburiy"
+  }
+}

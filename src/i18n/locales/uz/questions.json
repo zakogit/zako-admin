@@ -1,0 +1,66 @@
+{
+  "title": "Savollar",
+  "filters": {
+    "allSubjects": "Barcha fanlar",
+    "allTopics": "Barcha mavzular",
+    "searchPlaceholder": "Savollarni qidirish..."
+  },
+  "actions": {
+    "add": "Savol qo'shish"
+  },
+  "empty": {
+    "list": "Savollar topilmadi"
+  },
+  "stats": {
+    "total": "Jami savollar",
+    "easy": "Oson savollar",
+    "medium": "O'rta savollar",
+    "hard": "Qiyin savollar"
+  },
+  "table": {
+    "question": "Savol"
+  },
+  "difficulty": {
+    "easy": "Oson",
+    "medium": "O'rta",
+    "hard": "Qiyin"
+  },
+  "modal": {
+    "create": "Savol yaratish",
+    "edit": "Savolni tahrirlash",
+    "delete": "Savolni o'chirish"
+  },
+  "form": {
+    "questionText": "Savol matni",
+    "selectSubject": "Fanni tanlang",
+    "selectTopic": "Mavzuni tanlang",
+    "selectDifficulty": "Qiyinlik darajasini tanlang",
+    "answerOptions": "Javob variantlari",
+    "optionPlaceholder": "{{number}}-variant",
+    "removeOption": "Olib tashlash",
+    "addOption": "Variant qo'shish",
+    "correctAnswer": "To'g'ri javob",
+    "correctAnswerPlaceholder": "To'g'ri javobni kiriting",
+    "explanation": "Izoh (ixtiyoriy)",
+    "explanationPlaceholder": "Javob uchun ixtiyoriy izoh"
+  },
+  "validation": {
+    "questionText": "Savol matni majburiy",
+    "subject": "Fanni tanlash majburiy",
+    "topic": "Mavzuni tanlash majburiy",
+    "difficulty": "Qiyinlik darajasini tanlash majburiy",
+    "option": "Variant matni majburiy",
+    "correctAnswer": "To'g'ri javob majburiy"
+  },
+  "confirm": {
+    "delete": "Ushbu savolni o'chirishga ishonchingiz komilmi? Bu amalni bekor qilib bo'lmaydi."
+  },
+  "toast": {
+    "created": "Savol muvaffaqiyatli yaratildi",
+    "createFailed": "Savolni yaratib bo'lmadi",
+    "updated": "Savol muvaffaqiyatli yangilandi",
+    "updateFailed": "Savolni yangilab bo'lmadi",
+    "deleted": "Savol muvaffaqiyatli o'chirildi",
+    "deleteFailed": "Savolni o'chirib bo'lmadi"
+  }
+}

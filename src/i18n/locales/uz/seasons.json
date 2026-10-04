@@ -1,0 +1,142 @@
+{
+  "status": {
+    "upcoming": "Rejalashtirilgan"
+  },
+  "daysLeft_one": "{{count}} kun qoldi",
+  "daysLeft_other": "{{count}} kun qoldi",
+  "rank": {
+    "single": "{{rank}}-o'rin",
+    "range": "{{from}}–{{to}}-o'rin",
+    "hash": "#{{rank}}-o'rin"
+  },
+  "form": {
+    "name": "Mavsum nomi *"
+  },
+  "actions": {
+    "newSeason": "Yangi mavsum",
+    "rename": "Nomini o'zgartirish",
+    "pause": "To'xtatish",
+    "complete": "Yakunlash",
+    "distributeBadges": "Nishonlarni taqsimlash",
+    "cancelSeason": "Bekor qilish"
+  },
+  "tabs": {
+    "seasons": "Mavsumlar",
+    "badges": "Nishonlar",
+    "overview": "Umumiy ma'lumot",
+    "leaderboard": "Reyting"
+  },
+  "badges": {
+    "title": "Nishon turlari",
+    "subtitle": "Mavsum yakunida reyting bo'yicha tarqatiladigan nishonlar (top 100). Rasmlar mobil ilovada ko'rinadi.",
+    "empty": "Nishon turlari topilmadi",
+    "distributed": "Nishonlar taqsimlangan"
+  },
+  "list": {
+    "title": "Mavsumlarni boshqarish",
+    "subtitle": "Mavsumlar va nishonlar tizimini boshqaring",
+    "allStatuses": "Barcha holatlar",
+    "allSeasons": "Barcha mavsumlar",
+    "pipeline": {
+      "current": "Hozirgi mavsum",
+      "next": "Keyingi mavsum",
+      "noActive": "Faol mavsum yo'q",
+      "noUpcoming": "Navbatda mavsum yo'q",
+      "nextHint": "Hozirgi mavsum tugagach avtomatik faollashadi",
+      "expiredSoon": "Muddati tugadi — tez orada yakunlanadi"
+    },
+    "stats": {
+      "total": "Jami mavsumlar"
+    },
+    "table": {
+      "season": "Mavsum",
+      "participants": "Ishtirokchilar",
+      "detailsHint": "Barcha amallar shu yerda"
+    },
+    "empty": {
+      "title": "Mavsumlar topilmadi",
+      "hint": "Yangi mavsum yarating"
+    }
+  },
+  "details": {
+    "stats": {
+      "total": "Jami qatnashuvchilar",
+      "active": "Faol qatnashuvchilar",
+      "duration": "Davomiylik",
+      "completion": "To'liqlik darajasi"
+    },
+    "overview": {
+      "infoTitle": "Mavsum ma'lumotlari",
+      "start": "Boshlanish",
+      "end": "Tugash",
+      "extraTitle": "Qo'shimcha",
+      "duration": "Mavsum davomiyligi",
+      "lastUpdate": "Oxirgi yangilanish"
+    },
+    "leaderboard": {
+      "title": "Reyting jadvali",
+      "empty": "Hali reyting ma'lumotlari yo'q (duellar o'ynalgach to'ladi)",
+      "rank": "O'rin",
+      "points": "Ochkolar"
+    },
+    "badges": {
+      "title": "Taqsimlangan nishonlar",
+      "notDistributed": "Nishonlar hali taqsimlanmagan. Mavsum tugagach quyidagilar TOP o'yinchilarga avtomatik beriladi (yoki qo'lda yakunlang)."
+    }
+  },
+  "edit": {
+    "title": "Mavsumni tahrirlash",
+    "nameRequired": "Nom bo'sh bo'lmasligi kerak",
+    "namePlaceholder": "Masalan: Qish mavsumi",
+    "description": "Tavsif (ixtiyoriy)",
+    "descriptionPlaceholder": "Mavsum haqida qisqacha..."
+  },
+  "create": {
+    "title": "Yangi mavsum yaratish",
+    "subtitle": "Mavsum ma'lumotlarini kiriting. Mavsumlar avtomatik 14 kun davom etadi.",
+    "basicInfo": "Asosiy ma'lumotlar",
+    "namePlaceholder": "Masalan: Qish mavsumi 2024",
+    "descriptionPlaceholder": "Mavsum haqida qisqacha ma'lumot...",
+    "maxParticipants": "Maksimal qatnashuvchilar",
+    "maxParticipantsPlaceholder": "Cheksiz uchun bo'sh qoldiring",
+    "bannerUrl": "Banner rasm URL",
+    "submit": "Mavsum yaratish",
+    "info": {
+      "title": "Ma'lumot",
+      "duration": "Har bir mavsum 14 kun davom etadi",
+      "sequential": "Mavsumlar avtomatik ravishda ketma-ket boshlanadi",
+      "badges": "Mavsum yakunida TOP o'yinchilarga nishonlar (badge) taqsimlanadi"
+    },
+    "validation": {
+      "name": "Mavsum nomi kiritilmagan",
+      "startRequired": "Boshlanish sanasi kiritilmagan",
+      "endRequired": "Tugash sanasi kiritilmagan",
+      "startBeforeEnd": "Boshlanish sanasi tugash sanasidan oldin bo'lishi kerak",
+      "startInFuture": "Boshlanish sanasi kelajakda bo'lishi kerak"
+    }
+  },
+  "confirm": {
+    "complete": "\"{{title}}\" mavsumini yakunlash va nishonlarni taqsimlashni xohlaysizmi? Bu amal qaytarilmaydi.",
+    "cancel": "Mavsumni bekor qilishni xohlaysizmi?",
+    "delete": "Mavsumni o'chirishni xohlaysizmi? Bu amal qaytarilmaydi."
+  },
+  "prompts": {
+    "completeNote": "Yakunlash uchun qo'shimcha izoh (ixtiyoriy):"
+  },
+  "toast": {
+    "created": "Mavsum muvaffaqiyatli yaratildi",
+    "createError": "Mavsum yaratishda xatolik yuz berdi",
+    "updated": "Mavsum yangilandi",
+    "updateError": "Yangilashda xatolik yuz berdi",
+    "statusChanged": "Mavsum holati o'zgartirildi",
+    "statusError": "Holatni o'zgartirishda xatolik",
+    "deleted": "Mavsum o'chirildi",
+    "deleteError": "O'chirishda xatolik",
+    "completed": "Mavsum muvaffaqiyatli yakunlandi va nishonlar taqsimlandi!",
+    "completeError": "Mavsumni yakunlashda xatolik yuz berdi"
+  },
+  "errors": {
+    "loadFailed": "Ma'lumotlar yuklanmadi",
+    "backToList": "Mavsumlar ro'yxatiga qaytish"
+  }
+}

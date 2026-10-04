@@ -1,0 +1,93 @@
+{
+  "title": "Duels",
+  "duelSingular": "Duel",
+  "duelNumber": "Duel #{{id}}",
+  "empty": "No duels found",
+  "player": {
+    "bot": "Bot",
+    "player1": "Player 1",
+    "player2": "Player 2"
+  },
+  "status": {
+    "waiting": "Waiting",
+    "finished": "Finished"
+  },
+  "actions": {
+    "replay": "Replay"
+  },
+  "units": {
+    "sec": "{{value}} s",
+    "secCompact": "{{value}}s"
+  },
+  "settings": {
+    "title": "Duel settings",
+    "summary": "Time: {{times}} s · default {{standard}} s · {{questions}} · XP +{{win}} / {{lose}} / {{draw}}",
+    "questionsCount_one": "{{count}} question",
+    "questionsCount_other": "{{count}} questions",
+    "timeOptions": "Time options (seconds)",
+    "timeOptionsHint": "Comma-separated, between 10 and 3600 s. The mobile app shows them as choices.",
+    "defaultTime": "Default time",
+    "questionCount": "Questions per duel",
+    "xpNote": "XP rules for win / loss / draw are configured on the <b>Leagues</b> page.",
+    "saveError": "Failed to save"
+  },
+  "filters": {
+    "allStatuses": "All statuses",
+    "allSubjects": "All subjects",
+    "sortNewest": "Newest → oldest",
+    "sortOldest": "Oldest → newest",
+    "searchPlaceholder": "Search duels..."
+  },
+  "table": {
+    "players": "Players",
+    "score": "Score",
+    "xpChange": "XP change",
+    "duration": "Duration",
+    "vsBot": "vs Bot",
+    "vsPlayer": "vs {{name}}",
+    "winner": "Winner: {{name}}",
+    "draw": "Draw"
+  },
+  "replay": {
+    "title": "Duel #{{id}} — replay",
+    "aiTestDuel": "AI test duel",
+    "suspiciousCount_one": "{{count}} suspicious flag",
+    "suspiciousCount_other": "{{count}} suspicious flags",
+    "resultDraw": "Result: Draw",
+    "resultWinner": "Result: winner <b>{{name}}</b>",
+    "resultNoWinner": "Result: no winner determined",
+    "byQuestion": "By question ({{total}})",
+    "aiQuestionsSeparate": "The questions of an AI test duel are stored separately",
+    "noAnswers": "No answers were recorded for this duel",
+    "footnote": "Time is in seconds since the duel was created. Suspicious flags: 100% correct + answers faster than 2 s, gaps between answers under 0.5 s, 30-day PvP win rate of 90%+.",
+    "questionHeader": "Question",
+    "questionFallback": "Question #{{id}}",
+    "questionMeta": "{{difficulty}} · correct: {{answer}}",
+    "noAnswer": "no answer",
+    "timeUp": "Time's up",
+    "correct": "Correct",
+    "accuracy": "Accuracy",
+    "avgGap": "Avg. gap",
+    "severity": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "difficulty": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard"
+    }
+  },
+  "delete": {
+    "title": "Delete duel",
+    "confirm": "Are you sure you want to delete this duel?",
+    "matchup": "{{p1}} vs {{p2}}",
+    "matchupBot": "{{p1}} vs Bot",
+    "matchupWaiting": "{{p1}} — waiting for an opponent"
+  },
+  "toast": {
+    "deleted": "Duel deleted successfully",
+    "deleteFailed": "Failed to delete duel"
+  }
+}

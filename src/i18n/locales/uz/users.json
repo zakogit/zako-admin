@@ -1,0 +1,157 @@
+{
+  "title": "Foydalanuvchilar",
+  "subtitle": "Barcha foydalanuvchilarni boshqarish va kuzatish",
+  "actions": {
+    "newUser": "Yangi foydalanuvchi",
+    "export": "Eksport",
+    "changePassword": "Parol o'zgartirish",
+    "changeBalance": "Balansni o'zgartirish",
+    "changeXp": "XP o'zgartirish",
+    "ban": "Bloklash",
+    "unban": "Blokdan chiqarish",
+    "verify": "Tasdiqlash",
+    "unverify": "Tasdiqni bekor qilish",
+    "change": "O'zgartirish"
+  },
+  "stats": {
+    "weekly": "Haftalik",
+    "monthly": "Oylik"
+  },
+  "list": {
+    "title": "Foydalanuvchilar ro'yxati ({{total}})"
+  },
+  "filters": {
+    "searchPlaceholder": "Foydalanuvchi nomi yoki telefon bo'yicha qidiring...",
+    "advanced": "Qo'shimcha filtrlar",
+    "verification": "Tasdiq holati",
+    "ban": "Blok holati",
+    "premium": "Premium holat",
+    "regular": "Oddiy",
+    "allRegions": "Barcha hududlar",
+    "registeredFrom": "Ro'yxatdan dan",
+    "registeredTo": "Ro'yxatdan gacha",
+    "online": "Onlayn holat",
+    "activeFilters": "Faol filtrlar:",
+    "chip": {
+      "verified": "Tasdiq: {{value}}",
+      "banned": "Blok: {{value}}",
+      "premium": "Premium: {{value}}",
+      "region": "Hudud: {{name}}",
+      "from": "Dan: {{date}}",
+      "to": "Gacha: {{date}}",
+      "online": "Onlayn: {{value}}"
+    }
+  },
+  "table": {
+    "joined": "Qo'shilgan"
+  },
+  "empty": {
+    "users": "Foydalanuvchilar topilmadi"
+  },
+  "details": {
+    "totalDuels": "Jami duellar",
+    "wonDuels": "Yutgan duellar",
+    "exams": "Imtihonlar",
+    "friends": "Do'stlar",
+    "duelHistory": "Duel tarixi",
+    "duelsTotal": "jami {{total}}",
+    "noDuels": "Duellar yo'q",
+    "duelTable": {
+      "opponent": "Raqib",
+      "score": "Ball",
+      "result": "Natija"
+    },
+    "bot": "bot",
+    "result": {
+      "won": "Yutdi",
+      "lost": "Yutqazdi",
+      "draw": "Durang"
+    },
+    "duelStatus": {
+      "active": "Davom etmoqda",
+      "pending": "Kutilmoqda",
+      "cancelled": "Bekor qilingan",
+      "expired": "Muddati tugagan"
+    },
+    "devices": "Qurilmalar",
+    "devicesCount_one": "{{count}} ta",
+    "devicesCount_other": "{{count}} ta",
+    "noDevices": "Push uchun ro'yxatdan o'tgan qurilma yo'q",
+    "tokenPreview": "token {{preview}}",
+    "lastUpdated": "so'nggi: {{date}}",
+    "recentTransactions": "So'nggi tranzaksiyalar"
+  },
+  "form": {
+    "firstName": "Ism",
+    "lastName": "Familiya",
+    "phoneNumber": "Telefon raqam",
+    "password": "Parol",
+    "newPassword": "Yangi parol",
+    "newPasswordPlaceholder_one": "Kamida {{count}} ta belgi",
+    "newPasswordPlaceholder_other": "Kamida {{count}} ta belgi",
+    "birthday": "Tug'ilgan kun",
+    "selectRegion": "Hududni tanlang",
+    "verifyImmediately": "Darhol tasdiqlash"
+  },
+  "modal": {
+    "details": {
+      "title": "Foydalanuvchi ma'lumotlari — {{username}}"
+    },
+    "balance": {
+      "title": "Balansni o'zgartirish — {{username}}",
+      "amount": "Miqdor (manfiy son ayirish uchun)",
+      "descriptionPlaceholder": "Admin tomonidan o'zgartirildi..."
+    },
+    "ban": {
+      "title": "Foydalanuvchini bloklash — {{username}}",
+      "reason": "Bloklash sababi",
+      "reasonPlaceholder": "Qoidalarni buzgani uchun..."
+    },
+    "delete": {
+      "title": "Foydalanuvchini o'chirish",
+      "warning": "Ogoh bo'ling!",
+      "confirm": "<b>{{username}}</b> foydalanuvchisini butunlay o'chirmoqchimisiz? Bu amal qaytarib bo'lmaydi!"
+    },
+    "xp": {
+      "title": "XP o'zgartirish — {{username}}",
+      "hint": "Musbat son XP qo'shadi, manfiy son ayiradi. Natija 0 dan pastga tushmaydi. Musbat o'zgarish haftalik/kunlik XP hisobiga ham qo'shiladi.",
+      "delta": "XP o'zgarishi (masalan 100 yoki -50)",
+      "note": "Izoh (audit uchun)",
+      "notePlaceholder": "Nega o'zgartirildi"
+    },
+    "create": {
+      "title": "Yangi foydalanuvchi yaratish"
+    },
+    "edit": {
+      "title": "Foydalanuvchini tahrirlash — {{username}}"
+    },
+    "password": {
+      "title": "Parol o'zgartirish — {{username}}",
+      "warning": "⚠️ Foydalanuvchi yangi parol bilan tizimga kirishga majbur bo'ladi."
+    }
+  },
+  "validation": {
+    "usernameRequired": "Foydalanuvchi nomi majburiy",
+    "phoneRequired": "Telefon raqam majburiy",
+    "passwordRequired": "Parol majburiy",
+    "passwordMin_one": "Parol kamida {{count}} ta belgidan iborat bo'lishi kerak",
+    "passwordMin_other": "Parol kamida {{count}} ta belgidan iborat bo'lishi kerak"
+  },
+  "toast": {
+    "balanceUpdated": "Balans yangilandi",
+    "balanceError": "Balans yangilashda xatolik",
+    "banned": "Foydalanuvchi bloklandi",
+    "banError": "Bloklashda xatolik",
+    "created": "Foydalanuvchi yaratildi",
+    "createError": "Foydalanuvchi yaratishda xatolik",
+    "updated": "Foydalanuvchi yangilandi",
+    "updateError": "Yangilashda xatolik",
+    "passwordChanged": "Parol o'zgartirildi",
+    "passwordError": "Parol o'zgartirishda xatolik",
+    "xpError": "XP o'zgartirishda xatolik",
+    "unbanned": "Foydalanuvchi blokdan chiqarildi",
+    "verified": "Foydalanuvchi tasdiqlandi",
+    "unverified": "Foydalanuvchi tasdig'i bekor qilindi",
+    "deleted": "Foydalanuvchi o'chirildi"
+  }
+}

@@ -1,18 +1,19 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import i18n, { getIntlLocale } from '../i18n';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 export function formatDate(date: string | Date) {
-  return new Date(date).toLocaleDateString('en-GB', {
+  return new Date(date).toLocaleDateString(getIntlLocale(), {
     day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
   });
 }
 
 export function formatNumber(n: number) {
-  return new Intl.NumberFormat().format(n);
+  return new Intl.NumberFormat(getIntlLocale()).format(n);
 }
 
 export function difficultyColor(d: string) {
@@ -31,12 +32,15 @@ export function formatDuration(startDate: Date, endDate: Date): string {
   const diffInHours = Math.floor(diffInMinutes / 60);
   const diffInDays = Math.floor(diffInHours / 24);
 
+  const d = i18n.t('common:units.dayShort');
+  const h = i18n.t('common:units.hourShort');
+  const m = i18n.t('common:units.minuteShort');
   if (diffInDays > 0) {
-    return `${diffInDays}d ${diffInHours % 24}h`;
+    return `${diffInDays}${d} ${diffInHours % 24}${h}`;
   } else if (diffInHours > 0) {
-    return `${diffInHours}h ${diffInMinutes % 60}m`;
+    return `${diffInHours}${h} ${diffInMinutes % 60}${m}`;
   } else {
-    return `${diffInMinutes}m`;
+    return `${diffInMinutes}${m}`;
   }
 }
 

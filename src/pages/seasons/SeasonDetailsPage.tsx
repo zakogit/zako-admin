@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Users, UserCheck, Clock, BarChart3, Trophy, Pencil, Play, Pause, XCircle, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { seasonsApi } from '../../api/services';
 import { Card, Spinner, EmptyState, Badge, Button, Modal, Input } from '../../components/ui';
+import { getIntlLocale } from '../../i18n';
 import type { Season, SeasonStats, UserBadge, LeaderboardEntry, BadgeType } from '../../types';
 
 const SeasonDetailsPage: React.FC = () => {
+  const { t } = useTranslation('seasons');
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const seasonId = Number(id);
@@ -17,7 +20,8 @@ const SeasonDetailsPage: React.FC = () => {
   const [badgeTypes, setBadgeTypes] = useState<BadgeType[]>([]);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Matn emas, holat: xabar render vaqtida tarjima qilinadi (til almashganda yangilanishi uchun)
+  const [loadFailed, setLoadFailed] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'leaderboard' | 'badges'>('overview');
   const [completing, setCompleting] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
@@ -37,7 +41,7 @@ const SeasonDetailsPage: React.FC = () => {
       setStats(detailsResponse.data.data.stats);
       setIsCompleted(completionResponse.data.data.badges_distributed);
     } catch (err) {
-      setError('Ma\'lumotlar yuklanmadi');
+      setLoadFailed(true);
       console.error('Error fetching season data:', err);
     } finally {
       setLoading(false);
@@ -85,17 +89,17 @@ const SeasonDetailsPage: React.FC = () => {
 
   const handleCompleteSeason = async () => {
     if (!season) return;
-    if (!confirm(`"${season.title}" mavsumini yakunlash va badgelarni taqsimlashni xohlaysizmi? Bu amal qaytarilmaydi.`)) return;
+    if (!confirm(t('confirm.complete', { title: season.title }))) return;
     try {
       setCompleting(true);
-      const notes = prompt('Yakunlash uchun qo\'shimcha izoh (ixtiyoriy):');
+      const notes = prompt(t('prompts.completeNote'));
       await seasonsApi.complete(seasonId, notes || undefined);
       setIsCompleted(true);
       await fetchSeasonData();
-      alert('Mavsum muvaffaqiyatli yakunlandi va badgelar taqsimlandi!');
+      alert(t('toast.completed'));
     } catch (err) {
       console.error('Error completing season:', err);
-      alert('Mavsumni yakunlashda xatolik yuz berdi');
+      alert(t('toast.completeError'));
     } finally {
       setCompleting(false);
     }
@@ -110,7 +114,7 @@ const SeasonDetailsPage: React.FC = () => {
 
   const saveEdit = async () => {
     if (!editTitle.trim()) {
-      toast.error('Nom bo\'sh bo\'lmasligi kerak');
+      toast.error(t('edit.nameRequired'));
       return;
     }
     try {
@@ -121,9 +125,9 @@ const SeasonDetailsPage: React.FC = () => {
       });
       setEditOpen(false);
       await fetchSeasonData();
-      toast.success('Mavsum yangilandi');
+      toast.success(t('toast.updated'));
     } catch {
-      toast.error('Yangilashda xatolik yuz berdi');
+      toast.error(t('toast.updateError'));
     } finally {
       setSavingEdit(false);
     }
@@ -132,40 +136,41 @@ const SeasonDetailsPage: React.FC = () => {
   const [statusBusy, setStatusBusy] = useState(false);
 
   const changeStatus = async (status: 'active' | 'upcoming' | 'cancelled') => {
-    if (status === 'cancelled' && !confirm('Mavsumni bekor qilishni xohlaysizmi?')) return;
+    if (status === 'cancelled' && !confirm(t('confirm.cancel'))) return;
     try {
       setStatusBusy(true);
       await seasonsApi.updateStatus(seasonId, status);
       await fetchSeasonData();
-      toast.success('Mavsum holati o\'zgartirildi');
+      toast.success(t('toast.statusChanged'));
     } catch (e: any) {
-      toast.error(e?.response?.data?.message || 'Holatni o\'zgartirishda xatolik');
+      toast.error(e?.response?.data?.message || t('toast.statusError'));
     } finally {
       setStatusBusy(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm('Mavsumni o\'chirishni xohlaysizmi? Bu amal qaytarilmaydi.')) return;
+    if (!confirm(t('confirm.delete'))) return;
     try {
       setStatusBusy(true);
       await seasonsApi.delete(seasonId);
-      toast.success('Mavsum o\'chirildi');
+      toast.success(t('toast.deleted'));
       navigate('/seasons');
     } catch (e: any) {
-      toast.error(e?.response?.data?.message || 'O\'chirishda xatolik');
+      toast.error(e?.response?.data?.message || t('toast.deleteError'));
       setStatusBusy(false);
     }
   };
 
+  const statusMap = {
+    upcoming: { color: 'blue' as const, label: t('status.upcoming') },
+    active: { color: 'green' as const, label: t('common:status.active') },
+    completed: { color: 'gray' as const, label: t('common:status.completed') },
+    cancelled: { color: 'red' as const, label: t('common:status.cancelled') },
+  };
+
   const statusBadge = (status: Season['status']) => {
-    const map = {
-      upcoming: { color: 'blue' as const, label: 'Rejalashtirilgan' },
-      active: { color: 'green' as const, label: 'Faol' },
-      completed: { color: 'gray' as const, label: 'Yakunlangan' },
-      cancelled: { color: 'red' as const, label: 'Bekor qilingan' },
-    };
-    return <Badge color={map[status].color}>{map[status].label}</Badge>;
+    return <Badge color={statusMap[status].color}>{statusMap[status].label}</Badge>;
   };
 
   const getBadgeIcon = (badgeName: string) => {
@@ -185,23 +190,23 @@ const SeasonDetailsPage: React.FC = () => {
     );
   }
 
-  if (error || !season) {
+  if (loadFailed || !season) {
     return (
       <div className="text-center py-12">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Xatolik yuz berdi</h3>
-        <p className="text-gray-500 dark:text-gray-400 mb-4">{error}</p>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{t('common:state.error')}</h3>
+        <p className="text-gray-500 dark:text-gray-400 mb-4">{loadFailed ? t('errors.loadFailed') : null}</p>
         <Link to="/seasons" className="text-primary-600 hover:text-primary-700 font-medium">
-          Mavsumlar ro'yxatiga qaytish
+          {t('errors.backToList')}
         </Link>
       </div>
     );
   }
 
   const statCards = [
-    { label: 'Jami qatnashuvchilar', value: stats?.total_participants ?? 0, icon: <Users className="w-6 h-6" />, color: 'bg-blue-500' },
-    { label: 'Faol qatnashuvchilar', value: stats?.active_participants ?? 0, icon: <UserCheck className="w-6 h-6" />, color: 'bg-green-500' },
-    { label: 'Davomiylik', value: `${durationDays} kun`, icon: <Clock className="w-6 h-6" />, color: 'bg-amber-500' },
-    { label: "To'liqlik darajasi", value: `${(stats?.completion_rate ?? 0).toFixed(1)}%`, icon: <BarChart3 className="w-6 h-6" />, color: 'bg-purple-500' },
+    { label: t('details.stats.total'), value: stats?.total_participants ?? 0, icon: <Users className="w-6 h-6" />, color: 'bg-blue-500' },
+    { label: t('details.stats.active'), value: stats?.active_participants ?? 0, icon: <UserCheck className="w-6 h-6" />, color: 'bg-green-500' },
+    { label: t('details.stats.duration'), value: t('common:units.days', { count: durationDays }), icon: <Clock className="w-6 h-6" />, color: 'bg-amber-500' },
+    { label: t('details.stats.completion'), value: `${(stats?.completion_rate ?? 0).toFixed(1)}%`, icon: <BarChart3 className="w-6 h-6" />, color: 'bg-purple-500' },
   ];
 
   return (
@@ -211,7 +216,7 @@ const SeasonDetailsPage: React.FC = () => {
         <Link
           to="/seasons"
           className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          title="Orqaga"
+          title={t('common:actions.back')}
         >
           <ArrowLeft className="w-5 h-5" />
         </Link>
@@ -219,55 +224,55 @@ const SeasonDetailsPage: React.FC = () => {
           <div className="flex items-center gap-3 flex-wrap mb-1">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{season.title}</h1>
             {statusBadge(season.status)}
-            {isCompleted && <Badge color="purple">Badgelar taqsimlangan</Badge>}
+            {isCompleted && <Badge color="purple">{t('badges.distributed')}</Badge>}
           </div>
           {season.description && <p className="text-gray-600 dark:text-gray-400">{season.description}</p>}
         </div>
         <div className="flex gap-2 flex-wrap justify-end">
           <Button variant="outline" onClick={openEdit} disabled={statusBusy}>
             <Pencil className="w-4 h-4" />
-            Nomini o'zgartirish
+            {t('actions.rename')}
           </Button>
 
           {season.status === 'upcoming' && (
             <Button variant="primary" onClick={() => changeStatus('active')} loading={statusBusy}>
               <Play className="w-4 h-4" />
-              Faollashtirish
+              {t('common:actions.activate')}
             </Button>
           )}
 
           {season.status === 'active' && (
             <Button variant="secondary" onClick={() => changeStatus('upcoming')} loading={statusBusy}>
               <Pause className="w-4 h-4" />
-              To'xtatish
+              {t('actions.pause')}
             </Button>
           )}
 
           {season.status === 'active' && (
             <Button variant="primary" onClick={handleCompleteSeason} loading={completing}>
               <Trophy className="w-4 h-4" />
-              Yakunlash
+              {t('actions.complete')}
             </Button>
           )}
 
           {season.status === 'completed' && !isCompleted && (
             <Button variant="primary" onClick={handleCompleteSeason} loading={completing}>
               <Trophy className="w-4 h-4" />
-              Badgelarni taqsimlash
+              {t('actions.distributeBadges')}
             </Button>
           )}
 
           {(season.status === 'upcoming' || season.status === 'active') && (
             <Button variant="outline" onClick={() => changeStatus('cancelled')} loading={statusBusy}>
               <XCircle className="w-4 h-4" />
-              Bekor qilish
+              {t('actions.cancelSeason')}
             </Button>
           )}
 
           {season.status !== 'active' && (
             <Button variant="danger" onClick={handleDelete} loading={statusBusy}>
               <Trash2 className="w-4 h-4" />
-              O'chirish
+              {t('common:actions.delete')}
             </Button>
           )}
         </div>
@@ -295,9 +300,9 @@ const SeasonDetailsPage: React.FC = () => {
         <div className="border-b border-gray-200 dark:border-gray-800">
           <nav className="flex gap-6 px-6">
             {[
-              { key: 'overview', label: "Umumiy ma'lumot", icon: '📊' },
-              { key: 'leaderboard', label: 'Reyting', icon: '🏆' },
-              { key: 'badges', label: 'Badgelar', icon: '🏅' },
+              { key: 'overview', label: t('tabs.overview'), icon: '📊' },
+              { key: 'leaderboard', label: t('tabs.leaderboard'), icon: '🏆' },
+              { key: 'badges', label: t('tabs.badges'), icon: '🏅' },
             ].map((tab) => (
               <button
                 key={tab.key}
@@ -322,12 +327,12 @@ const SeasonDetailsPage: React.FC = () => {
           {activeTab === 'overview' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Mavsum ma'lumotlari</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('details.overview.infoTitle')}</h3>
                 <div className="space-y-3 text-sm">
                   {[
-                    ['Boshlanish', new Date(season.start_date).toLocaleString('uz-UZ')],
-                    ['Tugash', new Date(season.end_date).toLocaleString('uz-UZ')],
-                    ['Yaratilgan', new Date(season.created_at).toLocaleString('uz-UZ')],
+                    [t('details.overview.start'), new Date(season.start_date).toLocaleString(getIntlLocale())],
+                    [t('details.overview.end'), new Date(season.end_date).toLocaleString(getIntlLocale())],
+                    [t('common:table.created'), new Date(season.created_at).toLocaleString(getIntlLocale())],
                   ].map(([k, v]) => (
                     <div key={k} className="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-2">
                       <span className="text-gray-500 dark:text-gray-400">{k}:</span>
@@ -337,12 +342,12 @@ const SeasonDetailsPage: React.FC = () => {
                 </div>
               </div>
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Qo'shimcha</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('details.overview.extraTitle')}</h3>
                 <div className="space-y-3 text-sm">
                   {[
-                    ['Mavsum davomiyligi', `${durationDays} kun`],
-                    ['Holati', season.status === 'active' ? 'Faol' : season.status === 'completed' ? 'Yakunlangan' : season.status === 'upcoming' ? 'Rejalashtirilgan' : 'Bekor qilingan'],
-                    ['Oxirgi yangilanish', new Date(season.updated_at).toLocaleString('uz-UZ')],
+                    [t('details.overview.duration'), t('common:units.days', { count: durationDays })],
+                    [t('common:table.status'), statusMap[season.status].label],
+                    [t('details.overview.lastUpdate'), new Date(season.updated_at).toLocaleString(getIntlLocale())],
                   ].map(([k, v]) => (
                     <div key={k} className="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-2">
                       <span className="text-gray-500 dark:text-gray-400">{k}:</span>
@@ -357,15 +362,15 @@ const SeasonDetailsPage: React.FC = () => {
           {/* Leaderboard */}
           {activeTab === 'leaderboard' && (
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Reyting jadvali</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('details.leaderboard.title')}</h3>
               {leaderboard.length === 0 ? (
-                <EmptyState message="Hali reyting ma'lumotlari yo'q (duellar o'ynalgach to'ladi)" />
+                <EmptyState message={t('details.leaderboard.empty')} />
               ) : (
                 <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
                   <table className="w-full text-sm">
                     <thead className="bg-gray-50 dark:bg-gray-800/50">
                       <tr>
-                        {["O'rin", 'Foydalanuvchi', 'Ochkolar'].map((h) => (
+                        {[t('details.leaderboard.rank'), t('common:table.user'), t('details.leaderboard.points')].map((h) => (
                           <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             {h}
                           </th>
@@ -406,7 +411,7 @@ const SeasonDetailsPage: React.FC = () => {
           {/* Badges */}
           {activeTab === 'badges' && (
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Taqsimlangan badgelar</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('details.badges.title')}</h3>
               {isCompleted && badges.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {badges.map((badge) => (
@@ -415,7 +420,7 @@ const SeasonDetailsPage: React.FC = () => {
                         <div className="text-3xl">{getBadgeIcon(badge.badge_name)}</div>
                         <div>
                           <h4 className="font-semibold text-gray-900 dark:text-white">{badge.badge_title}</h4>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">#{badge.rank_position}-o'rin</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">{t('rank.hash', { rank: badge.rank_position })}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
@@ -428,7 +433,7 @@ const SeasonDetailsPage: React.FC = () => {
                         </div>
                       </div>
                       <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                        {new Date(badge.earned_at).toLocaleDateString('uz-UZ')}
+                        {new Date(badge.earned_at).toLocaleDateString(getIntlLocale())}
                       </p>
                     </div>
                   ))}
@@ -436,8 +441,7 @@ const SeasonDetailsPage: React.FC = () => {
               ) : (
                 <div className="space-y-4">
                   <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4 text-sm text-blue-700 dark:text-blue-300">
-                    Badgelar hali taqsimlanmagan. Mavsum tugagach quyidagilar TOP o'yinchilarga
-                    avtomatik beriladi (yoki qo'lda yakunlang).
+                    {t('details.badges.notDistributed')}
                   </div>
 
                   {/* Beriladigan badge turlari — oldindan ko'rish */}
@@ -451,8 +455,8 @@ const SeasonDetailsPage: React.FC = () => {
                         <h4 className="font-semibold text-gray-900 dark:text-white">{bt.title}</h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                           {bt.rank_max && bt.rank_max !== bt.rank_min
-                            ? `${bt.rank_min}–${bt.rank_max}-o'rin`
-                            : `${bt.rank_min}-o'rin`}
+                            ? t('rank.range', { from: bt.rank_min, to: bt.rank_max })
+                            : t('rank.single', { rank: bt.rank_min })}
                         </p>
                         {bt.description && (
                           <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">{bt.description}</p>
@@ -465,7 +469,7 @@ const SeasonDetailsPage: React.FC = () => {
                     <div className="flex justify-center pt-2">
                       <Button variant="primary" onClick={handleCompleteSeason} loading={completing}>
                         <Trophy className="w-4 h-4" />
-                        Badgelarni taqsimlash
+                        {t('actions.distributeBadges')}
                       </Button>
                     </div>
                   )}
@@ -477,30 +481,30 @@ const SeasonDetailsPage: React.FC = () => {
       </Card>
 
       {/* Rename / tahrirlash modali */}
-      <Modal open={editOpen} onClose={() => setEditOpen(false)} title="Mavsumni tahrirlash">
+      <Modal open={editOpen} onClose={() => setEditOpen(false)} title={t('edit.title')}>
         <div className="space-y-4">
           <Input
-            label="Mavsum nomi *"
+            label={t('form.name')}
             value={editTitle}
             onChange={(e) => setEditTitle(e.target.value)}
-            placeholder="Masalan: Qish mavsumi"
+            placeholder={t('edit.namePlaceholder')}
           />
           <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tavsif (ixtiyoriy)</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('edit.description')}</label>
             <textarea
               rows={3}
               value={editDesc}
               onChange={(e) => setEditDesc(e.target.value)}
-              placeholder="Mavsum haqida qisqacha..."
+              placeholder={t('edit.descriptionPlaceholder')}
               className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
             />
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" onClick={() => setEditOpen(false)}>
-              Bekor qilish
+              {t('common:actions.cancel')}
             </Button>
             <Button onClick={saveEdit} loading={savingEdit}>
-              Saqlash
+              {t('common:actions.save')}
             </Button>
           </div>
         </div>

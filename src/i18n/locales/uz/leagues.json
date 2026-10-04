@@ -1,0 +1,56 @@
+{
+  "title": "Ligalar",
+  "subtitle": "XP asosidagi ligalar — mobil ilovadagi profil va ZAKO ligasi sahifasini boshqaradi",
+  "actions": {
+    "addLeague": "Liga qo'shish",
+    "uploadIcon": "Ikonka yuklash"
+  },
+  "table": {
+    "icon": "Ikonka",
+    "xpRange": "XP oralig'i"
+  },
+  "empty": {
+    "noLeagues": "Ligalar topilmadi"
+  },
+  "xpRules": {
+    "title": "XP qoidalari",
+    "description": "Har duel yakunida o'yinchiga beriladigan XP. Reyting deltasi ham shu qiymatda. Karta effektlari ustiga qo'llanadi.",
+    "win": "Yutuq (win XP)",
+    "lose": "Mag'lubiyat (lose XP)",
+    "draw": "Durang",
+    "saveError": "Saqlashda xatolik"
+  },
+  "modal": {
+    "createTitle": "Liga qo'shish",
+    "editTitle": "Ligani tahrirlash",
+    "deleteTitle": "Ligani o'chirish"
+  },
+  "form": {
+    "descriptionPlaceholder": "Bu 1 000 dan ko'proq XP to'plagan foydalanuvchilar joylashgan liga.",
+    "minXp": "Min XP",
+    "maxXp": "Max XP",
+    "sortOrder": "Tartib raqami",
+    "iconHint": "Ikonka jadvaldagi yuklash tugmasi orqali alohida yuklanadi."
+  },
+  "validation": {
+    "nameRequired": "Liga nomi majburiy",
+    "minXpRequired": "Min XP majburiy",
+    "minXpNegative": "Min XP 0 dan kichik bo'lmasligi kerak",
+    "maxXpRequired": "Max XP majburiy"
+  },
+  "confirm": {
+    "delete": "<b>{{name}}</b> ligasini o'chirishni tasdiqlaysizmi? Bu amalni qaytarib bo'lmaydi — odatda o'chirish o'rniga «Nofaol» qilish xavfsizroq."
+  },
+  "toast": {
+    "created": "Liga yaratildi",
+    "createError": "Liga yaratishda xatolik",
+    "updated": "Liga yangilandi",
+    "updateError": "Ligani yangilashda xatolik",
+    "iconUploaded": "Ikonka yuklandi",
+    "iconUploadError": "Ikonka yuklashda xatolik",
+    "deleted": "Liga o'chirildi",
+    "deleteError": "Ligani o'chirishda xatolik",
+    "onlyImages": "Faqat rasm fayllari qabul qilinadi",
+    "fileTooLarge": "Fayl hajmi 5MB dan oshmasligi kerak"
+  }
+}

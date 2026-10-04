@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Trans, useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { paymentsApi, type PaymentConfig } from '../../api/services';
 import { Button } from '../../components/ui';
@@ -15,6 +16,7 @@ interface ToggleRowProps {
 
 /** Ikkala kalit ham bir xil ko'rinadi — belgilash faqat shu yerda yoziladi. */
 function ToggleRow({ title, description, enabled, disabled, ariaLabel, onToggle, pending }: ToggleRowProps) {
+  const { t } = useTranslation('payments');
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div className="space-y-1">
@@ -31,18 +33,19 @@ function ToggleRow({ title, description, enabled, disabled, ariaLabel, onToggle,
         className="shrink-0 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
       >
         {pending
-          ? 'Saqlanmoqda…'
+          ? t('common:actions.saving')
           : enabled === undefined
-            ? 'Yuklanmoqda…'
+            ? t('common:state.loading')
             : enabled
-              ? 'Yoqilgan — o‘chirish'
-              : 'O‘chirilgan — yoqish'}
+              ? t('availability.toggle.enabledAction')
+              : t('availability.toggle.disabledAction')}
       </button>
     </div>
   );
 }
 
 export function PaymentAvailabilityControl() {
+  const { t } = useTranslation('payments');
   const queryClient = useQueryClient();
   const queryKey = ['payment-availability'];
   const config = useQuery({
@@ -55,9 +58,9 @@ export function PaymentAvailabilityControl() {
     onSuccess: response => {
       queryClient.setQueryData(queryKey, response.data.data);
       void queryClient.invalidateQueries({ queryKey });
-      toast.success('To‘lov sozlamasi saqlandi');
+      toast.success(t('availability.toast.saved'));
     },
-    onError: () => toast.error('Sozlamani saqlab bo‘lmadi'),
+    onError: () => toast.error(t('availability.toast.failed')),
   });
 
   const paymentsEnabled = config.data?.payments_enabled;
@@ -68,8 +71,8 @@ export function PaymentAvailabilityControl() {
     return (
       <section className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
         <div className="flex items-center justify-between gap-4">
-          <p role="alert" className="text-sm text-red-600">To‘lov holatini yuklab bo‘lmadi.</p>
-          <Button onClick={() => void config.refetch()}>Qayta yuklash</Button>
+          <p role="alert" className="text-sm text-red-600">{t('availability.loadError')}</p>
+          <Button onClick={() => void config.refetch()}>{t('common:actions.refresh')}</Button>
         </div>
       </section>
     );
@@ -77,11 +80,11 @@ export function PaymentAvailabilityControl() {
 
   return (
     <section className="space-y-5 rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
-      <h2 className="font-semibold text-gray-900 dark:text-white">Mobile to‘lovlari</h2>
+      <h2 className="font-semibold text-gray-900 dark:text-white">{t('availability.title')}</h2>
 
       <ToggleRow
-        title="Barcha to‘lovlar (bosh kalit)"
-        ariaLabel="Mobile to‘lovlarini yoqish"
+        title={t('availability.master.title')}
+        ariaLabel={t('availability.master.aria')}
         enabled={paymentsEnabled}
         disabled={paymentsEnabled === undefined || busy}
         pending={update.isPending}
@@ -89,21 +92,17 @@ export function PaymentAvailabilityControl() {
         description={
           <>
             <p>
-              Tanga, olmos va Premium xaridlarini <strong>barcha platformalarda</strong> boshqaradi.
-              O‘chirilganda xarid tugmalari yashiriladi va to‘lov sahifalari yopiladi.
+              <Trans i18nKey="payments:availability.master.description" components={{ strong: <strong /> }} />
             </p>
-            <p className="text-gray-500 dark:text-gray-400">
-              Yangi buyurtmalar bloklanadi; ochiq ilovada holat har 30 soniyada tekshiriladi.
-              Boshlangan to‘lovlar, kvitansiya tekshiruvi va bepul mukofotlar ishlashda davom etadi.
-            </p>
+            <p className="text-gray-500 dark:text-gray-400">{t('availability.master.note')}</p>
           </>
         }
       />
 
       <div className="border-t border-gray-200 pt-5 dark:border-gray-700">
         <ToggleRow
-          title="App Store do‘koni (faqat iOS)"
-          ariaLabel="iOS App Store do‘konini yoqish"
+          title={t('availability.ios.title')}
+          ariaLabel={t('availability.ios.aria')}
           enabled={appleEnabled}
           // Bosh kalit o'chiq bo'lsa iOS baribir yopiq — tugma chalg'itmasin.
           disabled={appleEnabled === undefined || busy || paymentsEnabled === false}
@@ -112,18 +111,11 @@ export function PaymentAvailabilityControl() {
           description={
             <>
               <p>
-                O‘chirilganda <strong>iOS’da pul do‘koni butunlay yashiriladi</strong>.
-                Android’dagi Payme/Click savdosi ishlayveradi — ya’ni App Store tomonidagi
-                muammo (StoreKit uzilishi, mahsulot sozlanmagani) Android’ni to‘xtatmaydi.
+                <Trans i18nKey="payments:availability.ios.description" components={{ strong: <strong /> }} />
               </p>
-              <p className="text-gray-500 dark:text-gray-400">
-                iOS hech qachon Payme/Click’ga o‘tmaydi: App Store Review 3.1.1 raqamli
-                valyutani faqat Apple IAP orqali sotishga ruxsat beradi.
-              </p>
+              <p className="text-gray-500 dark:text-gray-400">{t('availability.ios.note')}</p>
               {paymentsEnabled === false && (
-                <p className="text-amber-600 dark:text-amber-400">
-                  Bosh kalit o‘chiq — iOS baribir yopiq.
-                </p>
+                <p className="text-amber-600 dark:text-amber-400">{t('availability.ios.masterOff')}</p>
               )}
             </>
           }

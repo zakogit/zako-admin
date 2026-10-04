@@ -1,0 +1,25 @@
+{
+  "title": "App version",
+  "subtitle": "Force-update settings",
+  "enable": {
+    "title": "Enable force update",
+    "hint": "When enabled, apps below the minimum version are blocked and an update dialog is shown."
+  },
+  "message": {
+    "label": "Update message",
+    "placeholder": "A new version of the app is available. Please update the app to continue."
+  },
+  "fields": {
+    "minVersion": "Minimum version (required)",
+    "latestVersion": "Latest version",
+    "storeUrlAndroid": "Store link (Play Market)",
+    "storeUrlIos": "Store link (App Store)"
+  },
+  "warnings": {
+    "iosStoreEmpty": "The iOS store link is empty — during a forced update, users won't be able to open the App Store.",
+    "inert": "The minimum and latest versions are the same — nobody is below the minimum, so the forced update will never trigger. Raise the minimum version when a new version is released."
+  },
+  "toast": {
+    "saveError": "Failed to save"
+  }
+}

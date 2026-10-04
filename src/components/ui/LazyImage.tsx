@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/helpers';
 
 interface LazyImageProps {
@@ -20,6 +21,7 @@ export function LazyImage({
   fallback = '/placeholder.png',
   placeholder = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"%3E%3Crect width="40" height="40" fill="%23f3f4f6"/%3E%3C/svg%3E'
 }: LazyImageProps) {
+  const { t } = useTranslation('common');
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [imgSrc, setImgSrc] = useState(placeholder);
@@ -42,7 +44,7 @@ export function LazyImage({
       )}
       {hasError && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800 text-gray-400 text-xs">
-          Error
+          {t('status.error')}
         </div>
       )}
       <img

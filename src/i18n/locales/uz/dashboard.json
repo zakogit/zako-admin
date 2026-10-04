@@ -1,0 +1,136 @@
+{
+  "title": "Umumiy ko'rinish",
+  "subtitle": "Platformaning real vaqtdagi statistikasi",
+  "updatedAt": "yangilandi: {{time}}",
+  "kpi": {
+    "totalUsers": "Jami foydalanuvchilar",
+    "onlineNow": "Hozir onlayn",
+    "duelsToday": "Bugungi duellar",
+    "questionsToday": "Bugungi savollar",
+    "cardsSold": "Sotilgan kartalar",
+    "newLast7d_one": "+{{count}} ta yangi · oxirgi 7 kun",
+    "newLast7d_other": "+{{count}} ta yangi · oxirgi 7 kun",
+    "growthVsPrev": "+{{added}} oxirgi 7 kunda · avvalgi 7 kunga nisbatan {{growth}}",
+    "registeredToday": "Bugun ro'yxatdan o'tgan: {{value}}",
+    "liveNow": "Hozir davom etmoqda: {{value}}",
+    "answeredCorrectly": "To'g'ri javoblar: {{value}}",
+    "totalInventory": "Jami inventar"
+  },
+  "metrics": {
+    "heading": "Mahsulot ko'rsatkichlari",
+    "caption": "Ushlab qolish: oxirgi 7 kunlik ro'yxatdan o'tganlar kohortasi · Duellar va g'alaba ulushi: oxirgi 30 kun",
+    "retention": {
+      "title": "D1 ushlab qolish",
+      "cohort_one": "Kohorta: {{count}} ta foydalanuvchi · ertasi kuni qaytgan: {{returned}}",
+      "cohort_other": "Kohorta: {{count}} ta foydalanuvchi · ertasi kuni qaytgan: {{returned}}",
+      "target": "Maqsad: D1 30–40%, D7 15–25%, D30 8–15%"
+    },
+    "dau": {
+      "title": "DAU",
+      "wauMau": "WAU {{wau}} · MAU {{mau}}",
+      "stickiness": "DAU/MAU nisbati: {{value}} (maqsad 20%+)",
+      "vsYesterday": "Kechagiga nisbatan {{delta}} ({{yesterday}})"
+    },
+    "completion": {
+      "title": "Duellar yakunlanishi",
+      "finishedStarted": "{{finished}} yakunlangan / {{started}} boshlangan",
+      "noDuels": "Hali duellar yo'q",
+      "target": "Maqsad: 85%+ yaxshi, 70% dan past — xavfli signal"
+    },
+    "winRate": {
+      "title": "O'rtacha g'alaba ulushi",
+      "players_one": "3+ duel o'ynagan PvP o'yinchilar: {{count}} ta",
+      "players_other": "3+ duel o'ynagan PvP o'yinchilar: {{count}} ta",
+      "notEnough": "PvP duellar yetarli emas (botlar hisobga olinmaydi)",
+      "band_one": "40–60% oralig'ida: {{count}} ta o'yinchi",
+      "band_other": "40–60% oralig'ida: {{count}} ta o'yinchi",
+      "healthy": "Me'yor: ko'pchilik o'yinchilar 45–55% oralig'ida"
+    }
+  },
+  "health": {
+    "noData": "Ma'lumot yo'q",
+    "good": "Yaxshi",
+    "ok": "Qoniqarli",
+    "low": "Past",
+    "veryGood": "Juda yaxshi",
+    "watch": "Diqqat",
+    "critical": "Kritik",
+    "balanced": "Muvozanatli",
+    "unbalanced": "Muvozanatsiz"
+  },
+  "modes": {
+    "bot": "Bot bilan",
+    "random": "Tasodifiy raqib",
+    "friend": "Do'st xonasi"
+  },
+  "difficulty": {
+    "easy": "Oson",
+    "medium": "O'rta",
+    "hard": "Qiyin"
+  },
+  "players": "O'yinchilar",
+  "trend": {
+    "title": "Faollik dinamikasi",
+    "subtitle": "Kunlik faol foydalanuvchilar, yangi ro'yxatdan o'tganlar va duellar",
+    "series": {
+      "dau": "DAU",
+      "newUsers": "Yangi foydalanuvchilar",
+      "duels": "Duellar"
+    }
+  },
+  "topPlayer": {
+    "title": "Eng yaxshi o'yinchi",
+    "rating": "Reyting",
+    "winRate": "G'alaba ulushi",
+    "record_one": "{{count}} ta duelda {{won}} ta g'alaba",
+    "record_other": "{{count}} ta duelda {{won}} ta g'alaba",
+    "empty": "Hali o'yinchilar yo'q"
+  },
+  "xp": {
+    "title": "XP taqsimoti",
+    "subtitle": "Ligalar bo'yicha o'yinchilar"
+  },
+  "byMode": {
+    "title": "Rejimlar bo'yicha duellar yakunlanishi",
+    "subtitle": "Yakunlangan / boshlangan · oxirgi 30 kun",
+    "sub": "{{started}} tadan {{finished}} tasi yakunlangan",
+    "empty": "Oxirgi 30 kunda yakunlangan duellar yo'q"
+  },
+  "winDist": {
+    "title": "G'alaba ulushi taqsimoti",
+    "subtitle": "PvP o'yinchilar g'alaba ulushi bo'yicha · sog'lom matchmaking 40–60% atrofida to'planadi"
+  },
+  "questionStats": {
+    "title": "Savollar statistikasi",
+    "subtitle_one": "Eng ko'p xato qilingan savollar (5+ urinish) · {{count, number}} ta javob tahlil qilindi",
+    "subtitle_other": "Eng ko'p xato qilingan savollar (5+ urinish) · {{count, number}} ta javob tahlil qilindi",
+    "correctPct": "{{value}} to'g'ri",
+    "empty": "Savollarni tartiblash uchun javoblar hali yetarli emas"
+  },
+  "table": {
+    "question": "Savol",
+    "attempts": "Urinishlar",
+    "wrong": "Xatolar",
+    "correct": "To'g'ri"
+  },
+  "activity": {
+    "title": "So'nggi faoliyat",
+    "empty": "So'nggi faoliyat yo'q",
+    "botOpponent": "bot",
+    "types": {
+      "duelCompleted": "Duel yakunlandi",
+      "userRegistration": "Ro'yxatdan o'tish"
+    },
+    "details": {
+      "duel": "{{opponent}} bilan, fan: {{subject}}",
+      "newUser": "Yangi foydalanuvchi ro'yxatdan o'tdi"
+    }
+  },
+  "system": {
+    "title": "Tizim holati",
+    "api": "API server",
+    "database": "Ma'lumotlar bazasi",
+    "redis": "Redis keshi",
+    "websocket": "WebSocket"
+  }
+}

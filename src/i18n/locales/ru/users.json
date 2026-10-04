@@ -1,0 +1,163 @@
+{
+  "title": "Пользователи",
+  "subtitle": "Управление всеми пользователями и мониторинг",
+  "actions": {
+    "newUser": "Новый пользователь",
+    "export": "Экспорт",
+    "changePassword": "Изменить пароль",
+    "changeBalance": "Изменить баланс",
+    "changeXp": "Изменить XP",
+    "ban": "Заблокировать",
+    "unban": "Разблокировать",
+    "verify": "Подтвердить",
+    "unverify": "Отменить подтверждение",
+    "change": "Изменить"
+  },
+  "stats": {
+    "weekly": "За неделю",
+    "monthly": "За месяц"
+  },
+  "list": {
+    "title": "Список пользователей ({{total}})"
+  },
+  "filters": {
+    "searchPlaceholder": "Поиск по имени пользователя или телефону...",
+    "advanced": "Дополнительные фильтры",
+    "verification": "Статус подтверждения",
+    "ban": "Статус блокировки",
+    "premium": "Премиум-статус",
+    "regular": "Обычный",
+    "allRegions": "Все регионы",
+    "registeredFrom": "Зарегистрирован с",
+    "registeredTo": "Зарегистрирован по",
+    "online": "Статус онлайн",
+    "activeFilters": "Активные фильтры:",
+    "chip": {
+      "verified": "Подтверждение: {{value}}",
+      "banned": "Блокировка: {{value}}",
+      "premium": "Премиум: {{value}}",
+      "region": "Регион: {{name}}",
+      "from": "С: {{date}}",
+      "to": "По: {{date}}",
+      "online": "Онлайн: {{value}}"
+    }
+  },
+  "table": {
+    "joined": "Зарегистрирован"
+  },
+  "empty": {
+    "users": "Пользователи не найдены"
+  },
+  "details": {
+    "totalDuels": "Всего дуэлей",
+    "wonDuels": "Выиграно дуэлей",
+    "exams": "Экзамены",
+    "friends": "Друзья",
+    "duelHistory": "История дуэлей",
+    "duelsTotal": "всего {{total}}",
+    "noDuels": "Дуэлей нет",
+    "duelTable": {
+      "opponent": "Соперник",
+      "score": "Счёт",
+      "result": "Результат"
+    },
+    "bot": "бот",
+    "result": {
+      "won": "Победа",
+      "lost": "Поражение",
+      "draw": "Ничья"
+    },
+    "duelStatus": {
+      "active": "Идёт",
+      "pending": "Ожидает",
+      "cancelled": "Отменена",
+      "expired": "Истекла"
+    },
+    "devices": "Устройства",
+    "devicesCount_one": "{{count}} устройство",
+    "devicesCount_few": "{{count}} устройства",
+    "devicesCount_many": "{{count}} устройств",
+    "devicesCount_other": "{{count}} устройства",
+    "noDevices": "Нет устройств, зарегистрированных для push-уведомлений",
+    "tokenPreview": "токен {{preview}}",
+    "lastUpdated": "обновлено: {{date}}",
+    "recentTransactions": "Последние транзакции"
+  },
+  "form": {
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "phoneNumber": "Номер телефона",
+    "password": "Пароль",
+    "newPassword": "Новый пароль",
+    "newPasswordPlaceholder_one": "Не менее {{count}} символа",
+    "newPasswordPlaceholder_few": "Не менее {{count}} символов",
+    "newPasswordPlaceholder_many": "Не менее {{count}} символов",
+    "newPasswordPlaceholder_other": "Не менее {{count}} символа",
+    "birthday": "Дата рождения",
+    "selectRegion": "Выберите регион",
+    "verifyImmediately": "Подтвердить сразу"
+  },
+  "modal": {
+    "details": {
+      "title": "Данные пользователя — {{username}}"
+    },
+    "balance": {
+      "title": "Изменение баланса — {{username}}",
+      "amount": "Количество (отрицательное число — для списания)",
+      "descriptionPlaceholder": "Изменено администратором..."
+    },
+    "ban": {
+      "title": "Блокировка пользователя — {{username}}",
+      "reason": "Причина блокировки",
+      "reasonPlaceholder": "За нарушение правил..."
+    },
+    "delete": {
+      "title": "Удаление пользователя",
+      "warning": "Внимание!",
+      "confirm": "Вы действительно хотите безвозвратно удалить пользователя <b>{{username}}</b>? Это действие нельзя отменить!"
+    },
+    "xp": {
+      "title": "Изменение XP — {{username}}",
+      "hint": "Положительное число добавляет XP, отрицательное — вычитает. Результат не опускается ниже 0. Положительное изменение также добавляется к недельному и дневному XP.",
+      "delta": "Изменение XP (например, 100 или -50)",
+      "note": "Комментарий (для аудита)",
+      "notePlaceholder": "Причина изменения"
+    },
+    "create": {
+      "title": "Создание нового пользователя"
+    },
+    "edit": {
+      "title": "Редактирование пользователя — {{username}}"
+    },
+    "password": {
+      "title": "Изменение пароля — {{username}}",
+      "warning": "⚠️ Пользователю придётся войти в систему с новым паролем."
+    }
+  },
+  "validation": {
+    "usernameRequired": "Имя пользователя обязательно",
+    "phoneRequired": "Номер телефона обязателен",
+    "passwordRequired": "Пароль обязателен",
+    "passwordMin_one": "Пароль должен содержать не менее {{count}} символа",
+    "passwordMin_few": "Пароль должен содержать не менее {{count}} символов",
+    "passwordMin_many": "Пароль должен содержать не менее {{count}} символов",
+    "passwordMin_other": "Пароль должен содержать не менее {{count}} символа"
+  },
+  "toast": {
+    "balanceUpdated": "Баланс обновлён",
+    "balanceError": "Не удалось обновить баланс",
+    "banned": "Пользователь заблокирован",
+    "banError": "Не удалось заблокировать пользователя",
+    "created": "Пользователь создан",
+    "createError": "Не удалось создать пользователя",
+    "updated": "Пользователь обновлён",
+    "updateError": "Не удалось обновить пользователя",
+    "passwordChanged": "Пароль изменён",
+    "passwordError": "Не удалось изменить пароль",
+    "xpError": "Не удалось изменить XP",
+    "unbanned": "Пользователь разблокирован",
+    "verified": "Пользователь подтверждён",
+    "unverified": "Подтверждение пользователя отменено",
+    "deleted": "Пользователь удалён"
+  }
+}

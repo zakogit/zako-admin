@@ -1,0 +1,43 @@
+{
+  "title": "Articles",
+  "subtitle": "The “Articles” section of the landing site — articles added here appear on zakoapp.uz",
+  "addArticle": "Add article",
+  "empty": "No articles found",
+  "uploadCover": "Upload cover",
+  "table": {
+    "cover": "Cover"
+  },
+  "form": {
+    "titlePlaceholder": "What is ZAKO? A closer look at the knowledge battleground",
+    "excerpt": "Short description (excerpt)",
+    "excerptPlaceholder": "Short text shown in the list",
+    "body": "Body (Markdown)",
+    "bodyPlaceholder": "## Heading\n\nParagraph text. **Bold**, *italic* and lists:\n\n- first item\n- second item",
+    "markdownHint": "Markdown is supported: # heading, **bold**, *italic*, - list, [link](url).",
+    "published": "Published (visible on the site)",
+    "coverHint": "The cover image is uploaded separately with the upload button in the table (save the article first)."
+  },
+  "validation": {
+    "titleRequired": "Title is required",
+    "bodyRequired": "Body is required",
+    "imageOnly": "Only image files are accepted",
+    "fileTooLarge": "File size must not exceed 5MB"
+  },
+  "modal": {
+    "editTitle": "Edit article",
+    "deleteTitle": "Delete article"
+  },
+  "confirm": {
+    "delete": "Are you sure you want to delete <b>{{title}}</b>? This action cannot be undone."
+  },
+  "toast": {
+    "created": "Article created",
+    "createFailed": "Failed to create article",
+    "updated": "Article updated",
+    "updateFailed": "Failed to update article",
+    "coverUploaded": "Cover uploaded",
+    "coverFailed": "Failed to upload cover",
+    "deleted": "Article deleted",
+    "deleteFailed": "Failed to delete article"
+  }
+}

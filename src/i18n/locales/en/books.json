@@ -1,0 +1,45 @@
+{
+  "title": "AI Books",
+  "subtitle": "Upload a PDF textbook — AI splits it into topics and generates test questions",
+  "uploadPdf": "Upload PDF",
+  "stats": {
+    "monthCost": "AI spend this month",
+    "calls_one": "{{count}} call",
+    "calls_other": "{{count}} calls",
+    "totalCost": "Total AI spend",
+    "tokens": "{{value}}K tokens",
+    "draftQuestions": "Draft questions",
+    "approved": "{{value}} approved",
+    "avgQuality": "Average quality",
+    "judgeScore": "AI judge score"
+  },
+  "table": {
+    "book": "Book",
+    "grade": "Grade",
+    "pages": "Pages",
+    "topics": "Topics",
+    "drafts": "Drafts"
+  },
+  "gradeValue": "Grade {{grade}}",
+  "empty": "No books uploaded yet",
+  "status": {
+    "uploaded": "Queued",
+    "extracting": "Extracting text",
+    "analyzing": "AI is analyzing",
+    "reanalyze": "Re-analysis",
+    "needs_review": "Needs review",
+    "ready": "Ready",
+    "needs_ocr": "OCR needed",
+    "failed": "Error"
+  },
+  "deleteModal": {
+    "title": "Delete book",
+    "body": "<b>{{title}}</b>, its topics and draft questions will be deleted. Questions already added to the database will be kept. Continue?"
+  },
+  "toast": {
+    "uploaded": "Book uploaded — analysis started",
+    "uploadError": "Upload failed",
+    "deleted": "Book deleted",
+    "deleteError": "Delete failed"
+  }
+}

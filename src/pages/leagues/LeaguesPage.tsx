@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Edit, Trash2, Trophy, Upload, Zap, Save } from 'lucide-react';
+import { useTranslation, Trans } from 'react-i18next';
 import { leaguesApi, duelsApi } from '../../api/services';
 import type { DuelConfig } from '../../api/services';
 import { Table, Badge, Button, Modal, EmptyState, LazyImage, Card } from '../../components/ui';
-import { getStaticFileUrl } from '../../utils/helpers';
+import { formatNumber, getStaticFileUrl } from '../../utils/helpers';
 import type { League } from '../../types';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
@@ -23,6 +24,7 @@ interface LeagueFormValues {
  * saqlanadi; duel yakunida calculateRewards shu qiymatlarni ishlatadi.
  */
 function XpRulesCard() {
+  const { t } = useTranslation('leagues');
   const qc = useQueryClient();
   const [win, setWin] = useState(24);
   const [lose, setLose] = useState(-18);
@@ -45,10 +47,10 @@ function XpRulesCard() {
   const save = useMutation({
     mutationFn: () => duelsApi.updateConfig({ xp_win: win, xp_lose: lose, xp_draw: draw }).then(r => r.data),
     onSuccess: (d) => {
-      toast.success(d.message || 'Saqlandi');
+      toast.success(d.message || t('common:toast.saved'));
       qc.invalidateQueries({ queryKey: ['duel-config'] });
     },
-    onError: (e: any) => toast.error(e?.response?.data?.message || 'Saqlashda xatolik'),
+    onError: (e: any) => toast.error(e?.response?.data?.message || t('xpRules.saveError')),
   });
 
   const dirty = !!config && (win !== config.xpWin || lose !== config.xpLose || draw !== config.xpDraw);
@@ -60,29 +62,29 @@ function XpRulesCard() {
         <div className="flex-1">
           <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
             <Zap className="w-5 h-5 text-amber-500" />
-            XP qoidalari
+            {t('xpRules.title')}
           </h3>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            Har duel yakunida o'yinchiga beriladigan XP. Reyting deltasi ham shu qiymatda. Karta effektlari ustiga qo'llanadi.
+            {t('xpRules.description')}
           </p>
         </div>
         <div className="grid grid-cols-3 gap-3 md:w-[420px]">
           <div>
-            <label className="block text-xs font-medium mb-1 text-green-700 dark:text-green-400">Yutuq (win XP)</label>
+            <label className="block text-xs font-medium mb-1 text-green-700 dark:text-green-400">{t('xpRules.win')}</label>
             <input type="number" min={0} max={1000} value={win} onChange={e => setWin(Number(e.target.value))} className={inputCls} />
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1 text-red-700 dark:text-red-400">Mag'lubiyat (lose XP)</label>
+            <label className="block text-xs font-medium mb-1 text-red-700 dark:text-red-400">{t('xpRules.lose')}</label>
             <input type="number" min={-1000} max={0} value={lose} onChange={e => setLose(Number(e.target.value))} className={inputCls} />
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">Durang</label>
+            <label className="block text-xs font-medium mb-1 text-gray-700 dark:text-gray-300">{t('xpRules.draw')}</label>
             <input type="number" min={-1000} max={1000} value={draw} onChange={e => setDraw(Number(e.target.value))} className={inputCls} />
           </div>
         </div>
         <Button onClick={() => save.mutate()} loading={save.isPending} disabled={!config || !dirty} className="whitespace-nowrap">
           <Save className="w-4 h-4 mr-2" />
-          Saqlash
+          {t('common:actions.save')}
         </Button>
       </div>
     </Card>
@@ -90,6 +92,7 @@ function XpRulesCard() {
 }
 
 export default function LeaguesPage() {
+  const { t } = useTranslation('leagues');
   const qc = useQueryClient();
   const [selected, setSelected] = useState<League | null>(null);
   const [editModal, setEditModal] = useState(false);
@@ -107,49 +110,49 @@ export default function LeaguesPage() {
   const createMutation = useMutation({
     mutationFn: (body: LeagueFormValues) => leaguesApi.create(body),
     onSuccess: () => {
-      toast.success('Liga yaratildi');
+      toast.success(t('toast.created'));
       setEditModal(false);
       reset();
       invalidate();
     },
     onError: (error: any) =>
-      toast.error(error.response?.data?.message || 'Liga yaratishda xatolik'),
+      toast.error(error.response?.data?.message || t('toast.createError')),
   });
 
   const updateMutation = useMutation({
     mutationFn: (body: LeagueFormValues) => leaguesApi.update(selected!.id, body),
     onSuccess: () => {
-      toast.success('Liga yangilandi');
+      toast.success(t('toast.updated'));
       setEditModal(false);
       setSelected(null);
       reset();
       invalidate();
     },
     onError: (error: any) =>
-      toast.error(error.response?.data?.message || 'Ligani yangilashda xatolik'),
+      toast.error(error.response?.data?.message || t('toast.updateError')),
   });
 
   const uploadIconMutation = useMutation({
     mutationFn: ({ id, formData }: { id: number; formData: FormData }) =>
       leaguesApi.uploadIcon(id, formData),
     onSuccess: () => {
-      toast.success('Ikonka yuklandi');
+      toast.success(t('toast.iconUploaded'));
       invalidate();
     },
     onError: (error: any) =>
-      toast.error(error.response?.data?.message || 'Ikonka yuklashda xatolik'),
+      toast.error(error.response?.data?.message || t('toast.iconUploadError')),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => leaguesApi.delete(id),
     onSuccess: () => {
-      toast.success("Liga o'chirildi");
+      toast.success(t('toast.deleted'));
       setDeleteModal(false);
       setSelected(null);
       invalidate();
     },
     onError: (error: any) =>
-      toast.error(error.response?.data?.message || "Ligani o'chirishda xatolik"),
+      toast.error(error.response?.data?.message || t('toast.deleteError')),
   });
 
   const leagues: League[] = Array.isArray(leaguesData?.data) ? leaguesData.data : [];
@@ -198,11 +201,11 @@ export default function LeaguesPage() {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      toast.error('Faqat rasm fayllari qabul qilinadi');
+      toast.error(t('toast.onlyImages'));
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Fayl hajmi 5MB dan oshmasligi kerak');
+      toast.error(t('toast.fileTooLarge'));
       return;
     }
 
@@ -218,16 +221,16 @@ export default function LeaguesPage() {
         <div>
           <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <Trophy className="w-5 h-5 text-yellow-500" />
-            Leagues <span className="text-gray-400 font-normal text-base">({leagues.length})</span>
+            {t('title')} <span className="text-gray-400 font-normal text-base">({leagues.length})</span>
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            XP asosidagi ligalar — mobil ilovadagi profil va ZAKO ligasi sahifasini boshqaradi
+            {t('subtitle')}
           </p>
         </div>
 
         <Button onClick={() => openEditModal()} className="whitespace-nowrap">
           <Plus className="w-4 h-4 mr-2" />
-          Liga qo'shish
+          {t('actions.addLeague')}
         </Button>
       </div>
 
@@ -237,11 +240,11 @@ export default function LeaguesPage() {
       {/* Table */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
         {isLoading ? (
-          <div className="p-8 text-center">Loading...</div>
+          <div className="p-8 text-center">{t('common:state.loading')}</div>
         ) : leagues.length === 0 ? (
-          <EmptyState message="Ligalar topilmadi" />
+          <EmptyState message={t('empty.noLeagues')} />
         ) : (
-          <Table headers={['Ikonka', 'Nomi', 'XP oralig\'i', 'Tartib', 'Holat', '']}>
+          <Table headers={[t('table.icon'), t('common:table.name'), t('table.xpRange'), t('common:table.order'), t('common:table.status'), '']}>
             {leagues.map((league) => (
               <tr key={league.id}>
                 <td className="px-4 py-3">
@@ -259,7 +262,7 @@ export default function LeaguesPage() {
                     )}
                     <label
                       className="cursor-pointer text-blue-600 hover:text-blue-700"
-                      title="Ikonka yuklash"
+                      title={t('actions.uploadIcon')}
                     >
                       <Upload className="w-4 h-4" />
                       <input
@@ -280,12 +283,12 @@ export default function LeaguesPage() {
                   )}
                 </td>
                 <td className="px-4 py-3 text-gray-900 dark:text-white whitespace-nowrap">
-                  {league.min_xp.toLocaleString()} – {league.max_xp.toLocaleString()} XP
+                  {formatNumber(league.min_xp)} – {formatNumber(league.max_xp)} XP
                 </td>
                 <td className="px-4 py-3 text-gray-900 dark:text-white">{league.sort_order}</td>
                 <td className="px-4 py-3">
                   <Badge color={league.is_active ? 'green' : 'gray'}>
-                    {league.is_active ? 'Faol' : 'Nofaol'}
+                    {league.is_active ? t('common:status.active') : t('common:status.inactive')}
                   </Badge>
                 </td>
                 <td className="px-4 py-3">
@@ -312,13 +315,14 @@ export default function LeaguesPage() {
       <Modal
         open={editModal}
         onClose={() => { setEditModal(false); setSelected(null); }}
-        title={selected ? 'Ligani tahrirlash' : 'Liga qo\'shish'}
+        title={selected ? t('modal.editTitle') : t('modal.createTitle')}
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Nomi *</label>
+            <label className="block text-sm font-medium mb-2">{t('common:table.name')} *</label>
             <input
-              {...register('name', { required: 'Liga nomi majburiy' })}
+              {...register('name', { required: t('validation.nameRequired') })}
+              // i18n-ignore: example league name (data), not translatable UI text
               placeholder="GOLD"
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
             />
@@ -326,39 +330,39 @@ export default function LeaguesPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Tavsif</label>
+            <label className="block text-sm font-medium mb-2">{t('common:table.description')}</label>
             <textarea
               {...register('description')}
               rows={2}
-              placeholder="Bu 1 000 dan ko'proq XP to'plagan foydalanuvchilar joylashgan liga."
+              placeholder={t('form.descriptionPlaceholder')}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Min XP *</label>
+              <label className="block text-sm font-medium mb-2">{t('form.minXp')} *</label>
               <input
                 type="number"
-                {...register('min_xp', { required: 'Min XP majburiy', min: 0 })}
+                {...register('min_xp', { required: t('validation.minXpRequired'), min: 0 })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
               />
-              {errors.min_xp && <p className="text-red-500 text-xs mt-1">Min XP 0 dan kichik bo'lmasligi kerak</p>}
+              {errors.min_xp && <p className="text-red-500 text-xs mt-1">{t('validation.minXpNegative')}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Max XP *</label>
+              <label className="block text-sm font-medium mb-2">{t('form.maxXp')} *</label>
               <input
                 type="number"
-                {...register('max_xp', { required: 'Max XP majburiy', min: 1 })}
+                {...register('max_xp', { required: t('validation.maxXpRequired'), min: 1 })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
               />
-              {errors.max_xp && <p className="text-red-500 text-xs mt-1">Max XP majburiy</p>}
+              {errors.max_xp && <p className="text-red-500 text-xs mt-1">{t('validation.maxXpRequired')}</p>}
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Tartib raqami</label>
+              <label className="block text-sm font-medium mb-2">{t('form.sortOrder')}</label>
               <input
                 type="number"
                 {...register('sort_order')}
@@ -372,43 +376,46 @@ export default function LeaguesPage() {
                   {...register('is_active')}
                   className="rounded border-gray-300 dark:border-gray-600"
                 />
-                <span className="text-sm font-medium">Faol</span>
+                <span className="text-sm font-medium">{t('common:status.active')}</span>
               </label>
             </div>
           </div>
 
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            Ikonka jadvaldagi yuklash tugmasi orqali alohida yuklanadi.
+            {t('form.iconHint')}
           </p>
 
           <div className="flex gap-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setEditModal(false)}>
-              Bekor qilish
+              {t('common:actions.cancel')}
             </Button>
             <Button type="submit" loading={createMutation.isPending || updateMutation.isPending}>
-              {selected ? 'Saqlash' : 'Qo\'shish'}
+              {selected ? t('common:actions.save') : t('common:actions.add')}
             </Button>
           </div>
         </form>
       </Modal>
 
       {/* Delete Modal */}
-      <Modal open={deleteModal} onClose={() => setDeleteModal(false)} title="Ligani o'chirish">
+      <Modal open={deleteModal} onClose={() => setDeleteModal(false)} title={t('modal.deleteTitle')}>
         <div className="space-y-4">
           <p>
-            <strong>{selected?.name}</strong> ligasini o'chirishni tasdiqlaysizmi?
-            Bu amalni qaytarib bo'lmaydi — odatda o'chirish o'rniga «Nofaol» qilish xavfsizroq.
+            <Trans shouldUnescape tOptions={{ interpolation: { escapeValue: true } }}
+              i18nKey="leagues:confirm.delete"
+              values={{ name: selected?.name }}
+              components={{ b: <strong /> }}
+            />
           </p>
           <div className="flex gap-3 pt-4">
             <Button variant="outline" onClick={() => setDeleteModal(false)}>
-              Bekor qilish
+              {t('common:actions.cancel')}
             </Button>
             <Button
               variant="danger"
               onClick={() => selected && deleteMutation.mutate(selected.id)}
               loading={deleteMutation.isPending}
             >
-              O'chirish
+              {t('common:actions.delete')}
             </Button>
           </div>
         </div>

@@ -1,0 +1,45 @@
+{
+  "language": "Til",
+  "brand": "Admin",
+  "toggleSidebar": "Menyuni ochish / yopish",
+  "theme": {
+    "toLight": "Kunduzgi rejimga o'tish",
+    "toDark": "Tungi rejimga o'tish"
+  },
+  "logout": "Chiqish",
+  "notifications": "Bildirishnomalar",
+  "fallbackTitle": "Admin",
+  "sections": {
+    "content": "Kontent",
+    "platform": "Platforma",
+    "system": "Tizim"
+  },
+  "nav": {
+    "dashboard": "Boshqaruv paneli",
+    "users": "Foydalanuvchilar",
+    "questions": "Savollar",
+    "subjects": "Fanlar",
+    "topics": "Mavzular",
+    "books": "AI Kitoblar",
+    "aiTests": "AI Testlar",
+    "articles": "Maqolalar",
+    "cards": "Kartalar",
+    "avatars": "Avatarlar",
+    "premiumAvatars": "Premium avatarlar",
+    "store": "Do'kon",
+    "seasons": "Mavsumlar",
+    "dailyRewards": "Kunlik sovg'alar",
+    "leagues": "Ligalar",
+    "leaderboard": "Haftalik TOP-10",
+    "subscriptions": "Premium obuna",
+    "duels": "Duellar",
+    "friends": "Do'stlar",
+    "regions": "Hududlar",
+    "payments": "To'lovlar",
+    "ads": "Reklama",
+    "appVersion": "Ilova versiyasi",
+    "admins": "Adminlar",
+    "notifications": "Bildirishnomalar",
+    "auditLogs": "Audit jurnali"
+  }
+}

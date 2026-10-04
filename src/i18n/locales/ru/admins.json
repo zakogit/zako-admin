@@ -1,0 +1,45 @@
+{
+  "title": "Администраторы",
+  "subtitle": "Пользователи панели администратора (управляет суперадминистратор)",
+  "empty": "Администраторов нет",
+  "you": "(вы)",
+  "actions": {
+    "add": "Добавить администратора",
+    "changePassword": "Изменить пароль",
+    "deleteDeactivate": "Удалить (деактивация)",
+    "change": "Изменить"
+  },
+  "table": {
+    "role": "Роль"
+  },
+  "status": {
+    "deactivated": "Деактивирован"
+  },
+  "form": {
+    "password_one": "Пароль * (не менее {{count}} символа)",
+    "password_few": "Пароль * (не менее {{count}} символов)",
+    "password_many": "Пароль * (не менее {{count}} символов)",
+    "password_other": "Пароль * (не менее {{count}} символа)",
+    "newPassword_one": "Новый пароль (не менее {{count}} символа)",
+    "newPassword_few": "Новый пароль (не менее {{count}} символов)",
+    "newPassword_many": "Новый пароль (не менее {{count}} символов)",
+    "newPassword_other": "Новый пароль (не менее {{count}} символа)",
+    "role": "Роль"
+  },
+  "modal": {
+    "create": {
+      "title": "Добавление администратора"
+    },
+    "password": {
+      "title": "Пароль",
+      "titleFor": "Пароль: {{username}}"
+    }
+  },
+  "confirm": {
+    "delete": "Удалить администратора {{username}}?"
+  },
+  "toast": {
+    "created": "Администратор создан",
+    "passwordChanged": "Пароль изменён"
+  }
+}

@@ -340,8 +340,8 @@ export const duelsApi = {
 
 // ── Friends ───────────────────────────────────────────
 export const friendsApi = {
-  getAll: (params?: { page?: number; limit?: number; search?: string; status?: string }) =>
-    api.get<{ success: boolean; data: PaginatedResponse<Friendship> }>('/admin/friends-admin', { params }),
+  getAll: (params?: { page?: number; limit?: number; status?: string }) =>
+    api.get<{ success: boolean; data: { data: Friendship[]; total: number } }>('/admin/friends-admin/relationships', { params }),
   getRelationships: (params?: { page?: number; limit?: number; status?: string }) =>
     api.get<{ success: boolean; data: PaginatedResponse<Friendship> }>('/admin/friends-admin/relationships', { params }),
   getRequests: (params?: { page?: number; limit?: number }) =>

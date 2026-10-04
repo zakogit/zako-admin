@@ -1,0 +1,68 @@
+{
+  "title": "Store packages",
+  "subtitle": "Coin and diamond packages shown in the app — price, amount, discount",
+  "tabs": {
+    "coins": "Coins",
+    "diamonds": "Diamonds"
+  },
+  "addPackage": {
+    "coins": "Add coin package",
+    "diamonds": "Add diamond package"
+  },
+  "editPackage": {
+    "coins": "Edit coin package",
+    "diamonds": "Edit diamond package"
+  },
+  "empty": {
+    "coins": "No coin packages. Create the first one.",
+    "diamonds": "No diamond packages. Create the first one."
+  },
+  "table": {
+    "package": "Package",
+    "price": "Price (UZS)",
+    "offer": "Offer"
+  },
+  "badge": {
+    "specialOffer": "Special offer"
+  },
+  "form": {
+    "name": "Name *",
+    "namePlaceholder": {
+      "coins": "500 coins",
+      "diamonds": "Start"
+    },
+    "amount": {
+      "coins": "Number of coins *",
+      "diamonds": "Number of diamonds *"
+    },
+    "bonus": "Bonus",
+    "price": "Price (UZS) *",
+    "sortOrder": "Order (sort)",
+    "sortHint": "Lower number — shown first in the app",
+    "appleProductId": "Apple product ID (iOS)",
+    "appleHint": "Empty = the package is not shown on iOS. On iOS the user pays the price set in App Store Connect — the UZS price above is only for Payme/Click. The amount is taken from here for iOS too."
+  },
+  "offer": {
+    "title": "Special offer & discount",
+    "type": "Offer type",
+    "simple": "Regular",
+    "special": "Special offer (badge)",
+    "discountPercent": "Discount (%)",
+    "startsAt": "Discount starts",
+    "startsHint": "Empty = immediately",
+    "endsAt": "Discount ends",
+    "endsHint": "The countdown runs to this time · empty = no end",
+    "note": "While the discount % > 0 and the window is active: the price drops (both the displayed and the charged amount) + a push is sent to all users."
+  },
+  "confirm": {
+    "deactivate": "Deactivate the package? (it will disappear from the app)"
+  },
+  "toast": {
+    "created": "Package created",
+    "updated": "Package updated",
+    "deactivated": "Package deactivated",
+    "createFailed": "Failed to create",
+    "updateFailed": "Failed to update",
+    "deleteFailed": "Failed to delete"
+  }
+}

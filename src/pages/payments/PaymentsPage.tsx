@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation, Trans } from 'react-i18next';
 import { Search, Filter, Eye, XCircle, CheckCircle, Clock, DollarSign, TestTube } from 'lucide-react';
 import { paymentsApi } from '../../api/services';
 import { PaymentAvailabilityControl } from './PaymentAvailabilityControl';
@@ -9,6 +10,7 @@ import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
 
 export default function PaymentsPage() {
+  const { t } = useTranslation('payments');
   const qc = useQueryClient();
   const [activeTab, setActiveTab] = useState<'orders' | 'transactions' | 'webhooks' | 'stats' | 'test'>('orders');
   const [search, setSearch] = useState('');
@@ -70,31 +72,31 @@ export default function PaymentsPage() {
   const cancelMutation = useMutation({
     mutationFn: ({ id, reason }: { id: number; reason: string }) => paymentsApi.cancelOrder(id, reason),
     onSuccess: () => {
-      toast.success('Order cancelled successfully');
+      toast.success(t('toast.cancelled'));
       setCancelModal(false);
       setSelectedOrder(null);
       cancelForm.reset();
       qc.invalidateQueries({ queryKey: ['admin-orders'] });
     },
-    onError: () => toast.error('Failed to cancel order')
+    onError: () => toast.error(t('toast.cancelError'))
   });
 
   const completeMutation = useMutation({
     mutationFn: ({ id, notes }: { id: number; notes?: string }) => paymentsApi.completeOrder(id, notes),
     onSuccess: () => {
-      toast.success('Order completed successfully');
+      toast.success(t('toast.completed'));
       setCompleteModal(false);
       setSelectedOrder(null);
       completeForm.reset();
       qc.invalidateQueries({ queryKey: ['admin-orders'] });
     },
-    onError: () => toast.error('Failed to complete order')
+    onError: () => toast.error(t('toast.completeError'))
   });
 
   const createTestOrderMutation = useMutation({
     mutationFn: ({ package_id, user_id }: { package_id: number; user_id: number }) => paymentsApi.createTestOrder(package_id, user_id),
     onSuccess: (data) => {
-      toast.success('Test order created successfully');
+      toast.success(t('toast.testOrderCreated'));
       setTestOrderModal(false);
       testForm.reset();
       qc.invalidateQueries({ queryKey: ['admin-orders'] });
@@ -104,7 +106,7 @@ export default function PaymentsPage() {
       }
     },
     onError: (error: any) => {
-      const message = error.response?.data?.message || 'Failed to create test order';
+      const message = error.response?.data?.message || t('toast.testOrderError');
       toast.error(message);
     }
   });
@@ -120,12 +122,12 @@ export default function PaymentsPage() {
     mutationFn: ({ user_id, amount, description }: { user_id: number; amount: number; description: string }) => 
       paymentsApi.createPaymeTestOrder(user_id, amount, description),
     onSuccess: () => {
-      toast.success('Payme test order created successfully');
+      toast.success(t('toast.paymeTestCreated'));
       qc.invalidateQueries({ queryKey: ['admin-orders'] });
       qc.invalidateQueries({ queryKey: ['payme-test'] });
     },
     onError: (error: any) => {
-      const message = error.response?.data?.message || 'Failed to create Payme test order';
+      const message = error.response?.data?.message || t('toast.paymeTestError');
       toast.error(message);
     }
   });
@@ -141,17 +143,14 @@ export default function PaymentsPage() {
     mutationFn: ({ user_id, amount, description }: { user_id: number; amount: number; description: string }) => 
       paymentsApi.createClickTestOrder(user_id, amount, description),
     onSuccess: (data) => {
-      toast.success('Click.uz test order created successfully');
+      toast.success(t('toast.clickTestCreated'));
       qc.invalidateQueries({ queryKey: ['admin-orders'] });
       qc.invalidateQueries({ queryKey: ['click-test'] });
       
       // Test order yaratilgandan keyin payment URL'larini ko'rsatish
       if (data.data?.payment_urls) {
         const { click_button_url, click_card_url } = data.data.payment_urls;
-        const confirmResult = window.confirm(
-          'Test order yaratildi! Payment URL\'larini ochishni xohlaysizmi?\n\n' +
-          'OK - Click Button URL\nCancel - Click Pay by Card URL'
-        );
+        const confirmResult = window.confirm(t('confirm.clickUrls'));
         
         if (confirmResult) {
           window.open(click_button_url, '_blank');
@@ -161,7 +160,7 @@ export default function PaymentsPage() {
       }
     },
     onError: (error: any) => {
-      const message = error.response?.data?.message || 'Failed to create Click.uz test order';
+      const message = error.response?.data?.message || t('toast.clickTestError');
       toast.error(message);
     }
   });
@@ -169,22 +168,45 @@ export default function PaymentsPage() {
   const orders = ordersData?.data?.orders || [];
   const total = ordersData?.data?.total || 0;
 
+  // Backend enum value -> translated label (values we don't know are shown as returned)
+  const statusLabel = (status: string) => {
+    switch (status) {
+      case 'pending': return t('common:status.pending');
+      case 'processing': return t('common:status.processing');
+      case 'paid': return t('status.paid');
+      case 'cancelled': return t('common:status.cancelled');
+      case 'expired': return t('common:status.expired');
+      case 'failed': return t('common:status.failed');
+      case 'refunded': return t('status.refunded');
+      default: return status;
+    }
+  };
+
+  const productTypeLabel = (type: string) => t(`productTypes.${type}`, { defaultValue: type });
+
+  // Payme `overall_status` ('READY' | 'NOT_CONFIGURED') -> translated label
+  const overallStatusLabel = (status?: string) => {
+    if (status === 'READY') return t('test.overall.ready');
+    if (status === 'NOT_CONFIGURED') return t('test.overall.notConfigured');
+    return status || t('common:status.unknown');
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'pending': return <Badge color="yellow"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
-      case 'paid': return <Badge color="green"><CheckCircle className="w-3 h-3 mr-1" />Paid</Badge>;
-      case 'cancelled': return <Badge color="red"><XCircle className="w-3 h-3 mr-1" />Cancelled</Badge>;
-      case 'expired': return <Badge color="gray"><XCircle className="w-3 h-3 mr-1" />Expired</Badge>;
-      default: return <Badge color="gray">{status}</Badge>;
+      case 'pending': return <Badge color="yellow"><Clock className="w-3 h-3 mr-1" />{statusLabel(status)}</Badge>;
+      case 'paid': return <Badge color="green"><CheckCircle className="w-3 h-3 mr-1" />{statusLabel(status)}</Badge>;
+      case 'cancelled': return <Badge color="red"><XCircle className="w-3 h-3 mr-1" />{statusLabel(status)}</Badge>;
+      case 'expired': return <Badge color="gray"><XCircle className="w-3 h-3 mr-1" />{statusLabel(status)}</Badge>;
+      default: return <Badge color="gray">{statusLabel(status)}</Badge>;
     }
   };
 
   const getProductTypeBadge = (type: string) => {
     switch (type) {
-      case 'coins': return <Badge color="blue">🪙 Coins</Badge>;
-      case 'premium': return <Badge color="purple">💎 Premium</Badge>;
-      case 'cards': return <Badge color="pink">🎴 Cards</Badge>;
-      default: return <Badge color="gray">{type}</Badge>;
+      case 'coins': return <Badge color="blue">🪙 {t('productTypes.coins')}</Badge>;
+      case 'premium': return <Badge color="purple">💎 {t('productTypes.premium')}</Badge>;
+      case 'cards': return <Badge color="pink">🎴 {t('productTypes.cards')}</Badge>;
+      default: return <Badge color="gray">{productTypeLabel(type)}</Badge>;
     }
   };
 
@@ -212,17 +234,17 @@ export default function PaymentsPage() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Payments & Orders
+          {t('title')}
         </h1>
         
         {/* Tab Navigation */}
         <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
           {[
-            { key: 'orders', label: 'Orders', icon: DollarSign },
-            { key: 'transactions', label: 'Transactions', icon: Clock },
-            { key: 'webhooks', label: 'Webhooks', icon: Eye },
-            { key: 'stats', label: 'Statistics', icon: Filter },
-            { key: 'test', label: 'Test', icon: TestTube }
+            { key: 'orders', label: t('tabs.orders'), icon: DollarSign },
+            { key: 'transactions', label: t('tabs.transactions'), icon: Clock },
+            { key: 'webhooks', label: t('tabs.webhooks'), icon: Eye },
+            { key: 'stats', label: t('tabs.stats'), icon: Filter },
+            { key: 'test', label: t('tabs.test'), icon: TestTube }
           ].map(({ key, label, icon: Icon }) => (
             <button
               key={key}
@@ -252,7 +274,7 @@ export default function PaymentsPage() {
                 <input 
                   value={search} 
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search orders..."
+                  placeholder={t('filters.searchPlaceholder')}
                   className="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
                 />
               </div>
@@ -263,11 +285,11 @@ export default function PaymentsPage() {
                 onChange={(e) => setFilters({...filters, status: e.target.value})}
                 className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               >
-                <option value="">All Statuses</option>
-                <option value="pending">Pending</option>
-                <option value="paid">Paid</option>
-                <option value="cancelled">Cancelled</option>
-                <option value="expired">Expired</option>
+                <option value="">{t('filters.allStatuses')}</option>
+                <option value="pending">{t('common:status.pending')}</option>
+                <option value="paid">{t('status.paid')}</option>
+                <option value="cancelled">{t('common:status.cancelled')}</option>
+                <option value="expired">{t('common:status.expired')}</option>
               </select>
 
               {/* Product Type Filter */}
@@ -276,10 +298,10 @@ export default function PaymentsPage() {
                 onChange={(e) => setFilters({...filters, product_type: e.target.value})}
                 className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               >
-                <option value="">All Products</option>
-                <option value="coins">Coins</option>
-                <option value="premium">Premium</option>
-                <option value="cards">Cards</option>
+                <option value="">{t('filters.allProducts')}</option>
+                <option value="coins">{t('productTypes.coins')}</option>
+                <option value="premium">{t('productTypes.premium')}</option>
+                <option value="cards">{t('productTypes.cards')}</option>
               </select>
 
               {/* Date From */}
@@ -306,7 +328,7 @@ export default function PaymentsPage() {
                   setFilters({ status: '', product_type: '', payment_method: '', date_from: '', date_to: '' });
                 }}
               >
-                Clear
+                {t('common:actions.clear')}
               </Button>
             </div>
           </div>
@@ -314,12 +336,22 @@ export default function PaymentsPage() {
           {/* Orders Table */}
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
             {ordersLoading ? (
-              <div className="p-8 text-center">Loading...</div>
+              <div className="p-8 text-center">{t('common:state.loading')}</div>
             ) : orders.length === 0 ? (
-              <EmptyState message="No orders found" />
+              <EmptyState message={t('empty.orders')} />
             ) : (
               <>
-                <Table headers={['Order', 'User', 'Product', 'Amount', 'Status', 'Date', 'Actions']}>
+                <Table
+                  headers={[
+                    t('table.order'),
+                    t('common:table.user'),
+                    t('table.product'),
+                    t('common:table.amount'),
+                    t('common:table.status'),
+                    t('common:table.date'),
+                    t('common:table.actions')
+                  ]}
+                >
                   {orders.map((order: any) => (
                     <tr key={order.id}>
                       <td className="px-4 py-3">
@@ -338,7 +370,7 @@ export default function PaymentsPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="font-medium">{formatNumber(order.amount_som)} so'm</div>
+                        <div className="font-medium">{formatNumber(order.amount_som)} {t('common:units.som')}</div>
                       </td>
                       <td className="px-4 py-3">
                         {getStatusBadge(order.status)}
@@ -368,7 +400,7 @@ export default function PaymentsPage() {
                                   setCancelModal(true);
                                 }}
                               >
-                                Cancel
+                                {t('actions.cancel')}
                               </Button>
                               <Button 
                                 size="sm" 
@@ -377,7 +409,7 @@ export default function PaymentsPage() {
                                   setCompleteModal(true);
                                 }}
                               >
-                                Complete
+                                {t('actions.complete')}
                               </Button>
                             </>
                           )}
@@ -404,9 +436,11 @@ export default function PaymentsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {statsData && statsData.data && statsData.data.map((stat: any, idx: number) => (
             <div key={idx} className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-              <h3 className="font-semibold mb-2">{stat.product_type} - {stat.status}</h3>
+              <h3 className="font-semibold mb-2">{productTypeLabel(stat.product_type)} - {statusLabel(stat.status)}</h3>
               <div className="text-2xl font-bold">{stat.count}</div>
-              <div className="text-sm text-gray-500">Total: {formatNumber(stat.total_amount)} so'm</div>
+              <div className="text-sm text-gray-500">
+                {t('stats.total', { amount: formatNumber(stat.total_amount), currency: t('common:units.som') })}
+              </div>
             </div>
           ))}
         </div>
@@ -416,13 +450,23 @@ export default function PaymentsPage() {
       {activeTab === 'transactions' && (
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
           {transactionsData && transactionsData.data ? (
-            <Table headers={['Transaction ID', 'Order', 'User', 'Amount', 'Provider', 'Status', 'Date']}>
+            <Table
+              headers={[
+                t('table.transactionId'),
+                t('table.order'),
+                t('common:table.user'),
+                t('common:table.amount'),
+                t('table.provider'),
+                t('common:table.status'),
+                t('common:table.date')
+              ]}
+            >
               {transactionsData.data.map((tx: any) => (
                 <tr key={tx.id}>
                   <td className="px-4 py-3 font-mono text-sm">{tx.provider_transaction_id || tx.id}</td>
                   <td className="px-4 py-3 font-mono text-sm">{tx.order_number}</td>
                   <td className="px-4 py-3">{tx.username}</td>
-                  <td className="px-4 py-3">{formatNumber(tx.amount)} tiyin</td>
+                  <td className="px-4 py-3">{formatNumber(tx.amount)} {t('units.tiyin')}</td>
                   <td className="px-4 py-3">
                     <Badge color="blue">{tx.provider}</Badge>
                   </td>
@@ -436,7 +480,7 @@ export default function PaymentsPage() {
               ))}
             </Table>
           ) : (
-            <EmptyState message="No transactions found" />
+            <EmptyState message={t('empty.transactions')} />
           )}
         </div>
       )}
@@ -445,7 +489,16 @@ export default function PaymentsPage() {
       {activeTab === 'webhooks' && (
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
           {webhooksData?.data?.webhooks ? (
-            <Table headers={['Provider', 'Transaction ID', 'Status', 'Request', 'Response', 'Date']}>
+            <Table
+              headers={[
+                t('table.provider'),
+                t('table.transactionId'),
+                t('common:table.status'),
+                t('table.request'),
+                t('table.response'),
+                t('common:table.date')
+              ]}
+            >
               {webhooksData.data.webhooks.map((webhook: any) => (
                 <tr key={webhook.id}>
                   <td className="px-4 py-3">
@@ -459,7 +512,7 @@ export default function PaymentsPage() {
                   </td>
                   <td className="px-4 py-3">
                     <details className="cursor-pointer">
-                      <summary className="text-sm text-blue-600 dark:text-blue-400">View Request</summary>
+                      <summary className="text-sm text-blue-600 dark:text-blue-400">{t('webhooks.viewRequest')}</summary>
                       <pre className="mt-2 text-xs bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 p-2 rounded overflow-auto max-h-32">
                         {JSON.stringify(webhook.request_body, null, 2)}
                       </pre>
@@ -467,7 +520,7 @@ export default function PaymentsPage() {
                   </td>
                   <td className="px-4 py-3">
                     <details className="cursor-pointer">
-                      <summary className="text-sm text-blue-600 dark:text-blue-400">View Response</summary>
+                      <summary className="text-sm text-blue-600 dark:text-blue-400">{t('webhooks.viewResponse')}</summary>
                       <pre className="mt-2 text-xs bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 p-2 rounded overflow-auto max-h-32">
                         {JSON.stringify(webhook.response_body, null, 2)}
                       </pre>
@@ -480,7 +533,7 @@ export default function PaymentsPage() {
               ))}
             </Table>
           ) : (
-            <EmptyState message="No webhook logs found" />
+            <EmptyState message={t('empty.webhooks')} />
           )}
         </div>
       )}
@@ -490,10 +543,10 @@ export default function PaymentsPage() {
         <div className="space-y-6">
           {/* Payme Integration Status */}
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Payme Integration Status</h2>
+            <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{t('payme.title')}</h2>
             
             {paymeTestLoading ? (
-              <div className="text-center py-4">Loading integration status...</div>
+              <div className="text-center py-4">{t('test.loadingStatus')}</div>
             ) : paymeTestData ? (
               <div className="space-y-4">
                 <div className={`p-4 rounded-lg border ${
@@ -506,7 +559,7 @@ export default function PaymentsPage() {
                       ? 'text-green-800 dark:text-green-200'
                       : 'text-red-800 dark:text-red-200'
                   }`}>
-                    Status: {paymeTestData.data?.overall_status || 'Unknown'}
+                    {t('test.statusLine', { status: overallStatusLabel(paymeTestData.data?.overall_status) })}
                   </h3>
                   <p className={`text-sm mt-1 ${
                     paymeTestData.data?.overall_status === 'READY' 
@@ -514,46 +567,46 @@ export default function PaymentsPage() {
                       : 'text-red-600 dark:text-red-300'
                   }`}>
                     {paymeTestData.data?.overall_status === 'READY' 
-                      ? 'Payme integration is properly configured and ready'
-                      : 'Payme integration needs configuration'
+                      ? t('payme.ready')
+                      : t('payme.needsConfig')
                     }
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                    <h4 className="font-medium text-gray-900 dark:text-white mb-2">Configuration</h4>
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-2">{t('test.configuration')}</h4>
                     <ul className="text-sm space-y-1">
                       <li className="flex justify-between">
-                        <span>Merchant ID:</span>
+                        <span>{t('test.merchantId')}:</span>
                         <span className={paymeTestData.data?.config?.merchant_id !== 'NOT_SET' ? 'text-green-600' : 'text-red-600'}>
-                          {paymeTestData.data?.config?.merchant_id !== 'NOT_SET' ? '✓ Set' : '✗ Not Set'}
+                          {paymeTestData.data?.config?.merchant_id !== 'NOT_SET' ? t('test.set') : t('test.notSet')}
                         </span>
                       </li>
                       <li className="flex justify-between">
-                        <span>Secret Key:</span>
+                        <span>{t('test.secretKey')}:</span>
                         <span className={paymeTestData.data?.config?.secret_key !== 'NOT_SET' ? 'text-green-600' : 'text-red-600'}>
-                          {paymeTestData.data?.config?.secret_key !== 'NOT_SET' ? '✓ Set' : '✗ Not Set'}
+                          {paymeTestData.data?.config?.secret_key !== 'NOT_SET' ? t('test.set') : t('test.notSet')}
                         </span>
                       </li>
                       <li className="flex justify-between">
-                        <span>Test Mode:</span>
-                        <span>{paymeTestData.data?.config?.test_mode || 'Unknown'}</span>
+                        <span>{t('test.testMode')}:</span>
+                        <span>{paymeTestData.data?.config?.test_mode || t('common:status.unknown')}</span>
                       </li>
                     </ul>
                   </div>
 
                   <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                    <h4 className="font-medium text-gray-900 dark:text-white mb-2">Database</h4>
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-2">{t('test.database')}</h4>
                     <ul className="text-sm space-y-1">
                       <li className="flex justify-between">
-                        <span>Orders Table:</span>
+                        <span>{t('test.ordersTable')}:</span>
                         <span className={paymeTestData.data?.database?.orders_table_exists ? 'text-green-600' : 'text-red-600'}>
-                          {paymeTestData.data?.database?.orders_table_exists ? '✓ Exists' : '✗ Missing'}
+                          {paymeTestData.data?.database?.orders_table_exists ? t('test.exists') : t('test.missing')}
                         </span>
                       </li>
                       <li className="flex justify-between">
-                        <span>Recent Orders (24h):</span>
+                        <span>{t('test.recentOrders24h')}:</span>
                         <span>{paymeTestData.data?.database?.recent_orders_24h || 0}</span>
                       </li>
                     </ul>
@@ -565,25 +618,26 @@ export default function PaymentsPage() {
 
           {/* Test Order Creation */}
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Test Payment Integration</h2>
+            <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{t('payme.testTitle')}</h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Create test orders to verify Payme integration. Choose between regular test order or Payme-specific test order.
+              {t('payme.testDescription')}
             </p>
             
             <div className="flex gap-3">
               <Button onClick={() => setTestOrderModal(true)} className="flex items-center gap-2">
                 <TestTube className="w-4 h-4" />
-                Create Test Order
+                {t('actions.createTestOrder')}
               </Button>
               
               <Button 
                 onClick={() => {
-                  const userId = prompt('Enter User ID:');
-                  const amount = prompt('Enter Amount (in so\'m):');
+                  const userId = prompt(t('prompts.userId'));
+                  const amount = prompt(t('prompts.amount'));
                   if (userId && amount) {
                     createPaymeTestOrderMutation.mutate({
                       user_id: parseInt(userId),
                       amount: parseFloat(amount) * 100, // Convert to tiyin
+                      // i18n-ignore: order description stored by the API, not UI text
                       description: 'Admin Payme Test Order'
                     });
                   }
@@ -593,20 +647,20 @@ export default function PaymentsPage() {
                 className="flex items-center gap-2"
               >
                 <DollarSign className="w-4 h-4" />
-                Create Payme Test
+                {t('actions.createPaymeTest')}
               </Button>
             </div>
           </div>
 
           <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-4">
-            <h3 className="font-medium text-amber-800 dark:text-amber-200 mb-2">Test Instructions:</h3>
+            <h3 className="font-medium text-amber-800 dark:text-amber-200 mb-2">{t('payme.instructionsTitle')}:</h3>
             <ol className="text-sm text-amber-700 dark:text-amber-300 space-y-1">
-              <li>1. Click "Create Test Order" button</li>
-              <li>2. Fill in package ID and user ID</li>
-              <li>3. System will create order and open Payme payment URL</li>
-              <li>4. Complete payment in Payme test environment</li>
-              <li>5. Check webhook logs to verify payment flow</li>
-              <li>6. Verify order status changes to "paid"</li>
+              <li>{t('payme.steps.step1', { button: t('actions.createTestOrder') })}</li>
+              <li>{t('payme.steps.step2')}</li>
+              <li>{t('payme.steps.step3')}</li>
+              <li>{t('payme.steps.step4')}</li>
+              <li>{t('payme.steps.step5')}</li>
+              <li>{t('payme.steps.step6', { status: t('status.paid') })}</li>
             </ol>
           </div>
         </div>
@@ -619,42 +673,42 @@ export default function PaymentsPage() {
         <div className="space-y-6">
           {/* Click.uz Integration Status */}
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Click.uz Integration Status</h2>
+            <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{t('click.title')}</h2>
             
             {clickTestLoading ? (
-              <div className="text-center py-4">Loading integration status...</div>
+              <div className="text-center py-4">{t('test.loadingStatus')}</div>
             ) : clickTestData?.data ? (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Service ID</label>
+                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">{t('test.serviceId')}</label>
                     <p className="text-sm font-mono text-gray-900 dark:text-white">
                       <span className={clickTestData.data?.config?.service_id !== 'NOT_SET' ? 'text-green-600' : 'text-red-600'}>
-                        {clickTestData.data?.config?.service_id !== 'NOT_SET' ? '✓ Set' : '✗ Not Set'}
+                        {clickTestData.data?.config?.service_id !== 'NOT_SET' ? t('test.set') : t('test.notSet')}
                       </span>
                     </p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Merchant ID</label>
+                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">{t('test.merchantId')}</label>
                     <p className="text-sm font-mono text-gray-900 dark:text-white">
                       <span className={clickTestData.data?.config?.merchant_id !== 'NOT_SET' ? 'text-green-600' : 'text-red-600'}>
-                        {clickTestData.data?.config?.merchant_id !== 'NOT_SET' ? '✓ Set' : '✗ Not Set'}
+                        {clickTestData.data?.config?.merchant_id !== 'NOT_SET' ? t('test.set') : t('test.notSet')}
                       </span>
                     </p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Secret Key</label>
+                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">{t('test.secretKey')}</label>
                     <p className="text-sm font-mono text-gray-900 dark:text-white">
                       <span className={clickTestData.data?.config?.secret_key !== 'NOT_SET' ? 'text-green-600' : 'text-red-600'}>
-                        {clickTestData.data?.config?.secret_key !== 'NOT_SET' ? '✓ Set' : '✗ Not Set'}
+                        {clickTestData.data?.config?.secret_key !== 'NOT_SET' ? t('test.set') : t('test.notSet')}
                       </span>
                     </p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Database</label>
+                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">{t('test.database')}</label>
                     <p className="text-sm text-gray-900 dark:text-white">
                       <span className={clickTestData.data?.database_status === 'Connected' ? 'text-green-600' : 'text-red-600'}>
-                        {clickTestData.data?.database_status === 'Connected' ? '✓ Connected' : '✗ Disconnected'}
+                        {clickTestData.data?.database_status === 'Connected' ? t('test.connected') : t('test.disconnected')}
                       </span>
                     </p>
                   </div>
@@ -662,7 +716,7 @@ export default function PaymentsPage() {
                 
                 <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
-                    Integration Status: {' '}
+                    {t('test.integrationStatus')}: {' '}
                     <span className={
                       clickTestData.data?.config?.service_id !== 'NOT_SET' && 
                       clickTestData.data?.config?.merchant_id !== 'NOT_SET' &&
@@ -673,8 +727,8 @@ export default function PaymentsPage() {
                       {clickTestData.data?.config?.service_id !== 'NOT_SET' && 
                        clickTestData.data?.config?.merchant_id !== 'NOT_SET' &&
                        clickTestData.data?.config?.secret_key !== 'NOT_SET'
-                        ? 'Click.uz integration is properly configured and ready'
-                        : 'Click.uz integration needs configuration'
+                        ? t('click.ready')
+                        : t('click.needsConfig')
                       }
                     </span>
                   </p>
@@ -683,7 +737,7 @@ export default function PaymentsPage() {
                 {/* Integration Recommendations */}
                 {clickTestData.data?.recommendations && (
                   <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
-                    <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">Recommendations:</h4>
+                    <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">{t('test.recommendations')}:</h4>
                     <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
                       {clickTestData.data.recommendations.map((rec: string, index: number) => (
                         <li key={index}>• {rec}</li>
@@ -693,26 +747,27 @@ export default function PaymentsPage() {
                 )}
               </div>
             ) : (
-              <div className="text-center py-4 text-red-600">Failed to load integration status</div>
+              <div className="text-center py-4 text-red-600">{t('test.loadError')}</div>
             )}
           </div>
 
           {/* Click.uz Test Payment Section */}
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Test Click.uz Integration</h2>
+            <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{t('click.testTitle')}</h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Create test orders to verify Click.uz integration. This will create both Click Button and Click Pay by Card URLs.
+              {t('click.testDescription')}
             </p>
             
             <div className="flex gap-3">
               <Button
                 onClick={() => {
-                  const userId = prompt('Foydalanuvchi ID kiriting:');
-                  const amount = prompt('Miqdor kiriting (so\'mda):');
+                  const userId = prompt(t('prompts.userId'));
+                  const amount = prompt(t('prompts.amount'));
                   if (userId && amount) {
                     createClickTestOrderMutation.mutate({
                       user_id: parseInt(userId),
                       amount: parseFloat(amount),
+                      // i18n-ignore: order description stored by the API, not UI text
                       description: 'Admin Click.uz Test Order'
                     });
                   }
@@ -722,21 +777,21 @@ export default function PaymentsPage() {
                 className="flex items-center gap-2"
               >
                 <DollarSign className="w-4 h-4" />
-                Create Click.uz Test
+                {t('actions.createClickTest')}
               </Button>
             </div>
           </div>
 
           <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-4">
-            <h3 className="font-medium text-amber-800 dark:text-amber-200 mb-2">Click.uz Test Instructions:</h3>
+            <h3 className="font-medium text-amber-800 dark:text-amber-200 mb-2">{t('click.instructionsTitle')}:</h3>
             <ol className="text-sm text-amber-700 dark:text-amber-300 space-y-1">
-              <li>1. Click "Create Click.uz Test" button</li>
-              <li>2. Fill in user ID and amount (in som)</li>
-              <li>3. System will create order and show payment URL options</li>
-              <li>4. Choose between Click Button URL or Click Pay by Card URL</li>
-              <li>5. Complete payment in Click.uz test environment</li>
-              <li>6. Check callback logs to verify payment flow</li>
-              <li>7. Verify order status changes to "paid"</li>
+              <li>{t('click.steps.step1', { button: t('actions.createClickTest') })}</li>
+              <li>{t('click.steps.step2')}</li>
+              <li>{t('click.steps.step3')}</li>
+              <li>{t('click.steps.step4')}</li>
+              <li>{t('click.steps.step5')}</li>
+              <li>{t('click.steps.step6')}</li>
+              <li>{t('click.steps.step7', { status: t('status.paid') })}</li>
             </ol>
           </div>
         </div>
@@ -744,25 +799,25 @@ export default function PaymentsPage() {
       )}
 
       {/* Order Detail Modal */}
-      <Modal open={orderDetailModal} onClose={() => setOrderDetailModal(false)} title="Order Details">
+      <Modal open={orderDetailModal} onClose={() => setOrderDetailModal(false)} title={t('modal.orderDetails')}>
         {selectedOrder && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">Order Number</label>
+                <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">{t('modal.orderNumber')}</label>
                 <div className="font-mono text-gray-900 dark:text-white">{selectedOrder.order_number}</div>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">Status</label>
+                <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">{t('common:table.status')}</label>
                 {getStatusBadge(selectedOrder.status)}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">Product</label>
+                <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">{t('table.product')}</label>
                 {getProductTypeBadge(selectedOrder.product_type)}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">Amount</label>
-                <div className="text-gray-900 dark:text-white">{formatNumber(selectedOrder.amount_som)} so'm</div>
+                <label className="block text-sm font-medium mb-1 text-gray-900 dark:text-white">{t('common:table.amount')}</label>
+                <div className="text-gray-900 dark:text-white">{formatNumber(selectedOrder.amount_som)} {t('common:units.som')}</div>
               </div>
             </div>
           </div>
@@ -770,98 +825,97 @@ export default function PaymentsPage() {
       </Modal>
 
       {/* Cancel Order Modal */}
-      <Modal open={cancelModal} onClose={() => setCancelModal(false)} title="Cancel Order">
+      <Modal open={cancelModal} onClose={() => setCancelModal(false)} title={t('actions.cancelOrder')}>
         <form onSubmit={cancelForm.handleSubmit(handleCancel)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">Cancellation Reason</label>
+            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">{t('modal.cancelReason')}</label>
             <textarea 
-              {...cancelForm.register('reason', { required: 'Reason is required' })}
+              {...cancelForm.register('reason', { required: true })}
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
-              placeholder="Enter reason for cancellation..."
+              placeholder={t('modal.cancelReasonPlaceholder')}
             />
             {cancelForm.formState.errors.reason && (
-              <p className="text-xs text-red-500 mt-1">{String(cancelForm.formState.errors.reason?.message)}</p>
+              <p className="text-xs text-red-500 mt-1">{t('validation.reasonRequired')}</p>
             )}
           </div>
           <div className="flex gap-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setCancelModal(false)}>
-              Cancel
+              {t('common:actions.cancel')}
             </Button>
             <Button type="submit" variant="danger" loading={cancelMutation.isPending}>
-              Cancel Order
+              {t('actions.cancelOrder')}
             </Button>
           </div>
         </form>
       </Modal>
 
       {/* Complete Order Modal */}
-      <Modal open={completeModal} onClose={() => setCompleteModal(false)} title="Complete Order">
+      <Modal open={completeModal} onClose={() => setCompleteModal(false)} title={t('actions.completeOrder')}>
         <form onSubmit={completeForm.handleSubmit(handleComplete)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">Notes (Optional)</label>
+            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">{t('modal.notesOptional')}</label>
             <textarea 
               {...completeForm.register('notes')}
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
-              placeholder="Add any notes about manual completion..."
+              placeholder={t('modal.notesPlaceholder')}
             />
           </div>
           <div className="flex gap-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setCompleteModal(false)}>
-              Cancel
+              {t('common:actions.cancel')}
             </Button>
             <Button type="submit" loading={completeMutation.isPending}>
-              Complete Order
+              {t('actions.completeOrder')}
             </Button>
           </div>
         </form>
       </Modal>
 
       {/* Test Order Modal */}
-      <Modal open={testOrderModal} onClose={() => setTestOrderModal(false)} title="Create Test Order">
+      <Modal open={testOrderModal} onClose={() => setTestOrderModal(false)} title={t('actions.createTestOrder')}>
         <form onSubmit={testForm.handleSubmit(handleCreateTestOrder)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">Package ID *</label>
+            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">{t('modal.packageId')}</label>
             <input 
-              {...testForm.register('package_id', { required: 'Package ID is required', valueAsNumber: true })}
+              {...testForm.register('package_id', { required: true, valueAsNumber: true })}
               type="number"
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              placeholder="Enter package ID (e.g., 1)"
+              placeholder={t('modal.packageIdPlaceholder')}
             />
             {testForm.formState.errors.package_id && (
-              <p className="text-xs text-red-500 mt-1">{String(testForm.formState.errors.package_id?.message)}</p>
+              <p className="text-xs text-red-500 mt-1">{t('validation.packageIdRequired')}</p>
             )}
-            <p className="text-xs text-gray-500 mt-1">ID of the coin/premium package to test</p>
+            <p className="text-xs text-gray-500 mt-1">{t('modal.packageIdHint')}</p>
           </div>
           
           <div>
-            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">User ID *</label>
+            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">{t('modal.userId')}</label>
             <input 
-              {...testForm.register('user_id', { required: 'User ID is required', valueAsNumber: true })}
+              {...testForm.register('user_id', { required: true, valueAsNumber: true })}
               type="number"
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              placeholder="Enter user ID (e.g., 1)"
+              placeholder={t('modal.userIdPlaceholder')}
             />
             {testForm.formState.errors.user_id && (
-              <p className="text-xs text-red-500 mt-1">{String(testForm.formState.errors.user_id?.message)}</p>
+              <p className="text-xs text-red-500 mt-1">{t('validation.userIdRequired')}</p>
             )}
-            <p className="text-xs text-gray-500 mt-1">ID of the user to create order for</p>
+            <p className="text-xs text-gray-500 mt-1">{t('modal.userIdHint')}</p>
           </div>
           
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
             <p className="text-sm text-blue-800 dark:text-blue-200">
-              <strong>Note:</strong> This will create a real order and open Payme payment URL in new tab. 
-              Use test credentials in Payme environment.
+              <Trans i18nKey="payments:modal.testNote" components={{ b: <strong /> }} />
             </p>
           </div>
           
           <div className="flex gap-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setTestOrderModal(false)}>
-              Cancel
+              {t('common:actions.cancel')}
             </Button>
             <Button type="submit" loading={createTestOrderMutation.isPending}>
-              Create Test Order
+              {t('actions.createTestOrder')}
             </Button>
           </div>
         </form>

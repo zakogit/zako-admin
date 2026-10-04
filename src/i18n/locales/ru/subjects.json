@@ -1,0 +1,55 @@
+{
+  "title": "Предметы",
+  "filters": {
+    "searchPlaceholder": "Поиск предметов..."
+  },
+  "actions": {
+    "add": "Добавить предмет"
+  },
+  "empty": {
+    "list": "Предметы не найдены"
+  },
+  "slug": "Slug",
+  "table": {
+    "topics": "Темы",
+    "questions": "Вопросы"
+  },
+  "count": {
+    "topics_one": "{{count}} тема",
+    "topics_few": "{{count}} темы",
+    "topics_many": "{{count}} тем",
+    "topics_other": "{{count}} темы",
+    "questions_one": "{{count}} вопрос",
+    "questions_few": "{{count}} вопроса",
+    "questions_many": "{{count}} вопросов",
+    "questions_other": "{{count}} вопроса"
+  },
+  "modal": {
+    "create": "Создание предмета",
+    "edit": "Редактирование предмета",
+    "delete": "Удаление предмета"
+  },
+  "form": {
+    "name": "Название предмета",
+    "icon": "Иконка предмета",
+    "iconPreviewAlt": "Предпросмотр",
+    "currentIcon": "Текущая иконка",
+    "chooseImage": "Выбрать изображение"
+  },
+  "validation": {
+    "name": "Введите название предмета",
+    "slug": "Введите slug"
+  },
+  "confirm": {
+    "delete": "Вы уверены, что хотите удалить этот предмет? Это действие нельзя отменить."
+  },
+  "toast": {
+    "created": "Предмет успешно создан",
+    "createFailed": "Не удалось создать предмет",
+    "updated": "Предмет успешно обновлён",
+    "updateFailed": "Не удалось обновить предмет",
+    "deleted": "Предмет успешно удалён",
+    "deleteFailed": "Не удалось удалить предмет",
+    "notImage": "Пожалуйста, выберите файл изображения"
+  }
+}

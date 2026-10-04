@@ -1,0 +1,56 @@
+{
+  "title": "Leagues",
+  "subtitle": "XP-based leagues — they control the profile and the ZAKO league page in the mobile app",
+  "actions": {
+    "addLeague": "Add league",
+    "uploadIcon": "Upload icon"
+  },
+  "table": {
+    "icon": "Icon",
+    "xpRange": "XP range"
+  },
+  "empty": {
+    "noLeagues": "No leagues found"
+  },
+  "xpRules": {
+    "title": "XP rules",
+    "description": "XP awarded to a player at the end of each duel. The rating delta uses the same values. Card effects are applied on top.",
+    "win": "Win XP",
+    "lose": "Loss XP",
+    "draw": "Draw XP",
+    "saveError": "Failed to save"
+  },
+  "modal": {
+    "createTitle": "Add league",
+    "editTitle": "Edit league",
+    "deleteTitle": "Delete league"
+  },
+  "form": {
+    "descriptionPlaceholder": "The league for users who have earned more than 1,000 XP.",
+    "minXp": "Min XP",
+    "maxXp": "Max XP",
+    "sortOrder": "Sort order",
+    "iconHint": "The icon is uploaded separately with the upload button in the table."
+  },
+  "validation": {
+    "nameRequired": "League name is required",
+    "minXpRequired": "Min XP is required",
+    "minXpNegative": "Min XP cannot be less than 0",
+    "maxXpRequired": "Max XP is required"
+  },
+  "confirm": {
+    "delete": "Do you confirm deleting the <b>{{name}}</b> league? This action cannot be undone — it is usually safer to set it to \"Inactive\" instead of deleting it."
+  },
+  "toast": {
+    "created": "League created",
+    "createError": "Failed to create the league",
+    "updated": "League updated",
+    "updateError": "Failed to update the league",
+    "iconUploaded": "Icon uploaded",
+    "iconUploadError": "Failed to upload the icon",
+    "deleted": "League deleted",
+    "deleteError": "Failed to delete the league",
+    "onlyImages": "Only image files are accepted",
+    "fileTooLarge": "File size must not exceed 5 MB"
+  }
+}

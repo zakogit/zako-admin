@@ -1,0 +1,121 @@
+{
+  "title": "📢 Notification management",
+  "subtitle": "Send and manage notifications for all users",
+  "totalCount_one": "({{count, number}} notification)",
+  "totalCount_other": "({{count, number}} notifications)",
+  "empty": "No notifications found",
+  "stats": {
+    "total": "Total notifications",
+    "today": "Today",
+    "thisWeek": "This week"
+  },
+  "status": {
+    "read": "Read",
+    "unread": "Unread"
+  },
+  "actions": {
+    "sendMessage": "Send message",
+    "templates": "Templates"
+  },
+  "filters": {
+    "search": "Search notifications (by title or text)..."
+  },
+  "types": {
+    "filter": {
+      "all": "🏷️ All types",
+      "WELCOME": "🎉 Welcome",
+      "BIRTHDAY_GIFT": "🎂 Birthday",
+      "ADMIN_MESSAGE": "👤 Admin message",
+      "BROADCAST": "📢 Broadcast",
+      "SYSTEM": "⚙️ System"
+    },
+    "badge": {
+      "WELCOME": "🎉 Welcome",
+      "BIRTHDAY_GIFT": "🎂 Birthday",
+      "ADMIN_MESSAGE": "👤 Admin",
+      "BROADCAST": "📢 Broadcast",
+      "SYSTEM": "⚙️ System"
+    },
+    "form": {
+      "placeholder": "Select type",
+      "ADMIN_MESSAGE": "Admin message",
+      "BROADCAST": "Broadcast",
+      "SYSTEM": "System",
+      "ANNOUNCEMENT": "Announcement",
+      "MAINTENANCE": "Maintenance"
+    }
+  },
+  "target": {
+    "all": "All users",
+    "verified": "Verified users",
+    "premium": "Premium users",
+    "specific": "Selected users"
+  },
+  "table": {
+    "notification": "Notification",
+    "target": "Target",
+    "recipients": "Recipients",
+    "recipient": "Recipient: {{username}}",
+    "createdBy": "by {{username}}",
+    "users": "users",
+    "deliveryReport": "Delivery report"
+  },
+  "delivery": {
+    "title": "📊 Delivery report - {{title}}",
+    "delivered": "Delivered",
+    "readRate": "Read rate",
+    "recipientsList": "Recipients list",
+    "time": "Time"
+  },
+  "deleteModal": {
+    "title": "🗑️ Delete notification",
+    "warningTitle": "Warning!",
+    "warning": "This action cannot be undone. The notification will be permanently deleted.",
+    "meta_one": "Created: {{date}} | Sent to {{count, number}} user",
+    "meta_other": "Created: {{date}} | Sent to {{count, number}} users"
+  },
+  "form": {
+    "titlePlaceholder": "Notification title",
+    "messageLabel": "Message text",
+    "messagePlaceholder": "Notification message...",
+    "imageLabel": "Image (optional)",
+    "imageHint": "Shown in the push and in the inbox",
+    "removeImage": "Remove",
+    "pickImage": "Choose image (JPG/PNG/WEBP, up to 5MB)",
+    "sendTo": "Send to",
+    "targetPlaceholder": "Select recipients",
+    "targets": {
+      "all": "🌍 Everyone",
+      "verified": "✅ Verified users",
+      "premium": "👑 Premium users",
+      "specific": "🎯 Specific users"
+    },
+    "userIds": "User IDs (comma-separated)",
+    "userIdsExample": "Example: 1, 2, 3, 4",
+    "templates": "Templates:"
+  },
+  "templates": {
+    "title": "Notification templates",
+    "description": "Here you can view and edit the existing templates:",
+    "empty": "No templates found"
+  },
+  "toast": {
+    "sent_one": "✅ Sent to {{count, number}} user",
+    "sent_other": "✅ Sent to {{count, number}} users",
+    "pushOff": "(push is off - inbox only)",
+    "sendError": "Failed to send the message",
+    "imageUploaded": "Image uploaded",
+    "imageUploadError": "Failed to upload the image",
+    "imageOnly": "Image files only",
+    "imageTooLarge": "The image must not exceed 5MB",
+    "userIdsRequired": "Enter at least one valid user ID",
+    "deleted": "Notification deleted",
+    "deleteError": "Failed to delete the notification"
+  },
+  "validation": {
+    "title": "Title is required",
+    "type": "Type is required",
+    "message": "Message is required",
+    "target": "Recipients are required"
+  }
+}

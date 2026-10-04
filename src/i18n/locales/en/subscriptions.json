@@ -1,0 +1,74 @@
+{
+  "title": "Premium subscriptions",
+  "subtitle": "Manage premium memberships and subscriptions",
+  "stats": {
+    "total": "Total subscribers",
+    "active": "Active subscribers",
+    "monthlyRevenue": "Monthly revenue",
+    "newThisMonth": "New this month"
+  },
+  "filters": {
+    "searchPlaceholder": "Search user...",
+    "allStatuses": "All statuses",
+    "allPlans": "All plans"
+  },
+  "plans": {
+    "monthly": "Monthly",
+    "yearly": "Yearly"
+  },
+  "table": {
+    "plan": "Plan",
+    "period": "Period",
+    "autoRenew": "Auto-renew",
+    "daysLeft_one": "{{count}} day left",
+    "daysLeft_other": "{{count}} days left"
+  },
+  "empty": {
+    "subscribers": "No premium subscribers found"
+  },
+  "actions": {
+    "enableAutoRenew": "Turn on auto-renew",
+    "disableAutoRenew": "Turn off auto-renew"
+  },
+  "extend": {
+    "title": "Extend period",
+    "description": "Extending the subscription of <b>{{name}}</b> (currently ends: {{date}}).",
+    "customDays": "Or enter an exact number of days",
+    "submit": "Extend"
+  },
+  "cancel": {
+    "title": "Cancel subscription",
+    "action": "Cancel subscription",
+    "description": "The subscription of <b>{{name}}</b> will be cancelled and premium will be removed immediately.",
+    "reasonLabel": "Reason *",
+    "reasonPlaceholder": "Cancellation reason"
+  },
+  "details": {
+    "title": "Subscription details",
+    "userId": "User ID",
+    "daysLeft": "Time left"
+  },
+  "grant": {
+    "title": "Grant premium manually",
+    "userLabel": "User *",
+    "changeUser": "Choose another user",
+    "searchPlaceholder": "Search by name, username or phone...",
+    "searching": "Searching...",
+    "duration": "Duration (days)",
+    "priceHint": "For manual grants the price is recorded as 0 {{currency}} (gift).",
+    "submit": "Grant premium"
+  },
+  "toast": {
+    "extended": "Subscription extended successfully",
+    "extendError": "Failed to extend the subscription",
+    "updated": "Subscription updated",
+    "updateError": "Failed to update the subscription",
+    "granted": "Premium granted successfully",
+    "grantError": "Failed to grant premium",
+    "userIdRequired": "Enter a user ID",
+    "cancelled": "Subscription cancelled",
+    "cancelError": "Failed to cancel the subscription",
+    "minDays": "Days cannot be less than 1",
+    "reasonRequired": "Enter a cancellation reason"
+  }
+}

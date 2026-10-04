@@ -1,0 +1,181 @@
+{
+  "title": "Payments & orders",
+  "tabs": {
+    "orders": "Orders",
+    "transactions": "Transactions",
+    "webhooks": "Webhooks",
+    "stats": "Statistics",
+    "test": "Test"
+  },
+  "status": {
+    "paid": "Paid",
+    "refunded": "Refunded"
+  },
+  "productTypes": {
+    "coins": "Coins",
+    "premium": "Premium",
+    "cards": "Cards",
+    "diamonds": "Diamonds",
+    "season_premium": "Season premium",
+    "zako_pass_premium": "Zako Pass Premium"
+  },
+  "filters": {
+    "searchPlaceholder": "Search orders...",
+    "allStatuses": "All statuses",
+    "allProducts": "All products"
+  },
+  "table": {
+    "order": "Order",
+    "product": "Product",
+    "transactionId": "Transaction ID",
+    "provider": "Provider",
+    "request": "Request",
+    "response": "Response"
+  },
+  "actions": {
+    "cancel": "Cancel",
+    "complete": "Complete",
+    "cancelOrder": "Cancel order",
+    "completeOrder": "Complete order",
+    "createTestOrder": "Create test order",
+    "createPaymeTest": "Create Payme test",
+    "createClickTest": "Create Click.uz test"
+  },
+  "empty": {
+    "orders": "No orders found",
+    "transactions": "No transactions found",
+    "webhooks": "No webhook logs found"
+  },
+  "stats": {
+    "total": "Total: {{amount}} {{currency}}"
+  },
+  "units": {
+    "tiyin": "tiyin"
+  },
+  "webhooks": {
+    "viewRequest": "View request",
+    "viewResponse": "View response"
+  },
+  "test": {
+    "loadingStatus": "Loading integration status...",
+    "loadError": "Failed to load integration status",
+    "statusLine": "Status: {{status}}",
+    "overall": {
+      "ready": "Ready",
+      "notConfigured": "Not configured"
+    },
+    "set": "✓ Set",
+    "notSet": "✗ Not set",
+    "exists": "✓ Exists",
+    "missing": "✗ Missing",
+    "connected": "✓ Connected",
+    "disconnected": "✗ Disconnected",
+    "configuration": "Configuration",
+    "database": "Database",
+    "ordersTable": "Orders table",
+    "recentOrders24h": "Recent orders (24h)",
+    "merchantId": "Merchant ID",
+    "secretKey": "Secret key",
+    "serviceId": "Service ID",
+    "testMode": "Test mode",
+    "integrationStatus": "Integration status",
+    "recommendations": "Recommendations"
+  },
+  "payme": {
+    "title": "Payme integration status",
+    "ready": "Payme integration is properly configured and ready",
+    "needsConfig": "Payme integration needs configuration",
+    "testTitle": "Test payment integration",
+    "testDescription": "Create test orders to verify Payme integration. Choose between regular test order or Payme-specific test order.",
+    "instructionsTitle": "Test instructions",
+    "steps": {
+      "step1": "1. Click the \"{{button}}\" button",
+      "step2": "2. Fill in package ID and user ID",
+      "step3": "3. The system will create an order and open the Payme payment URL",
+      "step4": "4. Complete the payment in the Payme test environment",
+      "step5": "5. Check the webhook logs to verify the payment flow",
+      "step6": "6. Verify the order status changes to \"{{status}}\""
+    }
+  },
+  "click": {
+    "title": "Click.uz integration status",
+    "ready": "Click.uz integration is properly configured and ready",
+    "needsConfig": "Click.uz integration needs configuration",
+    "testTitle": "Test Click.uz integration",
+    "testDescription": "Create test orders to verify Click.uz integration. This will create both Click Button and Click Pay by Card URLs.",
+    "instructionsTitle": "Click.uz test instructions",
+    "steps": {
+      "step1": "1. Click the \"{{button}}\" button",
+      "step2": "2. Fill in user ID and amount (in UZS)",
+      "step3": "3. The system will create an order and show the payment URL options",
+      "step4": "4. Choose between Click Button URL or Click Pay by Card URL",
+      "step5": "5. Complete the payment in the Click.uz test environment",
+      "step6": "6. Check the callback logs to verify the payment flow",
+      "step7": "7. Verify the order status changes to \"{{status}}\""
+    }
+  },
+  "modal": {
+    "orderDetails": "Order details",
+    "orderNumber": "Order number",
+    "cancelReason": "Cancellation reason",
+    "cancelReasonPlaceholder": "Enter reason for cancellation...",
+    "notesOptional": "Notes (optional)",
+    "notesPlaceholder": "Add any notes about manual completion...",
+    "packageId": "Package ID *",
+    "packageIdPlaceholder": "Enter package ID (e.g., 1)",
+    "packageIdHint": "ID of the coin/premium package to test",
+    "userId": "User ID *",
+    "userIdPlaceholder": "Enter user ID (e.g., 1)",
+    "userIdHint": "ID of the user to create the order for",
+    "testNote": "<b>Note:</b> This will create a real order and open the Payme payment URL in a new tab. Use test credentials in the Payme environment."
+  },
+  "validation": {
+    "reasonRequired": "Reason is required",
+    "packageIdRequired": "Package ID is required",
+    "userIdRequired": "User ID is required"
+  },
+  "toast": {
+    "cancelled": "Order cancelled successfully",
+    "cancelError": "Failed to cancel order",
+    "completed": "Order completed successfully",
+    "completeError": "Failed to complete order",
+    "testOrderCreated": "Test order created successfully",
+    "testOrderError": "Failed to create test order",
+    "paymeTestCreated": "Payme test order created successfully",
+    "paymeTestError": "Failed to create Payme test order",
+    "clickTestCreated": "Click.uz test order created successfully",
+    "clickTestError": "Failed to create Click.uz test order"
+  },
+  "confirm": {
+    "clickUrls": "Test order created! Do you want to open the payment URLs?\n\nOK - Click Button URL\nCancel - Click Pay by Card URL"
+  },
+  "prompts": {
+    "userId": "Enter user ID:",
+    "amount": "Enter amount (in UZS):"
+  },
+  "availability": {
+    "title": "Mobile payments",
+    "loadError": "Could not load the payment state.",
+    "toggle": {
+      "enabledAction": "Enabled — switch off",
+      "disabledAction": "Disabled — switch on"
+    },
+    "master": {
+      "title": "All payments (master switch)",
+      "aria": "Enable mobile payments",
+      "description": "Controls coin, diamond and Premium purchases <strong>on all platforms</strong>. When switched off, purchase buttons are hidden and payment pages are closed.",
+      "note": "New orders are blocked; an open app re-checks the state every 30 seconds. Payments already in progress, receipt verification and free rewards keep working."
+    },
+    "ios": {
+      "title": "App Store shop (iOS only)",
+      "aria": "Enable the iOS App Store shop",
+      "description": "When switched off, <strong>the money shop is completely hidden on iOS</strong>. Payme/Click sales on Android keep running — so an App Store problem (StoreKit outage, product not configured) never stops Android.",
+      "note": "iOS never falls back to Payme/Click: App Store Review 3.1.1 only allows selling digital currency through Apple IAP.",
+      "masterOff": "The master switch is off — iOS is closed anyway."
+    },
+    "toast": {
+      "saved": "Payment setting saved",
+      "failed": "Could not save the setting"
+    }
+  }
+}

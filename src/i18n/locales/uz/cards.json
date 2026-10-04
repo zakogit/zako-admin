@@ -1,0 +1,76 @@
+{
+  "title": "Kartalar",
+  "searchPlaceholder": "Kartalarni qidirish...",
+  "empty": "Kartalar topilmadi",
+  "actions": {
+    "add": "Karta qo'shish"
+  },
+  "units": {
+    "coins_one": "{{count, number}} tanga",
+    "coins_other": "{{count, number}} tanga"
+  },
+  "effectTypes": {
+    "loss_reduction": "Yo'qotishni kamaytirish",
+    "loss_protection": "Yo'qotishdan himoya",
+    "win_boost": "G'alaba bonusi"
+  },
+  "table": {
+    "card": "Karta",
+    "effect": "Effekt",
+    "duration": "Davomiyligi",
+    "durationDuels_one": "{{count}} ta duel",
+    "durationDuels_other": "{{count}} ta duel",
+    "weeklyLimit": "Haftalik limit: {{limit}}",
+    "icon": "Ikona",
+    "regular": "Oddiy",
+    "makePremium": "Premium qilish",
+    "removePremium": "Premiumdan olib tashlash"
+  },
+  "alt": {
+    "icon": "{{name}} ikonasi",
+    "image": "{{name}} rasmi"
+  },
+  "colors": {
+    "title": "Karta ranglari",
+    "gradientStart": "Gradient boshi",
+    "gradientEnd": "Gradient oxiri",
+    "borderColor": "Chegara rangi",
+    "preview": "Oldindan ko'rish"
+  },
+  "modal": {
+    "createTitle": "Karta yaratish",
+    "editTitle": "Kartani tahrirlash",
+    "deleteTitle": "Kartani o'chirish"
+  },
+  "form": {
+    "name": "Karta nomi",
+    "effectType": "Effekt turi",
+    "selectType": "Turni tanlang",
+    "effectValue": "Effekt qiymati",
+    "price": "Narx (tangalar)",
+    "duration": "Davomiyligi (duellar)",
+    "weeklyLimit": "Haftalik limit (dona, 1 foydalanuvchiga)",
+    "weeklyLimitPlaceholder": "Cheksiz",
+    "weeklyLimitHint": "Bir foydalanuvchi bir haftada (Dushanbadan, Toshkent vaqti) shu kartadan ko'pi bilan nechta olishi mumkin. Bo'sh qoldirilsa cheklov yo'q."
+  },
+  "validation": {
+    "nameRequired": "Karta nomi majburiy",
+    "effectTypeRequired": "Effekt turi majburiy",
+    "priceRequired": "Narx majburiy",
+    "durationRequired": "Davomiyligi majburiy"
+  },
+  "confirm": {
+    "deleteText": "Bu kartani o'chirishni tasdiqlaysizmi? Bu amalni bekor qilib bo'lmaydi."
+  },
+  "toast": {
+    "created": "Karta muvaffaqiyatli yaratildi",
+    "createFailed": "Karta yaratishda xatolik",
+    "updated": "Karta muvaffaqiyatli yangilandi",
+    "updateFailed": "Kartani yangilashda xatolik",
+    "deleted": "Karta muvaffaqiyatli o'chirildi",
+    "deleteFailed": "Kartani o'chirishda xatolik",
+    "premiumOn": "Karta premium qilindi",
+    "premiumOff": "Premium olib tashlandi",
+    "premiumFailed": "Premium holatini o'zgartirishda xatolik"
+  }
+}

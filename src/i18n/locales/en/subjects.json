@@ -1,0 +1,51 @@
+{
+  "title": "Subjects",
+  "filters": {
+    "searchPlaceholder": "Search subjects..."
+  },
+  "actions": {
+    "add": "Add subject"
+  },
+  "empty": {
+    "list": "No subjects found"
+  },
+  "slug": "Slug",
+  "table": {
+    "topics": "Topics",
+    "questions": "Questions"
+  },
+  "count": {
+    "topics_one": "{{count}} topic",
+    "topics_other": "{{count}} topics",
+    "questions_one": "{{count}} question",
+    "questions_other": "{{count}} questions"
+  },
+  "modal": {
+    "create": "Create subject",
+    "edit": "Edit subject",
+    "delete": "Delete subject"
+  },
+  "form": {
+    "name": "Subject name",
+    "icon": "Subject icon",
+    "iconPreviewAlt": "Preview",
+    "currentIcon": "Current icon",
+    "chooseImage": "Choose image"
+  },
+  "validation": {
+    "name": "Subject name is required",
+    "slug": "Slug is required"
+  },
+  "confirm": {
+    "delete": "Are you sure you want to delete this subject? This action cannot be undone."
+  },
+  "toast": {
+    "created": "Subject created successfully",
+    "createFailed": "Failed to create subject",
+    "updated": "Subject updated successfully",
+    "updateFailed": "Failed to update subject",
+    "deleted": "Subject deleted successfully",
+    "deleteFailed": "Failed to delete subject",
+    "notImage": "Please select an image file"
+  }
+}

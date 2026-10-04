@@ -1,0 +1,50 @@
+{
+  "title": "Регионы",
+  "searchPlaceholder": "Поиск регионов...",
+  "addRegion": "Добавить регион",
+  "empty": "Регионы не найдены",
+  "table": {
+    "users": "Пользователи",
+    "avgRating": "Средний рейтинг",
+    "duels": "Дуэли"
+  },
+  "stats": {
+    "totalRegions": "Всего регионов",
+    "totalUsers": "Всего пользователей",
+    "averageRating": "Средний рейтинг",
+    "totalDuels": "Всего дуэлей"
+  },
+  "form": {
+    "name": "Название региона",
+    "namePlaceholder": "Введите название региона"
+  },
+  "validation": {
+    "nameRequired": "Название региона обязательно"
+  },
+  "modal": {
+    "createTitle": "Создание региона",
+    "editTitle": "Редактирование региона",
+    "deleteTitle": "Удаление региона"
+  },
+  "confirm": {
+    "delete": "Вы уверены, что хотите удалить этот регион? Это действие нельзя отменить."
+  },
+  "count": {
+    "users_one": "{{count}} пользователь",
+    "users_few": "{{count}} пользователя",
+    "users_many": "{{count}} пользователей",
+    "users_other": "{{count}} пользователя",
+    "duels_one": "{{count}} дуэль",
+    "duels_few": "{{count}} дуэли",
+    "duels_many": "{{count}} дуэлей",
+    "duels_other": "{{count}} дуэли"
+  },
+  "toast": {
+    "created": "Регион успешно создан",
+    "createFailed": "Не удалось создать регион",
+    "updated": "Регион успешно обновлён",
+    "updateFailed": "Не удалось обновить регион",
+    "deleted": "Регион успешно удалён",
+    "deleteFailed": "Не удалось удалить регион"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "title": "AI Kitoblar",
+  "subtitle": "PDF darslik yuklang — AI mavzularga bo'lib, test savollari yaratadi",
+  "uploadPdf": "PDF yuklash",
+  "stats": {
+    "monthCost": "Shu oy AI sarfi",
+    "calls_one": "{{count}} chaqiruv",
+    "calls_other": "{{count}} chaqiruv",
+    "totalCost": "Jami AI sarfi",
+    "tokens": "{{value}}K token",
+    "draftQuestions": "Draft savollar",
+    "approved": "{{value}} tasdiqlangan",
+    "avgQuality": "O'rtacha sifat",
+    "judgeScore": "AI hakam bahosi"
+  },
+  "table": {
+    "book": "Kitob",
+    "grade": "Sinf",
+    "pages": "Sahifa",
+    "topics": "Mavzular",
+    "drafts": "Draftlar"
+  },
+  "gradeValue": "{{grade}}-sinf",
+  "empty": "Hali kitob yuklanmagan",
+  "status": {
+    "uploaded": "Navbatda",
+    "extracting": "Matn ajratilmoqda",
+    "analyzing": "AI tahlil qilmoqda",
+    "reanalyze": "Qayta tahlil",
+    "needs_review": "Tekshirish kerak",
+    "ready": "Tayyor",
+    "needs_ocr": "OCR kerak",
+    "failed": "Xato"
+  },
+  "deleteModal": {
+    "title": "Kitobni o'chirish",
+    "body": "<b>{{title}}</b> kitobi, uning mavzulari va draft savollari o'chiriladi. Bazaga tasdiqlangan savollar saqlanib qoladi. Davom etasizmi?"
+  },
+  "toast": {
+    "uploaded": "Kitob yuklandi — tahlil boshlandi",
+    "uploadError": "Yuklashda xato",
+    "deleted": "Kitob o'chirildi",
+    "deleteError": "O'chirishda xato"
+  }
+}

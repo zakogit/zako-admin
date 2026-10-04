@@ -1,0 +1,76 @@
+{
+  "title": "Cards",
+  "searchPlaceholder": "Search cards...",
+  "empty": "No cards found",
+  "actions": {
+    "add": "Add card"
+  },
+  "units": {
+    "coins_one": "{{count, number}} coin",
+    "coins_other": "{{count, number}} coins"
+  },
+  "effectTypes": {
+    "loss_reduction": "Loss reduction",
+    "loss_protection": "Loss protection",
+    "win_boost": "Win boost"
+  },
+  "table": {
+    "card": "Card",
+    "effect": "Effect",
+    "duration": "Duration",
+    "durationDuels_one": "{{count}} duel",
+    "durationDuels_other": "{{count}} duels",
+    "weeklyLimit": "Weekly limit: {{limit}}",
+    "icon": "Icon",
+    "regular": "Regular",
+    "makePremium": "Make premium",
+    "removePremium": "Remove premium"
+  },
+  "alt": {
+    "icon": "{{name}} icon",
+    "image": "{{name}} image"
+  },
+  "colors": {
+    "title": "Card colors",
+    "gradientStart": "Gradient start",
+    "gradientEnd": "Gradient end",
+    "borderColor": "Border color",
+    "preview": "Preview"
+  },
+  "modal": {
+    "createTitle": "Create card",
+    "editTitle": "Edit card",
+    "deleteTitle": "Delete card"
+  },
+  "form": {
+    "name": "Card name",
+    "effectType": "Effect type",
+    "selectType": "Select type",
+    "effectValue": "Effect value",
+    "price": "Price (coins)",
+    "duration": "Duration (duels)",
+    "weeklyLimit": "Weekly limit (pcs per user)",
+    "weeklyLimitPlaceholder": "Unlimited",
+    "weeklyLimitHint": "The maximum number of this card a single user can buy per week (weeks start on Monday, Tashkent time). Leave empty for no limit."
+  },
+  "validation": {
+    "nameRequired": "Card name is required",
+    "effectTypeRequired": "Effect type is required",
+    "priceRequired": "Price is required",
+    "durationRequired": "Duration is required"
+  },
+  "confirm": {
+    "deleteText": "Are you sure you want to delete this card? This action cannot be undone."
+  },
+  "toast": {
+    "created": "Card created successfully",
+    "createFailed": "Failed to create card",
+    "updated": "Card updated successfully",
+    "updateFailed": "Failed to update card",
+    "deleted": "Card deleted successfully",
+    "deleteFailed": "Failed to delete card",
+    "premiumOn": "Card marked as premium",
+    "premiumOff": "Premium removed",
+    "premiumFailed": "Failed to change premium status"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "title": "Ads management",
+  "subtitle": "AdMob integration and ad settings",
+  "mobileIntegration": "Mobile app integration",
+  "tabs": {
+    "settings": "Settings"
+  },
+  "settings": {
+    "title": "Ad settings",
+    "dailyLimit": "Daily limit",
+    "coinsPerAd": "Coins per ad",
+    "adsEnabled": "Ads enabled",
+    "testMode": "Test mode",
+    "admobAppId": "AdMob App ID ({{platform}})",
+    "rewardedUnitId": "Rewarded Ad Unit ID ({{platform}})"
+  },
+  "errors": {
+    "loadSettings": "Failed to load settings"
+  }
+}

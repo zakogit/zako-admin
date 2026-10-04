@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
@@ -15,6 +16,7 @@ import { appApi, type AppVersionConfig } from '../../api/services';
  * available" hint. Saved via `PUT /api/v1/admin/app/version` (partial allowed).
  */
 export default function AppVersionPage() {
+  const { t } = useTranslation('appVersion');
   const qc = useQueryClient();
   const { register, handleSubmit, reset, watch } = useForm<AppVersionConfig>();
 
@@ -32,11 +34,11 @@ export default function AppVersionPage() {
     mutationFn: (body: AppVersionConfig) =>
       appApi.updateVersionConfig(body).then((r) => r.data),
     onSuccess: () => {
-      toast.success('Saqlandi');
+      toast.success(t('common:toast.saved'));
       qc.invalidateQueries({ queryKey: ['app-version-config'] });
     },
     onError: (e: any) =>
-      toast.error(e?.response?.data?.message || 'Saqlashda xatolik'),
+      toast.error(e?.response?.data?.message || t('toast.saveError')),
   });
 
   const forceEnabled = watch('force_update_enabled');
@@ -64,10 +66,10 @@ export default function AppVersionPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Ilova versiyasi
+            {t('title')}
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Majburiy yangilanish (force-update) sozlamalari
+            {t('subtitle')}
           </p>
         </div>
       </div>
@@ -83,23 +85,22 @@ export default function AppVersionPage() {
             />
             <span>
               <span className="block text-sm font-semibold text-gray-900 dark:text-white">
-                Majburiy yangilanishni yoqish
+                {t('enable.title')}
               </span>
               <span className="block text-xs text-gray-500 dark:text-gray-400">
-                Yoqilganda, minimal versiyadan past ilovalar bloklanadi va
-                yangilanish oynasi ko'rsatiladi.
+                {t('enable.hint')}
               </span>
             </span>
           </label>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Yangilanish xabari
+              {t('message.label')}
             </label>
             <textarea
               {...register('update_message')}
               rows={2}
-              placeholder="Ilovaning yangi versiyasi chiqdi. Davom etish uchun ilovani yangilang."
+              placeholder={t('message.placeholder')}
               className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
             />
           </div>
@@ -115,18 +116,18 @@ export default function AppVersionPage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
-              label="Minimal versiya (majburiy)"
+              label={t('fields.minVersion')}
               placeholder="1.2.0"
               {...register('min_version_android')}
             />
             <Input
-              label="Oxirgi versiya"
+              label={t('fields.latestVersion')}
               placeholder="1.2.0"
               {...register('latest_version_android')}
             />
           </div>
           <Input
-            label="Store havolasi (Play Market)"
+            label={t('fields.storeUrlAndroid')}
             placeholder="https://play.google.com/store/apps/details?id=uz.zako.app"
             {...register('store_url_android')}
           />
@@ -145,26 +146,25 @@ export default function AppVersionPage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
-              label="Minimal versiya (majburiy)"
+              label={t('fields.minVersion')}
               placeholder="1.2.0"
               {...register('min_version_ios')}
             />
             <Input
-              label="Oxirgi versiya"
+              label={t('fields.latestVersion')}
               placeholder="1.2.0"
               {...register('latest_version_ios')}
             />
           </div>
           <Input
-            label="Store havolasi (App Store)"
+            label={t('fields.storeUrlIos')}
             placeholder="https://apps.apple.com/app/id..."
             {...register('store_url_ios')}
           />
           {forceEnabled && !iosStore && (
             <p className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400">
               <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-              iOS Store havolasi bo'sh — majburiy yangilanishda foydalanuvchi
-              App Store'ga o'ta olmaydi.
+              {t('warnings.iosStoreEmpty')}
             </p>
           )}
           {iosInert && <InertWarning />}
@@ -177,7 +177,7 @@ export default function AppVersionPage() {
             className="flex items-center gap-2"
           >
             <Save className="w-4 h-4" />
-            Saqlash
+            {t('common:actions.save')}
           </Button>
         </div>
       </form>
@@ -187,12 +187,11 @@ export default function AppVersionPage() {
 
 /** Shown when min == latest, so the force-update gate never actually fires. */
 function InertWarning() {
+  const { t } = useTranslation('appVersion');
   return (
     <p className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400">
       <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-      Minimal va oxirgi versiya bir xil — hech kim minimaldan past emas, shuning
-      uchun majburiy yangilanish ishlamaydi. Yangi versiya chiqqanda minimal
-      versiyani ko'taring.
+      {t('warnings.inert')}
     </p>
   );
 }

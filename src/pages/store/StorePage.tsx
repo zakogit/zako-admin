@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { Plus, Edit2, Trash2, Coins, Gem, Tag, Clock, Apple } from 'lucide-react';
 import { Table, Badge, Button, Modal, EmptyState } from '../../components/ui';
 import { formatNumber } from '../../utils/helpers';
@@ -19,33 +20,25 @@ import type { ProductPackage, ProductPackageInput } from '../../types';
 
 type StoreTab = 'coins' | 'diamonds';
 
+// Matnlar (tab nomi, placeholder) `store:tabs.*` / `store:form.*` dan olinadi — bu yerda faqat tuzilma.
 interface TabConfig {
-  label: string;
-  unit: string;
   icon: typeof Coins;
   iconBg: string;
   hasBonus: boolean;
-  namePlaceholder: string;
   applePlaceholder: string;
 }
 
 const TABS: Record<StoreTab, TabConfig> = {
   coins: {
-    label: 'Tanga',
-    unit: 'Tanga',
     icon: Coins,
     iconBg: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-400',
     hasBonus: true,
-    namePlaceholder: '500 Tanga',
     applePlaceholder: 'uz.zako.mobile.coins.500',
   },
   diamonds: {
-    label: 'Olmos',
-    unit: 'Olmos',
     icon: Gem,
     iconBg: 'bg-sky-100 dark:bg-sky-900 text-sky-600 dark:text-sky-400',
     hasBonus: false,
-    namePlaceholder: 'Start',
     applePlaceholder: 'uz.zako.mobile.diamonds.50',
   },
 };
@@ -152,54 +145,52 @@ function buildBody(d: PackageForm, tab: StoreTab): ProductPackageInput {
 }
 
 function BasicFields({ form, tab }: { form: UseFormReturn<PackageForm>; tab: StoreTab }) {
+  const { t } = useTranslation('store');
   const cfg = TABS[tab];
   return (
     <>
       <div>
-        <label className={labelCls}>Nomi *</label>
-        <input {...form.register('name', { required: true })} className={inputCls} placeholder={cfg.namePlaceholder} />
+        <label className={labelCls}>{t('form.name')}</label>
+        <input {...form.register('name', { required: true })} className={inputCls} placeholder={t(`form.namePlaceholder.${tab}`)} />
       </div>
       <div>
-        <label className={labelCls}>Tavsif</label>
+        <label className={labelCls}>{t('common:table.description')}</label>
         <textarea {...form.register('description')} rows={2} className={inputCls} />
       </div>
       <div className={`grid gap-4 ${cfg.hasBonus ? 'grid-cols-3' : 'grid-cols-2'}`}>
         <div>
-          <label className={labelCls}>{cfg.unit} soni *</label>
+          <label className={labelCls}>{t(`form.amount.${tab}`)}</label>
           <input type="number" min={1} {...form.register('amount', { required: true, valueAsNumber: true, min: 1 })} className={inputCls} />
         </div>
         {cfg.hasBonus && (
           <div>
-            <label className={labelCls}>Bonus</label>
+            <label className={labelCls}>{t('form.bonus')}</label>
             <input type="number" min={0} {...form.register('bonus', { valueAsNumber: true, min: 0 })} className={inputCls} />
           </div>
         )}
         <div>
-          <label className={labelCls}>Narx (so'm) *</label>
+          <label className={labelCls}>{t('form.price')}</label>
           <input type="number" min={1} {...form.register('price_som', { required: true, valueAsNumber: true, min: 1 })} className={inputCls} />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className={labelCls}>Tartib (sort)</label>
+          <label className={labelCls}>{t('form.sortOrder')}</label>
           <input type="number" min={0} {...form.register('sort_order', { valueAsNumber: true, min: 0 })} className={inputCls} />
-          <p className="text-xs text-gray-400 mt-1">Kichik son — ilovada birinchi</p>
+          <p className="text-xs text-gray-400 mt-1">{t('form.sortHint')}</p>
         </div>
         <div>
-          <label className={labelCls}>Holat</label>
+          <label className={labelCls}>{t('common:table.status')}</label>
           <select {...form.register('is_active')} className={inputCls}>
-            <option value="true">Faol</option>
-            <option value="false">Faol emas</option>
+            <option value="true">{t('common:status.active')}</option>
+            <option value="false">{t('common:status.inactive')}</option>
           </select>
         </div>
       </div>
       <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 space-y-2">
-        <label className={`${labelCls} flex items-center gap-2`}><Apple className="w-4 h-4" /> Apple product ID (iOS)</label>
+        <label className={`${labelCls} flex items-center gap-2`}><Apple className="w-4 h-4" /> {t('form.appleProductId')}</label>
         <input {...form.register('apple_product_id')} className={`${inputCls} font-mono text-sm`} placeholder={cfg.applePlaceholder} />
-        <p className="text-xs text-gray-500 dark:text-gray-400">
-          Bo‘sh = paket iOS’da ko‘rinmaydi. iOS’da foydalanuvchi to‘laydigan narx App Store Connect’dagi
-          narx — yuqoridagi so‘m narxi faqat Payme/Click uchun. {cfg.unit} soni esa iOS’da ham shu yerdan olinadi.
-        </p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">{t('form.appleHint')}</p>
       </div>
     </>
   );
@@ -207,45 +198,44 @@ function BasicFields({ form, tab }: { form: UseFormReturn<PackageForm>; tab: Sto
 
 // Offer/discount tahrirlash bloki (create/edit uchun umumiy)
 function OfferFields({ form }: { form: UseFormReturn<PackageForm> }) {
+  const { t } = useTranslation('store');
   return (
     <div className="rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50/50 dark:bg-amber-900/10 p-4 space-y-4">
       <div className="flex items-center gap-2 text-sm font-semibold text-amber-700 dark:text-amber-400">
-        <Tag className="w-4 h-4" /> Maxsus taklif & chegirma
+        <Tag className="w-4 h-4" /> {t('offer.title')}
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className={labelCls}>Taklif turi</label>
+          <label className={labelCls}>{t('offer.type')}</label>
           <select {...form.register('offer_type')} className={inputCls}>
-            <option value="simple">Oddiy</option>
-            <option value="special_offer">Maxsus taklif (badge)</option>
+            <option value="simple">{t('offer.simple')}</option>
+            <option value="special_offer">{t('offer.special')}</option>
           </select>
         </div>
         <div>
-          <label className={labelCls}>Chegirma (%)</label>
+          <label className={labelCls}>{t('offer.discountPercent')}</label>
           <input type="number" min={0} max={95} {...form.register('discount_percent', { valueAsNumber: true, min: 0, max: 95 })} className={inputCls} placeholder="0" />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className={labelCls}>Chegirma boshlanishi</label>
+          <label className={labelCls}>{t('offer.startsAt')}</label>
           <input type="datetime-local" {...form.register('discount_starts_at')} className={inputCls} />
-          <p className="text-xs text-gray-400 mt-1">Bo‘sh = darhol</p>
+          <p className="text-xs text-gray-400 mt-1">{t('offer.startsHint')}</p>
         </div>
         <div>
-          <label className={labelCls}>Chegirma tugashi</label>
+          <label className={labelCls}>{t('offer.endsAt')}</label>
           <input type="datetime-local" {...form.register('discount_ends_at')} className={inputCls} />
-          <p className="text-xs text-gray-400 mt-1">Countdown shu vaqtga · bo‘sh = muddatsiz</p>
+          <p className="text-xs text-gray-400 mt-1">{t('offer.endsHint')}</p>
         </div>
       </div>
-      <p className="text-xs text-gray-500 dark:text-gray-400">
-        Chegirma % &gt; 0 va oyna faol bo‘lganda: narx arzonlashadi (ko‘rsatiladigan VA
-        olinadigan summa) + barcha foydalanuvchilarga push yuboriladi.
-      </p>
+      <p className="text-xs text-gray-500 dark:text-gray-400">{t('offer.note')}</p>
     </div>
   );
 }
 
 export default function StorePage() {
+  const { t } = useTranslation('store');
   const qc = useQueryClient();
   const [tab, setTab] = useState<StoreTab>('coins');
   const [createModal, setCreateModal] = useState(false);
@@ -262,7 +252,7 @@ export default function StorePage() {
   const packages = allPackages
     .filter((p) => p.product_type === tab)
     .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.price_som - b.price_som);
-  const countOf = (t: StoreTab) => allPackages.filter((p) => p.product_type === t).length;
+  const countOf = (tb: StoreTab) => allPackages.filter((p) => p.product_type === tb).length;
 
   const onError = (fallback: string) => (e: AxiosError<{ message?: string }>) =>
     toast.error(e.response?.data?.message || fallback);
@@ -270,30 +260,30 @@ export default function StorePage() {
   const createMutation = useMutation({
     mutationFn: (d: PackageForm) => storeApi.createPackage(buildBody(d, tab)).then((r) => r.data),
     onSuccess: () => {
-      toast.success('Paket yaratildi');
+      toast.success(t('toast.created'));
       setCreateModal(false);
       qc.invalidateQueries({ queryKey: ['store-packages'] });
     },
-    onError: onError('Yaratishda xatolik'),
+    onError: onError(t('toast.createFailed')),
   });
 
   const updateMutation = useMutation({
     mutationFn: (d: PackageForm) => storeApi.updatePackage(selected!.id, buildBody(d, selected!.product_type as StoreTab)).then((r) => r.data),
     onSuccess: () => {
-      toast.success('Paket yangilandi');
+      toast.success(t('toast.updated'));
       setSelected(null);
       qc.invalidateQueries({ queryKey: ['store-packages'] });
     },
-    onError: onError('Yangilashda xatolik'),
+    onError: onError(t('toast.updateFailed')),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => storeApi.deletePackage(id).then((r) => r.data),
     onSuccess: () => {
-      toast.success('Paket faolsizlantirildi');
+      toast.success(t('toast.deactivated'));
       qc.invalidateQueries({ queryKey: ['store-packages'] });
     },
-    onError: onError('O‘chirishda xatolik'),
+    onError: onError(t('toast.deleteFailed')),
   });
 
   const openCreate = () => {
@@ -313,31 +303,31 @@ export default function StorePage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Do'kon paketlari</h1>
-          <p className="text-gray-600 dark:text-gray-400">Ilovadagi tanga va olmos paketlari — narx, miqdor, chegirma</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('title')}</h1>
+          <p className="text-gray-600 dark:text-gray-400">{t('subtitle')}</p>
         </div>
         <Button onClick={openCreate} className="flex items-center gap-2">
-          <Plus className="w-4 h-4" /> {cfg.label} paketi qo'shish
+          <Plus className="w-4 h-4" /> {t(`addPackage.${tab}`)}
         </Button>
       </div>
 
       <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700">
-        {(Object.keys(TABS) as StoreTab[]).map((t) => {
-          const TabIcon = TABS[t].icon;
-          const isActive = t === tab;
+        {(Object.keys(TABS) as StoreTab[]).map((tb) => {
+          const TabIcon = TABS[tb].icon;
+          const isActive = tb === tab;
           return (
             <button
-              key={t}
+              key={tb}
               type="button"
-              onClick={() => setTab(t)}
+              onClick={() => setTab(tb)}
               className={`flex items-center gap-2 px-4 py-2 -mb-px border-b-2 text-sm font-medium transition-colors ${
                 isActive
                   ? 'border-primary-500 text-primary-600 dark:text-primary-400'
                   : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
-              <TabIcon className="w-4 h-4" /> {TABS[t].label}
-              <span className="text-xs text-gray-400">({countOf(t)})</span>
+              <TabIcon className="w-4 h-4" /> {t(`tabs.${tb}`)}
+              <span className="text-xs text-gray-400">({countOf(tb)})</span>
             </button>
           );
         })}
@@ -345,9 +335,9 @@ export default function StorePage() {
 
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
         {isLoading ? (
-          <div className="p-8 text-center">Yuklanmoqda...</div>
+          <div className="p-8 text-center">{t('common:state.loading')}</div>
         ) : packages.length > 0 ? (
-          <Table headers={['#', 'Paket', cfg.unit, "Narx (so'm)", 'Taklif', 'iOS', 'Holat', '']}>
+          <Table headers={['#', t('table.package'), t(`tabs.${tab}`), t('table.price'), t('table.offer'), 'iOS', t('common:table.status'), '']}>
             {packages.map((pkg) => {
               const active = discountActive(pkg);
               const discounted = active ? Math.round((pkg.price_som * (100 - pkg.discount_percent)) / 100) : pkg.price_som;
@@ -383,7 +373,7 @@ export default function StorePage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
-                      {pkg.offer_type === 'special_offer' && <Badge color="purple">Maxsus taklif</Badge>}
+                      {pkg.offer_type === 'special_offer' && <Badge color="purple">{t('badge.specialOffer')}</Badge>}
                       {active && (
                         <Badge color="red">
                           <span className="flex items-center gap-1"><Clock className="w-3 h-3" />-{pkg.discount_percent}%</span>
@@ -402,7 +392,7 @@ export default function StorePage() {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <Badge color={pkg.is_active ? 'green' : 'gray'}>{pkg.is_active ? 'Faol' : 'Faol emas'}</Badge>
+                    <Badge color={pkg.is_active ? 'green' : 'gray'}>{pkg.is_active ? t('common:status.active') : t('common:status.inactive')}</Badge>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
@@ -411,7 +401,7 @@ export default function StorePage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => confirm('Paket faolsizlantirilsinmi? (ilovada ko‘rinmay qoladi)') && deleteMutation.mutate(pkg.id)}
+                          onClick={() => confirm(t('confirm.deactivate')) && deleteMutation.mutate(pkg.id)}
                           className="text-red-600 hover:text-red-700"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -424,30 +414,30 @@ export default function StorePage() {
             })}
           </Table>
         ) : (
-          <EmptyState message={`${cfg.label} paketi yo'q. Birinchi paketni yarating.`} />
+          <EmptyState message={t(`empty.${tab}`)} />
         )}
       </div>
 
       {/* Create */}
-      <Modal open={createModal} onClose={() => setCreateModal(false)} title={`${cfg.label} paketi qo'shish`} size="lg">
+      <Modal open={createModal} onClose={() => setCreateModal(false)} title={t(`addPackage.${tab}`)} size="lg">
         <form onSubmit={createForm.handleSubmit((d) => createMutation.mutate(d))} className="space-y-4">
           <BasicFields form={createForm} tab={tab} />
           <OfferFields form={createForm} />
           <div className="flex gap-3 pt-2">
-            <Button type="button" variant="outline" onClick={() => setCreateModal(false)}>Bekor</Button>
-            <Button type="submit" loading={createMutation.isPending}>Yaratish</Button>
+            <Button type="button" variant="outline" onClick={() => setCreateModal(false)}>{t('common:actions.cancel')}</Button>
+            <Button type="submit" loading={createMutation.isPending}>{t('common:actions.create')}</Button>
           </div>
         </form>
       </Modal>
 
       {/* Edit */}
-      <Modal open={selected !== null} onClose={() => setSelected(null)} title={`${cfg.label} paketini tahrirlash`} size="lg">
+      <Modal open={selected !== null} onClose={() => setSelected(null)} title={t(`editPackage.${tab}`)} size="lg">
         <form onSubmit={editForm.handleSubmit((d) => updateMutation.mutate(d))} className="space-y-4">
           <BasicFields form={editForm} tab={tab} />
           <OfferFields form={editForm} />
           <div className="flex gap-3 pt-2">
-            <Button type="button" variant="outline" onClick={() => setSelected(null)}>Bekor</Button>
-            <Button type="submit" loading={updateMutation.isPending}>Saqlash</Button>
+            <Button type="button" variant="outline" onClick={() => setSelected(null)}>{t('common:actions.cancel')}</Button>
+            <Button type="submit" loading={updateMutation.isPending}>{t('common:actions.save')}</Button>
           </div>
         </form>
       </Modal>

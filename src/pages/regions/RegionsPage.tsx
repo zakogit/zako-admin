@@ -7,8 +7,10 @@ import { formatDate, formatNumber } from '../../utils/helpers';
 import type { Region } from '../../types';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export default function RegionsPage() {
+  const { t } = useTranslation('regions');
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -36,40 +38,51 @@ export default function RegionsPage() {
   const createMutation = useMutation({
     mutationFn: regionsApi.create,
     onSuccess: () => {
-      toast.success('Region created successfully');
+      toast.success(t('toast.created'));
       setEditModal(false);
       reset();
       qc.invalidateQueries({ queryKey: ['admin-regions'] });
     },
-    onError: () => toast.error('Failed to create region'),
+    onError: () => toast.error(t('toast.createFailed')),
   });
 
   const updateMutation = useMutation({
     mutationFn: (data: any) => regionsApi.update(selected!.id, data),
     onSuccess: () => {
-      toast.success('Region updated successfully');
+      toast.success(t('toast.updated'));
       setEditModal(false);
       setSelected(null);
       reset();
       qc.invalidateQueries({ queryKey: ['admin-regions'] });
     },
-    onError: () => toast.error('Failed to update region'),
+    onError: () => toast.error(t('toast.updateFailed')),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => regionsApi.delete(id),
     onSuccess: () => {
-      toast.success('Region deleted successfully');
+      toast.success(t('toast.deleted'));
       setDeleteModal(false);
       setSelected(null);
       qc.invalidateQueries({ queryKey: ['admin-regions'] });
     },
-    onError: () => toast.error('Failed to delete region'),
+    onError: () => toast.error(t('toast.deleteFailed')),
   });
 
   const regions: Region[] = Array.isArray((regionsData as any)?.data?.data) ? (regionsData as any).data.data : [];
   const total: number = (regionsData as any)?.data?.total ?? 0;
   const stats = Array.isArray((statsData as any)?.data) ? (statsData as any).data : [];
+
+  // The stats endpoint returns English labels — translate the known ones, fall back to the raw text.
+  const statLabel = (label: string): string => {
+    switch (label) {
+      case 'Total Regions': return t('stats.totalRegions');
+      case 'Total Users': return t('stats.totalUsers');
+      case 'Average Rating': return t('stats.averageRating');
+      case 'Total Duels': return t('stats.totalDuels');
+      default: return label;
+    }
+  };
 
   const openEditModal = (region?: Region) => {
     setSelected(region || null);
@@ -98,7 +111,7 @@ export default function RegionsPage() {
             <div key={idx} className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{stat.label}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{statLabel(stat.label)}</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
                 </div>
                 <BarChart3 className="w-8 h-8 text-primary-500" />
@@ -111,7 +124,7 @@ export default function RegionsPage() {
       {/* Toolbar */}
       <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-          Regions <span className="text-gray-400 font-normal text-base">({total})</span>
+          {t('title')} <span className="text-gray-400 font-normal text-base">({total})</span>
         </h2>
 
         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
@@ -121,14 +134,14 @@ export default function RegionsPage() {
             <input 
               value={search} 
               onChange={e => { setSearch(e.target.value); setPage(1); }}
-              placeholder="Search regions..."
+              placeholder={t('searchPlaceholder')}
               className="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
             />
           </div>
 
           <Button onClick={() => openEditModal()} className="whitespace-nowrap">
             <Plus className="w-4 h-4 mr-2" />
-            Add Region
+            {t('addRegion')}
           </Button>
         </div>
       </div>
@@ -136,12 +149,12 @@ export default function RegionsPage() {
       {/* Table */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
         {isLoading ? (
-          <div className="p-8 text-center">Loading...</div>
+          <div className="p-8 text-center">{t('common:state.loading')}</div>
         ) : regions.length === 0 ? (
-          <EmptyState message="No regions found" />
+          <EmptyState message={t('empty')} />
         ) : (
           <>
-            <Table headers={['Region', 'Users', 'Avg Rating', 'Duels', 'Created', 'Updated', '']}>
+            <Table headers={[t('common:table.region'), t('table.users'), t('table.avgRating'), t('table.duels'), t('common:table.created'), t('common:table.updated'), '']}>
               {regions.map((region) => (
                 <tr key={region.id}>
                   <td className="px-4 py-3">
@@ -207,52 +220,52 @@ export default function RegionsPage() {
       </div>
 
       {/* Edit Modal */}
-      <Modal open={editModal} onClose={() => { setEditModal(false); setSelected(null); }} title={selected ? 'Edit Region' : 'Create Region'}>
+      <Modal open={editModal} onClose={() => { setEditModal(false); setSelected(null); }} title={selected ? t('modal.editTitle') : t('modal.createTitle')}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Region Name</label>
-            <input 
-              {...register('name', { required: 'Region name is required' })}
-              placeholder="Enter region name"
+            <label className="block text-sm font-medium mb-2">{t('form.name')}</label>
+            <input
+              {...register('name', { required: true })}
+              placeholder={t('form.namePlaceholder')}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
             />
-            {errors.name && <p className="text-red-500 text-xs mt-1">{String(errors.name.message)}</p>}
+            {errors.name && <p className="text-red-500 text-xs mt-1">{t('validation.nameRequired')}</p>}
           </div>
 
           <div className="flex gap-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setEditModal(false)}>
-              Cancel
+              {t('common:actions.cancel')}
             </Button>
             <Button type="submit" loading={createMutation.isPending || updateMutation.isPending}>
-              {selected ? 'Update' : 'Create'}
+              {selected ? t('common:actions.update') : t('common:actions.create')}
             </Button>
           </div>
         </form>
       </Modal>
 
       {/* Delete Modal */}
-      <Modal open={deleteModal} onClose={() => setDeleteModal(false)} title="Delete Region">
+      <Modal open={deleteModal} onClose={() => setDeleteModal(false)} title={t('modal.deleteTitle')}>
         <div className="space-y-4">
-          <p>Are you sure you want to delete this region? This action cannot be undone.</p>
+          <p>{t('confirm.delete')}</p>
           {selected && (
             <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded">
               <p className="font-medium">{selected.name}</p>
               <p className="text-sm text-gray-500">
-                {selected.user_count || 0} users • {selected.duel_count || 0} duels
+                {t('count.users', { count: selected.user_count || 0 })} • {t('count.duels', { count: selected.duel_count || 0 })}
               </p>
             </div>
           )}
-          
+
           <div className="flex gap-3 pt-4">
             <Button variant="outline" onClick={() => setDeleteModal(false)}>
-              Cancel
+              {t('common:actions.cancel')}
             </Button>
-            <Button 
-              variant="danger" 
+            <Button
+              variant="danger"
               onClick={() => selected && deleteMutation.mutate(selected.id)}
               loading={deleteMutation.isPending}
             >
-              Delete
+              {t('common:actions.delete')}
             </Button>
           </div>
         </div>

@@ -1,0 +1,90 @@
+{
+  "title": "Avatars",
+  "empty": "No avatars found",
+  "avatarAlt": "Avatar",
+  "stats": {
+    "total": "Total avatars",
+    "male": "Male",
+    "female": "Female"
+  },
+  "gender": {
+    "male": "Male",
+    "female": "Female",
+    "both": "Both"
+  },
+  "filters": {
+    "allGenders": "All genders",
+    "allTypes": "All types"
+  },
+  "actions": {
+    "upload": "Upload avatar",
+    "files": "Files",
+    "add": "Add avatar"
+  },
+  "table": {
+    "preview": "Preview",
+    "gender": "Gender",
+    "usage": "Usage",
+    "usageCount_one": "{{count}} user",
+    "usageCount_other": "{{count}} users"
+  },
+  "modal": {
+    "addTitle": "Add avatar",
+    "editTitle": "Edit avatar",
+    "deleteTitle": "Delete avatar",
+    "uploadTitle": "Upload avatar",
+    "manageTitle": "Avatar file management"
+  },
+  "form": {
+    "image": "Avatar image",
+    "imageHint": "PNG, JPG or JPEG, max 5MB",
+    "preview": "Preview:",
+    "previewAlt": "Preview",
+    "currentAvatar": "Current avatar:",
+    "currentAvatarAlt": "Current avatar",
+    "editHint": "Only the gender and premium status can be changed",
+    "gender": "Gender",
+    "selectGender": "Select gender",
+    "premiumAvatar": "Premium avatar"
+  },
+  "validation": {
+    "genderRequired": "Gender is required"
+  },
+  "confirm": {
+    "deleteText": "Are you sure you want to delete this avatar? This action cannot be undone."
+  },
+  "upload": {
+    "categoriesTitle": "Avatar categories:",
+    "categoriesHint": "Upload avatar files to the correct folder. Each category must be uploaded separately.",
+    "freeMale": "Free male avatars",
+    "freeFemale": "Free female avatars",
+    "premiumMale": "Premium male avatars",
+    "premiumFemale": "Premium female avatars",
+    "requirements": "Requirements:",
+    "reqImages": "Image files only (PNG, JPG, JPEG)",
+    "reqSize": "Maximum file size: 5MB",
+    "reqDimensions": "Recommended size: 512x512px",
+    "reqAutoName": "The file is renamed automatically and placed in the right folder"
+  },
+  "manage": {
+    "existingFiles": "Existing avatar files:",
+    "freeAvatars": "Free avatars",
+    "premiumAvatars": "Premium avatars",
+    "filesCount_one": "{{count}} file",
+    "filesCount_other": "{{count}} files",
+    "note": "<b>Note:</b> File management and deletion features will be added in a future version. For now, files are stored in the `/uploads/Avatars/` folder."
+  },
+  "toast": {
+    "added": "Avatar added successfully",
+    "addFailed": "Failed to add avatar",
+    "updated": "Avatar updated successfully",
+    "updateFailed": "Failed to update avatar",
+    "uploaded": "Avatar uploaded and added",
+    "uploadFailed": "Failed to upload avatar",
+    "deleted": "Avatar deleted successfully",
+    "deleteFailed": "Failed to delete avatar",
+    "imageOnly": "Only image files are accepted",
+    "fileTooLarge": "File size must not exceed 5MB",
+    "fileRequired": "Please select an image file"
+  }
+}

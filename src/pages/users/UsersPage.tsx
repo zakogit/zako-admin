@@ -31,8 +31,13 @@ import { formatDate, formatNumber } from '../../utils/helpers';
 import type { User } from '../../types';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
+import { Trans, useTranslation } from 'react-i18next';
+
+// Minimum password length enforced by the create / reset-password forms (also shown in their texts).
+const MIN_PASSWORD_LENGTH = 6;
 
 export default function UsersPage() {
+  const { t } = useTranslation('users');
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -118,59 +123,59 @@ export default function UsersPage() {
   const balMutation = useMutation({
     mutationFn: (d: { amount: number; description: string }) => usersApi.updateBalance(selected!.id, d),
     onSuccess: () => { 
-      toast.success('Balance yangilandi'); 
+      toast.success(t('toast.balanceUpdated')); 
       setBalanceModal(false); 
       resetBal(); 
       qc.invalidateQueries({ queryKey: ['users'] }); 
     },
-    onError: () => toast.error('Balance yangilashda xatolik'),
+    onError: () => toast.error(t('toast.balanceError')),
   });
 
   const banMutation = useMutation({
     mutationFn: (d: { reason: string }) => usersApi.ban(selected!.id, d),
     onSuccess: () => { 
-      toast.success('Foydalanuvchi bloklandi'); 
+      toast.success(t('toast.banned')); 
       setBanModal(false); 
       resetBan(); 
       setSelected(null);
       qc.invalidateQueries({ queryKey: ['users'] }); 
     },
-    onError: () => toast.error('Bloklashda xatolik'),
+    onError: () => toast.error(t('toast.banError')),
   });
 
   const createMutation = useMutation({
     mutationFn: usersApi.create,
     onSuccess: () => {
-      toast.success('Foydalanuvchi yaratildi');
+      toast.success(t('toast.created'));
       setCreateModal(false);
       resetCreate();
       qc.invalidateQueries({ queryKey: ['users'] });
       qc.invalidateQueries({ queryKey: ['users-stats'] });
     },
-    onError: (error: any) => toast.error(error.response?.data?.message || 'Foydalanuvchi yaratishda xatolik'),
+    onError: (error: any) => toast.error(error.response?.data?.message || t('toast.createError')),
   });
 
   const updateMutation = useMutation({
     mutationFn: (data: any) => usersApi.update(selected!.id, data),
     onSuccess: () => {
-      toast.success('Foydalanuvchi yangilandi');
+      toast.success(t('toast.updated'));
       setEditModal(false);
       setSelected(null);
       resetEdit();
       qc.invalidateQueries({ queryKey: ['users'] });
     },
-    onError: (error: any) => toast.error(error.response?.data?.message || 'Yangilashda xatolik'),
+    onError: (error: any) => toast.error(error.response?.data?.message || t('toast.updateError')),
   });
 
   const passwordMutation = useMutation({
     mutationFn: (data: { new_password: string }) => usersApi.resetPassword(selected!.id, data),
     onSuccess: () => {
-      toast.success('Parol o\'zgartirildi');
+      toast.success(t('toast.passwordChanged'));
       setPasswordModal(false);
       resetPass();
       setSelected(null);
     },
-    onError: () => toast.error('Parol o\'zgartirishda xatolik'),
+    onError: () => toast.error(t('toast.passwordError')),
   });
 
   const xpMutation = useMutation({
@@ -183,7 +188,7 @@ export default function UsersPage() {
       qc.invalidateQueries({ queryKey: ['users'] });
       qc.invalidateQueries({ queryKey: ['user-details'] });
     },
-    onError: (error: any) => toast.error(error.response?.data?.message || 'XP o\'zgartirishda xatolik'),
+    onError: (error: any) => toast.error(error.response?.data?.message || t('toast.xpError')),
   });
 
 
@@ -206,10 +211,10 @@ export default function UsersPage() {
     },
     onSuccess: (_, actionType) => {
       const messages = {
-        unban: 'Foydalanuvchi blokdan chiqarildi',
-        verify: 'Foydalanuvchi tasdiqlandi',
-        unverify: 'Foydalanuvchi tasdiq bekor qilindi',
-        delete: 'Foydalanuvchi o\'chirildi'
+        unban: t('toast.unbanned'),
+        verify: t('toast.verified'),
+        unverify: t('toast.unverified'),
+        delete: t('toast.deleted')
       };
       
       toast.success(messages[actionType]);
@@ -219,7 +224,7 @@ export default function UsersPage() {
       qc.invalidateQueries({ queryKey: ['users'] });
       qc.invalidateQueries({ queryKey: ['users-stats'] });
     },
-    onError: () => toast.error('Amalni bajarishda xatolik'),
+    onError: () => toast.error(t('common:toast.failed')),
   });
 
   const handleAction = (user: User, actionType: typeof action) => {
@@ -260,6 +265,7 @@ export default function UsersPage() {
   };
 
   const hasActiveFilters = verificationFilter || banFilter || premiumFilter || regionFilter || dateFromFilter || dateToFilter || onlineFilter;
+  const yesNo = (v: string) => (v === 'true' ? t('common:state.yes') : t('common:state.no'));
 
   const users: User[] = Array.isArray((data as any)?.data?.data) ? (data as any).data.data : [];
   const total: number = (data as any)?.data?.total ?? 0;
@@ -270,10 +276,10 @@ export default function UsersPage() {
       <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Foydalanuvchilar
+            {t('title')}
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Barcha foydalanuvchilarni boshqarish va kuzatish
+            {t('subtitle')}
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -282,7 +288,7 @@ export default function UsersPage() {
             className="flex items-center gap-2"
           >
             <UserPlus className="w-4 h-4" />
-            Yangi foydalanuvchi
+            {t('actions.newUser')}
           </Button>
           <Button 
             variant="outline"
@@ -290,7 +296,7 @@ export default function UsersPage() {
             className="flex items-center gap-2"
           >
             <Download className="w-4 h-4" />
-            Export
+            {t('actions.export')}
           </Button>
         </div>
       </div>
@@ -302,7 +308,7 @@ export default function UsersPage() {
             <div className="flex items-center">
               <Users className="h-8 w-8 text-blue-500" />
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Jami</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('common:table.total')}</p>
                 <p className="text-2xl font-semibold text-gray-900 dark:text-white">
                   {formatNumber(stats.total_users)}
                 </p>
@@ -313,7 +319,7 @@ export default function UsersPage() {
             <div className="flex items-center">
               <UserCheck className="h-8 w-8 text-green-500" />
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Tasdiqlangan</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('common:status.verified')}</p>
                 <p className="text-2xl font-semibold text-gray-900 dark:text-white">
                   {formatNumber(stats.verified_users)}
                 </p>
@@ -324,7 +330,7 @@ export default function UsersPage() {
             <div className="flex items-center">
               <Ban className="h-8 w-8 text-red-500" />
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Bloklangan</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('common:status.banned')}</p>
                 <p className="text-2xl font-semibold text-gray-900 dark:text-white">
                   {formatNumber(stats.banned_users)}
                 </p>
@@ -335,7 +341,7 @@ export default function UsersPage() {
             <div className="flex items-center">
               <UserPlus className="h-8 w-8 text-purple-500" />
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Haftalik</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('stats.weekly')}</p>
                 <p className="text-2xl font-semibold text-gray-900 dark:text-white">
                   {formatNumber(stats.new_users_week)}
                 </p>
@@ -346,7 +352,7 @@ export default function UsersPage() {
             <div className="flex items-center">
               <Calendar className="h-8 w-8 text-orange-500" />
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Oylik</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('stats.monthly')}</p>
                 <p className="text-2xl font-semibold text-gray-900 dark:text-white">
                   {formatNumber(stats.new_users_month)}
                 </p>
@@ -360,7 +366,7 @@ export default function UsersPage() {
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
           <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-            Foydalanuvchilar ro'yxati ({formatNumber(total)})
+            {t('list.title', { total: formatNumber(total) })}
           </h3>
           <div className="flex gap-2 w-full sm:w-auto">
             <div className="relative flex-1 sm:w-64">
@@ -368,7 +374,7 @@ export default function UsersPage() {
               <input 
                 value={search} 
                 onChange={e => { setSearch(e.target.value); setPage(1); }}
-                placeholder="Username yoki telefon bo'yicha qidiring..."
+                placeholder={t('filters.searchPlaceholder')}
                 className="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
               />
             </div>
@@ -378,7 +384,7 @@ export default function UsersPage() {
               className={`flex items-center gap-2 ${hasActiveFilters ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : ''}`}
             >
               <Filter className="w-4 h-4" />
-              Filtrlar
+              {t('common:actions.filters')}
               {hasActiveFilters && (
                 <span className="bg-blue-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
                   {[verificationFilter, banFilter, premiumFilter, regionFilter, dateFromFilter, onlineFilter].filter(Boolean).length}
@@ -393,7 +399,7 @@ export default function UsersPage() {
                 className="flex items-center gap-2 text-red-600 border-red-300 hover:bg-red-50"
               >
                 <X className="w-4 h-4" />
-                Tozalash
+                {t('common:actions.clear')}
               </Button>
             )}
           </div>
@@ -404,69 +410,69 @@ export default function UsersPage() {
           <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
             <h4 className="font-medium text-gray-900 dark:text-white mb-3 flex items-center gap-2">
               <Filter className="w-4 h-4" />
-              Qo'shimcha filtrlar
+              {t('filters.advanced')}
             </h4>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Verification Status */}
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Tasdiq holati
+                  {t('filters.verification')}
                 </label>
                 <select
                   value={verificationFilter}
                   onChange={e => { setVerificationFilter(e.target.value); setPage(1); }}
                   className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="">Barchasi</option>
-                  <option value="true">✅ Tasdiqlangan</option>
-                  <option value="false">⏳ Tasdiqlanmagan</option>
+                  <option value="">{t('common:state.all')}</option>
+                  <option value="true">✅ {t('common:status.verified')}</option>
+                  <option value="false">⏳ {t('common:status.unverified')}</option>
                 </select>
               </div>
 
               {/* Ban Status */}
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Blok holati
+                  {t('filters.ban')}
                 </label>
                 <select
                   value={banFilter}
                   onChange={e => { setBanFilter(e.target.value); setPage(1); }}
                   className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="">Barchasi</option>
-                  <option value="false">✅ Faol</option>
-                  <option value="true">🚫 Bloklangan</option>
+                  <option value="">{t('common:state.all')}</option>
+                  <option value="false">✅ {t('common:status.active')}</option>
+                  <option value="true">🚫 {t('common:status.banned')}</option>
                 </select>
               </div>
 
               {/* Premium Status */}
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Premium holat
+                  {t('filters.premium')}
                 </label>
                 <select
                   value={premiumFilter}
                   onChange={e => { setPremiumFilter(e.target.value); setPage(1); }}
                   className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="">Barchasi</option>
-                  <option value="true">👑 Premium</option>
-                  <option value="false">👤 Oddiy</option>
+                  <option value="">{t('common:state.all')}</option>
+                  <option value="true">👑 {t('common:status.premium')}</option>
+                  <option value="false">👤 {t('filters.regular')}</option>
                 </select>
               </div>
 
               {/* Region */}
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Viloyat
+                  {t('common:table.region')}
                 </label>
                 <select
                   value={regionFilter}
                   onChange={e => { setRegionFilter(e.target.value); setPage(1); }}
                   className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="">Barcha viloyatlar</option>
+                  <option value="">{t('filters.allRegions')}</option>
                   {regionsData?.map((region: any) => (
                     <option key={region.id} value={region.id}>
                       {region.name}
@@ -478,7 +484,7 @@ export default function UsersPage() {
               {/* Registration Date From */}
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Ro'yxatdan dan
+                  {t('filters.registeredFrom')}
                 </label>
                 <input
                   type="date"
@@ -491,7 +497,7 @@ export default function UsersPage() {
               {/* Registration Date To */}
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Ro'yxatdan gacha
+                  {t('filters.registeredTo')}
                 </label>
                 <input
                   type="date"
@@ -504,16 +510,16 @@ export default function UsersPage() {
               {/* Online Status */}
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Online holat
+                  {t('filters.online')}
                 </label>
                 <select
                   value={onlineFilter}
                   onChange={e => { setOnlineFilter(e.target.value); setPage(1); }}
                   className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="">Barchasi</option>
-                  <option value="true">🟢 Onlayn</option>
-                  <option value="false">⚪ Oflayn</option>
+                  <option value="">{t('common:state.all')}</option>
+                  <option value="true">🟢 {t('common:status.online')}</option>
+                  <option value="false">⚪ {t('common:status.offline')}</option>
                 </select>
               </div>
 
@@ -521,11 +527,11 @@ export default function UsersPage() {
               {hasActiveFilters && (
                 <div className="md:col-span-2 lg:col-span-4">
                   <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
-                    <h5 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">Faol filtrlar:</h5>
+                    <h5 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">{t('filters.activeFilters')}</h5>
                     <div className="flex flex-wrap gap-1">
                       {verificationFilter && (
                         <span className="inline-flex items-center gap-1 bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-200 px-2 py-1 rounded text-xs">
-                          Tasdiq: {verificationFilter === 'true' ? 'Ha' : 'Yo\'q'}
+                          {t('filters.chip.verified', { value: yesNo(verificationFilter) })}
                           <button onClick={() => setVerificationFilter('')} className="hover:bg-blue-200 dark:hover:bg-blue-700 rounded">
                             <X className="w-3 h-3" />
                           </button>
@@ -533,7 +539,7 @@ export default function UsersPage() {
                       )}
                       {banFilter && (
                         <span className="inline-flex items-center gap-1 bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-200 px-2 py-1 rounded text-xs">
-                          Blok: {banFilter === 'true' ? 'Ha' : 'Yo\'q'}
+                          {t('filters.chip.banned', { value: yesNo(banFilter) })}
                           <button onClick={() => setBanFilter('')} className="hover:bg-blue-200 dark:hover:bg-blue-700 rounded">
                             <X className="w-3 h-3" />
                           </button>
@@ -541,7 +547,7 @@ export default function UsersPage() {
                       )}
                       {premiumFilter && (
                         <span className="inline-flex items-center gap-1 bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-200 px-2 py-1 rounded text-xs">
-                          Premium: {premiumFilter === 'true' ? 'Ha' : 'Yo\'q'}
+                          {t('filters.chip.premium', { value: yesNo(premiumFilter) })}
                           <button onClick={() => setPremiumFilter('')} className="hover:bg-blue-200 dark:hover:bg-blue-700 rounded">
                             <X className="w-3 h-3" />
                           </button>
@@ -549,7 +555,7 @@ export default function UsersPage() {
                       )}
                       {regionFilter && regionsData && (
                         <span className="inline-flex items-center gap-1 bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-200 px-2 py-1 rounded text-xs">
-                          Viloyat: {regionsData.find((r: any) => r.id == regionFilter)?.name}
+                          {t('filters.chip.region', { name: regionsData.find((r: any) => r.id == regionFilter)?.name })}
                           <button onClick={() => setRegionFilter('')} className="hover:bg-blue-200 dark:hover:bg-blue-700 rounded">
                             <X className="w-3 h-3" />
                           </button>
@@ -557,7 +563,7 @@ export default function UsersPage() {
                       )}
                       {dateFromFilter && (
                         <span className="inline-flex items-center gap-1 bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-200 px-2 py-1 rounded text-xs">
-                          Dan: {dateFromFilter}
+                          {t('filters.chip.from', { date: dateFromFilter })}
                           <button onClick={() => setDateFromFilter('')} className="hover:bg-blue-200 dark:hover:bg-blue-700 rounded">
                             <X className="w-3 h-3" />
                           </button>
@@ -565,7 +571,7 @@ export default function UsersPage() {
                       )}
                       {dateToFilter && (
                         <span className="inline-flex items-center gap-1 bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-200 px-2 py-1 rounded text-xs">
-                          Gacha: {dateToFilter}
+                          {t('filters.chip.to', { date: dateToFilter })}
                           <button onClick={() => setDateToFilter('')} className="hover:bg-blue-200 dark:hover:bg-blue-700 rounded">
                             <X className="w-3 h-3" />
                           </button>
@@ -573,7 +579,7 @@ export default function UsersPage() {
                       )}
                       {onlineFilter && (
                         <span className="inline-flex items-center gap-1 bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-200 px-2 py-1 rounded text-xs">
-                          Online: {onlineFilter === 'true' ? 'Ha' : 'Yo\'q'}
+                          {t('filters.chip.online', { value: yesNo(onlineFilter) })}
                           <button onClick={() => setOnlineFilter('')} className="hover:bg-blue-200 dark:hover:bg-blue-700 rounded">
                             <X className="w-3 h-3" />
                           </button>
@@ -591,11 +597,11 @@ export default function UsersPage() {
       {/* Table */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
         <Table 
-          headers={['ID', 'Foydalanuvchi', 'Telefon', 'Tangalar', 'Reyting', 'Holati', 'Qo\'shilgan', 'Amallar']} 
+          headers={[t('common:table.id'), t('common:table.user'), t('common:table.phone'), t('common:table.coins'), t('common:table.status'), t('table.joined'), t('common:table.actions')]} 
           loading={isLoading}
         >
           {users.length === 0 && !isLoading ? (
-            <tr><td colSpan={8}><EmptyState message="Foydalanuvchilar topilmadi" /></td></tr>
+            <tr><td colSpan={7}><EmptyState message={t('empty.users')} /></td></tr>
           ) : users.map(u => (
             <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
               <td className="px-4 py-3 text-gray-500 text-xs">#{u.id}</td>
@@ -609,7 +615,7 @@ export default function UsersPage() {
                     {(u as any).status === 'online' && (
                       <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
                         <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        Onlayn
+                        {t('common:status.online')}
                       </div>
                     )}
                   </div>
@@ -621,14 +627,13 @@ export default function UsersPage() {
                   {formatNumber(u.coins ?? 0)} 🪙
                 </span>
               </td>
-              <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{u.rating ?? 0}</td>
               <td className="px-4 py-3">
                 <div className="flex gap-1">
                   <Badge color={u.is_verified ? 'green' : 'yellow'}>
-                    {u.is_verified ? 'Tasdiqlangan' : 'Tasdiqlanmagan'}
+                    {u.is_verified ? t('common:status.verified') : t('common:status.unverified')}
                   </Badge>
                   {(u as any).is_banned && (
-                    <Badge color="red">Bloklangan</Badge>
+                    <Badge color="red">{t('common:status.banned')}</Badge>
                   )}
                 </div>
               </td>
@@ -637,35 +642,35 @@ export default function UsersPage() {
                 <div className="flex gap-1">
                   <button 
                     onClick={() => {setSelected(u); setUserDetailModal(true);}} 
-                    title="Ko'rish"
+                    title={t('common:actions.view')}
                     className="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 transition"
                   >
                     <Eye className="w-4 h-4" />
                   </button>
                   <button 
                     onClick={() => handleEdit(u)} 
-                    title="Tahrirlash"
+                    title={t('common:actions.edit')}
                     className="p-1.5 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 text-purple-600 transition"
                   >
                     <Edit className="w-4 h-4" />
                   </button>
                   <button 
                     onClick={() => { setSelected(u); setPasswordModal(true); }} 
-                    title="Parol o'zgartirish"
+                    title={t('actions.changePassword')}
                     className="p-1.5 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/20 text-orange-600 transition"
                   >
                     <KeyRound className="w-4 h-4" />
                   </button>
                   <button 
                     onClick={() => { setSelected(u); setBalanceModal(true); }} 
-                    title="Balansni o'zgartirish"
+                    title={t('actions.changeBalance')}
                     className="p-1.5 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20 text-yellow-600 transition"
                   >
                     <DollarSign className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => { setSelected(u); setXpModal(true); }}
-                    title="XP o'zgartirish"
+                    title={t('actions.changeXp')}
                     className="p-1.5 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 text-green-600 transition"
                   >
                     <Zap className="w-4 h-4" />
@@ -673,7 +678,7 @@ export default function UsersPage() {
                   {!(u as any).is_banned ? (
                     <button 
                       onClick={() => handleAction(u, 'ban')} 
-                      title="Bloklash"
+                      title={t('actions.ban')}
                       className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 transition"
                     >
                       <Ban className="w-4 h-4" />
@@ -681,7 +686,7 @@ export default function UsersPage() {
                   ) : (
                     <button 
                       onClick={() => handleAction(u, 'unban')} 
-                      title="Blokdan chiqarish"
+                      title={t('actions.unban')}
                       className="p-1.5 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 text-green-600 transition"
                     >
                       <Shield className="w-4 h-4" />
@@ -690,7 +695,7 @@ export default function UsersPage() {
                   {!u.is_verified ? (
                     <button 
                       onClick={() => handleAction(u, 'verify')} 
-                      title="Tasdiqlash"
+                      title={t('actions.verify')}
                       className="p-1.5 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 text-green-600 transition"
                     >
                       <ShieldCheck className="w-4 h-4" />
@@ -698,7 +703,7 @@ export default function UsersPage() {
                   ) : (
                     <button 
                       onClick={() => handleAction(u, 'unverify')} 
-                      title="Tasdiqni bekor qilish"
+                      title={t('actions.unverify')}
                       className="p-1.5 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/20 text-orange-600 transition"
                     >
                       <UserX className="w-4 h-4" />
@@ -706,7 +711,7 @@ export default function UsersPage() {
                   )}
                   <button 
                     onClick={() => handleAction(u, 'delete')} 
-                    title="O'chirish"
+                    title={t('common:actions.delete')}
                     className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 transition"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -721,66 +726,72 @@ export default function UsersPage() {
       <Pagination page={page} total={total} limit={limit} onChange={setPage} />
 
       {/* Balance Modal */}
-      <Modal open={balanceModal} onClose={() => setBalanceModal(false)} title={`Balansni o'zgartirish — ${selected?.username}`}>
+      <Modal open={balanceModal} onClose={() => setBalanceModal(false)} title={t('modal.balance.title', { username: selected?.username })}>
         <form onSubmit={submitBal(d => balMutation.mutate(d))} className="space-y-4">
           <Input 
-            label="Miqdor (manfiy son ayirish uchun)" 
+            label={t('modal.balance.amount')} 
             type="number" 
             {...regBal('amount', { valueAsNumber: true, required: true })} 
           />
           <Input 
-            label="Tavsif" 
-            placeholder="Admin tomonidan o'zgartirildi..." 
+            label={t('common:table.description')} 
+            placeholder={t('modal.balance.descriptionPlaceholder')} 
             {...regBal('description', { required: true })} 
           />
           <div className="flex gap-3 pt-2">
             <Button type="button" variant="outline" onClick={() => setBalanceModal(false)} className="flex-1">
-              Bekor qilish
+              {t('common:actions.cancel')}
             </Button>
             <Button type="submit" loading={balMutation.isPending} className="flex-1">
-              Yangilash
+              {t('common:actions.update')}
             </Button>
           </div>
         </form>
       </Modal>
 
       {/* Ban Modal */}
-      <Modal open={banModal} onClose={() => setBanModal(false)} title={`Foydalanuvchini bloklash — ${selected?.username}`}>
+      <Modal open={banModal} onClose={() => setBanModal(false)} title={t('modal.ban.title', { username: selected?.username })}>
         <form onSubmit={submitBan(d => banMutation.mutate(d))} className="space-y-4">
           <Input 
-            label="Bloklash sababi" 
-            placeholder="Qoidalarni buzgani uchun..." 
+            label={t('modal.ban.reason')} 
+            placeholder={t('modal.ban.reasonPlaceholder')} 
             {...regBan('reason', { required: true })} 
           />
           <div className="flex gap-3 pt-2">
             <Button type="button" variant="outline" onClick={() => setBanModal(false)} className="flex-1">
-              Bekor qilish
+              {t('common:actions.cancel')}
             </Button>
             <Button type="submit" loading={banMutation.isPending} className="flex-1" variant="danger">
-              Bloklash
+              {t('actions.ban')}
             </Button>
           </div>
         </form>
       </Modal>
 
       {/* Delete Modal */}
-      <Modal open={deleteModal} onClose={() => setDeleteModal(false)} title="Foydalanuvchini o'chirish">
+      <Modal open={deleteModal} onClose={() => setDeleteModal(false)} title={t('modal.delete.title')}>
         <div className="space-y-4">
           <div className="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
             <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400 flex-shrink-0" />
             <div>
               <p className="font-medium text-red-900 dark:text-red-100">
-                Ogoh bo'ling!
+                {t('modal.delete.warning')}
               </p>
               <p className="text-sm text-red-700 dark:text-red-300">
-                <strong>{selected?.username}</strong> foydalanuvchisini butunlay o'chirmoqchimisiz? 
-                Bu amal qaytarib bo'lmaydi!
+                <Trans
+                  i18nKey="users:modal.delete.confirm"
+                  values={{ username: selected?.username }}
+                  components={{ b: <strong /> }}
+                  // the username is user data: escape it so Trans never re-parses it as markup
+                  tOptions={{ interpolation: { escapeValue: true } }}
+                  shouldUnescape
+                />
               </p>
             </div>
           </div>
           <div className="flex gap-3">
             <Button type="button" variant="outline" onClick={() => setDeleteModal(false)} className="flex-1">
-              Bekor qilish
+              {t('common:actions.cancel')}
             </Button>
             <Button 
               onClick={() => actionMutation.mutate('delete')} 
@@ -788,7 +799,7 @@ export default function UsersPage() {
               className="flex-1" 
               variant="danger"
             >
-              O'chirish
+              {t('common:actions.delete')}
             </Button>
           </div>
         </div>
@@ -798,7 +809,7 @@ export default function UsersPage() {
       <Modal 
         open={userDetailModal} 
         onClose={() => setUserDetailModal(false)} 
-        title={`Foydalanuvchi ma'lumotlari — ${selected?.username}`}
+        title={t('modal.details.title', { username: selected?.username })}
         size="lg"
       >
         {userDetails ? (
@@ -806,40 +817,36 @@ export default function UsersPage() {
             {/* Basic Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Username</label>
+                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('common:table.username')}</label>
                 <p className="text-gray-900 dark:text-gray-100">{userDetails.username}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Telefon</label>
+                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('common:table.phone')}</label>
                 <p className="text-gray-900 dark:text-gray-100">{userDetails.phone_number || '—'}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Ism</label>
+                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('form.firstName')}</label>
                 <p className="text-gray-900 dark:text-gray-100">{userDetails.first_name || '—'}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Familiya</label>
+                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('form.lastName')}</label>
                 <p className="text-gray-900 dark:text-gray-100">{userDetails.last_name || '—'}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Email</label>
+                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('common:table.email')}</label>
                 <p className="text-gray-900 dark:text-gray-100">{userDetails.email || '—'}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Viloyat</label>
+                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('common:table.region')}</label>
                 <p className="text-gray-900 dark:text-gray-100">{userDetails.region_name || '—'}</p>
               </div>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 py-4 border-t border-gray-200 dark:border-gray-700">
               <div className="text-center">
                 <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{formatNumber(userDetails.coins)}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Tangalar</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{userDetails.rating}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Reyting</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{t('common:table.coins')}</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-green-600 dark:text-green-400">{userDetails.xp}</p>
@@ -848,9 +855,9 @@ export default function UsersPage() {
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                  {userDetails.activity?.is_online ? 'Onlayn' : 'Oflayn'}
+                  {userDetails.activity?.is_online ? t('common:status.online') : t('common:status.offline')}
                 </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Holat</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{t('common:table.status')}</p>
               </div>
             </div>
 
@@ -858,19 +865,19 @@ export default function UsersPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
               <div className="text-center">
                 <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{userDetails.total_duels}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Jami duellar</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{t('details.totalDuels')}</p>
               </div>
               <div className="text-center">
                 <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{userDetails.won_duels}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Yutgan duellar</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{t('details.wonDuels')}</p>
               </div>
               <div className="text-center">
                 <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{userDetails.total_exams}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Imtihonlar</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{t('details.exams')}</p>
               </div>
               <div className="text-center">
                 <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{userDetails.activity?.total_friends}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Do'stlar</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{t('details.friends')}</p>
               </div>
             </div>
 
@@ -878,30 +885,30 @@ export default function UsersPage() {
             <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
               <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
                 <Swords className="w-4 h-4 text-orange-500" />
-                Duel tarixi
-                {userDuels && <span className="text-xs text-gray-400 font-normal">jami {formatNumber(userDuels.total)}</span>}
+                {t('details.duelHistory')}
+                {userDuels && <span className="text-xs text-gray-400 font-normal">{t('details.duelsTotal', { total: formatNumber(userDuels.total) })}</span>}
               </h4>
               {!userDuels ? (
-                <p className="text-sm text-gray-400">Yuklanmoqda…</p>
+                <p className="text-sm text-gray-400">{t('common:state.loading')}</p>
               ) : userDuels.data.length === 0 ? (
-                <p className="text-sm text-gray-400">Duellar yo'q</p>
+                <p className="text-sm text-gray-400">{t('details.noDuels')}</p>
               ) : (
                 <div className="max-h-64 overflow-y-auto">
-                  <Table headers={['#', 'Raqib', 'Fan', 'Ball', 'Natija', 'XP', 'Sana']}>
+                  <Table headers={['#', t('details.duelTable.opponent'), t('common:table.subject'), t('details.duelTable.score'), t('details.duelTable.result'), 'XP', t('common:table.date')]}>
                     {userDuels.data.map(d => (
                       <tr key={d.id}>
                         <td className="px-4 py-2 text-xs text-gray-400">{d.id}</td>
                         <td className="px-4 py-2 text-sm">
                           {d.opponent_username ?? '—'}
-                          {d.is_bot_game && <Badge color="orange" size="sm">bot</Badge>}
+                          {d.is_bot_game && <Badge color="orange" size="sm">{t('details.bot')}</Badge>}
                         </td>
                         <td className="px-4 py-2 text-sm text-gray-500">{d.subject_name ?? '—'}</td>
                         <td className="px-4 py-2 text-sm font-medium">{d.my_score} : {d.opponent_score}</td>
                         <td className="px-4 py-2">
-                          {d.result === 'won' && <Badge color="green" size="sm">Yutdi</Badge>}
-                          {d.result === 'lost' && <Badge color="red" size="sm">Yutqazdi</Badge>}
-                          {d.result === 'draw' && <Badge color="gray" size="sm">Durang</Badge>}
-                          {!d.result && <Badge color="blue" size="sm">{d.status}</Badge>}
+                          {d.result === 'won' && <Badge color="green" size="sm">{t('details.result.won')}</Badge>}
+                          {d.result === 'lost' && <Badge color="red" size="sm">{t('details.result.lost')}</Badge>}
+                          {d.result === 'draw' && <Badge color="gray" size="sm">{t('details.result.draw')}</Badge>}
+                          {!d.result && <Badge color="blue" size="sm">{t(`details.duelStatus.${d.status}`, { defaultValue: d.status })}</Badge>}
                         </td>
                         <td className={`px-4 py-2 text-sm font-semibold ${d.xp_change == null ? 'text-gray-400' : d.xp_change > 0 ? 'text-green-600' : d.xp_change < 0 ? 'text-red-600' : 'text-gray-500'}`}>
                           {d.xp_change == null ? '—' : `${d.xp_change > 0 ? '+' : ''}${d.xp_change}`}
@@ -918,13 +925,13 @@ export default function UsersPage() {
             <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
               <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
                 <Smartphone className="w-4 h-4 text-blue-500" />
-                Qurilmalar
-                {userDevices && <span className="text-xs text-gray-400 font-normal">{userDevices.length} ta</span>}
+                {t('details.devices')}
+                {userDevices && <span className="text-xs text-gray-400 font-normal">{t('details.devicesCount', { count: userDevices.length })}</span>}
               </h4>
               {!userDevices ? (
-                <p className="text-sm text-gray-400">Yuklanmoqda…</p>
+                <p className="text-sm text-gray-400">{t('common:state.loading')}</p>
               ) : userDevices.length === 0 ? (
-                <p className="text-sm text-gray-400">Push uchun ro'yxatdan o'tgan qurilma yo'q</p>
+                <p className="text-sm text-gray-400">{t('details.noDevices')}</p>
               ) : (
                 <div className="space-y-2">
                   {userDevices.map(dev => {
@@ -939,9 +946,9 @@ export default function UsersPage() {
                             <span className="ml-2">v{dev.app_version || '—'}</span>
                             {model && <span className="ml-2 text-gray-500">{model}{os ? ` · ${os}` : ''}</span>}
                           </p>
-                          <p className="text-xs text-gray-400">token {dev.token_preview}</p>
+                          <p className="text-xs text-gray-400">{t('details.tokenPreview', { preview: dev.token_preview })}</p>
                         </div>
-                        <p className="text-xs text-gray-400 whitespace-nowrap">so'nggi: {formatDate(dev.updated_at)}</p>
+                        <p className="text-xs text-gray-400 whitespace-nowrap">{t('details.lastUpdated', { date: formatDate(dev.updated_at) })}</p>
                       </div>
                     );
                   })}
@@ -952,7 +959,7 @@ export default function UsersPage() {
             {/* Recent Transactions */}
             {userDetails.recent_transactions && userDetails.recent_transactions.length > 0 && (
               <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3">So'nggi tranzaksiyalar</h4>
+                <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3">{t('details.recentTransactions')}</h4>
                 <div className="space-y-2 max-h-32 overflow-y-auto">
                   {userDetails.recent_transactions.map((tx: any, i: number) => (
                     <div key={i} className="flex justify-between items-center text-sm">
@@ -973,7 +980,7 @@ export default function UsersPage() {
                 className="flex-1"
               >
                 <DollarSign className="w-4 h-4 mr-2" />
-                Balansni o'zgartirish
+                {t('actions.changeBalance')}
               </Button>
               <Button
                 variant="outline"
@@ -981,10 +988,10 @@ export default function UsersPage() {
                 className="flex-1"
               >
                 <Zap className="w-4 h-4 mr-2" />
-                XP o'zgartirish
+                {t('actions.changeXp')}
               </Button>
               <Button variant="outline" onClick={() => setUserDetailModal(false)} className="flex-1">
-                Yopish
+                {t('common:actions.close')}
               </Button>
             </div>
           </div>
@@ -996,63 +1003,63 @@ export default function UsersPage() {
       </Modal>
 
       {/* XP Modal (spec: "XP o'zgartirish") */}
-      <Modal open={xpModal} onClose={() => { setXpModal(false); resetXp(); }} title={`XP o'zgartirish — ${selected?.username}`}>
+      <Modal open={xpModal} onClose={() => { setXpModal(false); resetXp(); }} title={t('modal.xp.title', { username: selected?.username })}>
         <form onSubmit={submitXp(d => xpMutation.mutate(d))} className="space-y-4">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Musbat son XP qo'shadi, manfiy son ayiradi. Natija 0 dan pastga tushmaydi. Musbat o'zgarish haftalik/kunlik XP hisobiga ham qo'shiladi.
+            {t('modal.xp.hint')}
           </p>
           <Input
-            label="XP o'zgarishi (masalan 100 yoki -50)"
+            label={t('modal.xp.delta')}
             type="number"
             {...regXp('delta', { required: true, validate: v => Number(v) !== 0 })}
           />
           <Input
-            label="Izoh (audit uchun)"
-            placeholder="Nega o'zgartirildi"
+            label={t('modal.xp.note')}
+            placeholder={t('modal.xp.notePlaceholder')}
             {...regXp('description')}
           />
           <div className="flex gap-3 pt-2">
             <Button type="button" variant="outline" onClick={() => { setXpModal(false); resetXp(); }} className="flex-1">
-              Bekor qilish
+              {t('common:actions.cancel')}
             </Button>
             <Button type="submit" loading={xpMutation.isPending} className="flex-1">
               <Zap className="w-4 h-4 mr-2" />
-              Saqlash
+              {t('common:actions.save')}
             </Button>
           </div>
         </form>
       </Modal>
 
       {/* Create User Modal */}
-      <Modal open={createModal} onClose={() => setCreateModal(false)} title="Yangi foydalanuvchi yaratish" size="lg">
+      <Modal open={createModal} onClose={() => setCreateModal(false)} title={t('modal.create.title')} size="lg">
         <form onSubmit={submitCreate(d => createMutation.mutate(d as any))} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input 
-              label="Username" 
-              {...regCreate('username', { required: 'Username majburiy' })} 
+              label={t('common:table.username')} 
+              {...regCreate('username', { required: t('validation.usernameRequired') })} 
               error={errCreate.username?.message as string}
             />
             <Input 
-              label="Telefon raqam" 
+              label={t('form.phoneNumber')} 
               placeholder="+998901234567"
-              {...regCreate('phone_number', { required: 'Telefon raqam majburiy' })} 
+              {...regCreate('phone_number', { required: t('validation.phoneRequired') })} 
               error={errCreate.phone_number?.message as string}
             />
             <Input 
-              label="Parol" 
+              label={t('form.password')} 
               type="password"
-              {...regCreate('password', { required: 'Parol majburiy', minLength: { value: 6, message: 'Parol kamida 6 ta belgidan iborat bo\'lishi kerak' } })} 
+              {...regCreate('password', { required: t('validation.passwordRequired'), minLength: { value: MIN_PASSWORD_LENGTH, message: t('validation.passwordMin', { count: MIN_PASSWORD_LENGTH }) } })} 
               error={errCreate.password?.message as string}
             />
             <div className="space-y-1">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Viloyat
+                {t('common:table.region')}
               </label>
               <select 
                 {...regCreate('region_id')}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="">Viloyatni tanlang</option>
+                <option value="">{t('form.selectRegion')}</option>
                 {regionsData?.map((region: any) => (
                   <option key={region.id} value={region.id}>
                     {region.name}
@@ -1061,15 +1068,15 @@ export default function UsersPage() {
               </select>
             </div>
             <Input 
-              label="Ism" 
+              label={t('form.firstName')} 
               {...regCreate('first_name')} 
             />
             <Input 
-              label="Familiya" 
+              label={t('form.lastName')} 
               {...regCreate('last_name')} 
             />
             <Input 
-              label="Email" 
+              label={t('common:table.email')} 
               type="email"
               {...regCreate('email')} 
             />
@@ -1080,60 +1087,60 @@ export default function UsersPage() {
                 className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
               />
               <label className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                Darhol tasdiqlash
+                {t('form.verifyImmediately')}
               </label>
             </div>
           </div>
           <div className="flex gap-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setCreateModal(false)} className="flex-1">
-              Bekor qilish
+              {t('common:actions.cancel')}
             </Button>
             <Button type="submit" loading={createMutation.isPending} className="flex-1">
-              Yaratish
+              {t('common:actions.create')}
             </Button>
           </div>
         </form>
       </Modal>
 
       {/* Edit User Modal */}
-      <Modal open={editModal} onClose={() => setEditModal(false)} title={`Foydalanuvchini tahrirlash — ${selected?.username}`} size="lg">
+      <Modal open={editModal} onClose={() => setEditModal(false)} title={t('modal.edit.title', { username: selected?.username })} size="lg">
         <form onSubmit={submitEdit(d => updateMutation.mutate(d))} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input 
-              label="Username" 
+              label={t('common:table.username')} 
               {...regEdit('username')} 
             />
             <Input 
-              label="Telefon raqam" 
+              label={t('form.phoneNumber')} 
               {...regEdit('phone_number')} 
             />
             <Input 
-              label="Ism" 
+              label={t('form.firstName')} 
               {...regEdit('first_name')} 
             />
             <Input 
-              label="Familiya" 
+              label={t('form.lastName')} 
               {...regEdit('last_name')} 
             />
             <Input 
-              label="Email" 
+              label={t('common:table.email')} 
               type="email"
               {...regEdit('email')} 
             />
             <Input 
-              label="Tug'ilgan kun" 
+              label={t('form.birthday')} 
               type="date"
               {...regEdit('birthday')} 
             />
             <div className="space-y-1">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Viloyat
+                {t('common:table.region')}
               </label>
               <select 
                 {...regEdit('region_id')}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="">Viloyatni tanlang</option>
+                <option value="">{t('form.selectRegion')}</option>
                 {regionsData?.map((region: any) => (
                   <option key={region.id} value={region.id}>
                     {region.name}
@@ -1144,35 +1151,35 @@ export default function UsersPage() {
           </div>
           <div className="flex gap-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setEditModal(false)} className="flex-1">
-              Bekor qilish
+              {t('common:actions.cancel')}
             </Button>
             <Button type="submit" loading={updateMutation.isPending} className="flex-1">
-              Yangilash
+              {t('common:actions.update')}
             </Button>
           </div>
         </form>
       </Modal>
 
       {/* Password Reset Modal */}
-      <Modal open={passwordModal} onClose={() => setPasswordModal(false)} title={`Parol o'zgartirish — ${selected?.username}`}>
+      <Modal open={passwordModal} onClose={() => setPasswordModal(false)} title={t('modal.password.title', { username: selected?.username })}>
         <form onSubmit={submitPass(d => passwordMutation.mutate(d))} className="space-y-4">
           <Input 
-            label="Yangi parol" 
+            label={t('form.newPassword')} 
             type="password"
-            placeholder="Kamida 6 ta belgi"
-            {...regPass('new_password', { required: true, minLength: 6 })} 
+            placeholder={t('form.newPasswordPlaceholder', { count: MIN_PASSWORD_LENGTH })}
+            {...regPass('new_password', { required: true, minLength: MIN_PASSWORD_LENGTH })} 
           />
           <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
             <p className="text-sm text-yellow-800 dark:text-yellow-200">
-              ⚠️ Foydalanuvchi yangi parol bilan tizimga kirishga majbur bo'ladi.
+              {t('modal.password.warning')}
             </p>
           </div>
           <div className="flex gap-3 pt-2">
             <Button type="button" variant="outline" onClick={() => setPasswordModal(false)} className="flex-1">
-              Bekor qilish
+              {t('common:actions.cancel')}
             </Button>
             <Button type="submit" loading={passwordMutation.isPending} className="flex-1">
-              O'zgartirish
+              {t('actions.change')}
             </Button>
           </div>
         </form>

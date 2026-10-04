@@ -1,0 +1,41 @@
+{
+  "title": "Admins",
+  "subtitle": "Admin panel users (managed by the super admin)",
+  "empty": "No admins",
+  "you": "(you)",
+  "actions": {
+    "add": "Add admin",
+    "changePassword": "Change password",
+    "deleteDeactivate": "Delete (deactivate)",
+    "change": "Change"
+  },
+  "table": {
+    "role": "Role"
+  },
+  "status": {
+    "deactivated": "Deactivated"
+  },
+  "form": {
+    "password_one": "Password * (at least {{count}} character)",
+    "password_other": "Password * (at least {{count}} characters)",
+    "newPassword_one": "New password (at least {{count}} character)",
+    "newPassword_other": "New password (at least {{count}} characters)",
+    "role": "Role"
+  },
+  "modal": {
+    "create": {
+      "title": "Add admin"
+    },
+    "password": {
+      "title": "Password",
+      "titleFor": "Password: {{username}}"
+    }
+  },
+  "confirm": {
+    "delete": "Delete {{username}}?"
+  },
+  "toast": {
+    "created": "Admin created",
+    "passwordChanged": "Password changed"
+  }
+}

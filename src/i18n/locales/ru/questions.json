@@ -1,0 +1,66 @@
+{
+  "title": "Вопросы",
+  "filters": {
+    "allSubjects": "Все предметы",
+    "allTopics": "Все темы",
+    "searchPlaceholder": "Поиск вопросов..."
+  },
+  "actions": {
+    "add": "Добавить вопрос"
+  },
+  "empty": {
+    "list": "Вопросы не найдены"
+  },
+  "stats": {
+    "total": "Всего вопросов",
+    "easy": "Лёгкие вопросы",
+    "medium": "Средние вопросы",
+    "hard": "Сложные вопросы"
+  },
+  "table": {
+    "question": "Вопрос"
+  },
+  "difficulty": {
+    "easy": "Лёгкий",
+    "medium": "Средний",
+    "hard": "Сложный"
+  },
+  "modal": {
+    "create": "Создание вопроса",
+    "edit": "Редактирование вопроса",
+    "delete": "Удаление вопроса"
+  },
+  "form": {
+    "questionText": "Текст вопроса",
+    "selectSubject": "Выберите предмет",
+    "selectTopic": "Выберите тему",
+    "selectDifficulty": "Выберите сложность",
+    "answerOptions": "Варианты ответа",
+    "optionPlaceholder": "Вариант {{number}}",
+    "removeOption": "Удалить",
+    "addOption": "Добавить вариант",
+    "correctAnswer": "Правильный ответ",
+    "correctAnswerPlaceholder": "Введите правильный ответ",
+    "explanation": "Пояснение (необязательно)",
+    "explanationPlaceholder": "Необязательное пояснение к ответу"
+  },
+  "validation": {
+    "questionText": "Введите текст вопроса",
+    "subject": "Выберите предмет",
+    "topic": "Выберите тему",
+    "difficulty": "Выберите сложность",
+    "option": "Введите вариант ответа",
+    "correctAnswer": "Введите правильный ответ"
+  },
+  "confirm": {
+    "delete": "Вы уверены, что хотите удалить этот вопрос? Это действие нельзя отменить."
+  },
+  "toast": {
+    "created": "Вопрос успешно создан",
+    "createFailed": "Не удалось создать вопрос",
+    "updated": "Вопрос успешно обновлён",
+    "updateFailed": "Не удалось обновить вопрос",
+    "deleted": "Вопрос успешно удалён",
+    "deleteFailed": "Не удалось удалить вопрос"
+  }
+}

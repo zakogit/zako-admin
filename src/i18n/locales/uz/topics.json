@@ -1,0 +1,52 @@
+{
+  "title": "Mavzular",
+  "filters": {
+    "allSubjects": "Barcha fanlar",
+    "searchPlaceholder": "Mavzularni qidirish..."
+  },
+  "actions": {
+    "add": "Mavzu qo'shish"
+  },
+  "empty": {
+    "list": "Mavzular topilmadi"
+  },
+  "stats": {
+    "total": "Jami mavzular",
+    "active": "Faol mavzular",
+    "inactive": "Nofaol mavzular",
+    "avgQuestions": "Mavzu boshiga o'rtacha savollar"
+  },
+  "table": {
+    "questions": "Savollar"
+  },
+  "count": {
+    "questions_one": "{{count}} ta savol",
+    "questions_other": "{{count}} ta savol"
+  },
+  "modal": {
+    "create": "Mavzu yaratish",
+    "edit": "Mavzuni tahrirlash",
+    "delete": "Mavzuni o'chirish"
+  },
+  "form": {
+    "name": "Mavzu nomi",
+    "selectSubject": "Fanni tanlang",
+    "orderIndex": "Tartib raqami"
+  },
+  "validation": {
+    "name": "Mavzu nomi majburiy",
+    "subject": "Fanni tanlash majburiy",
+    "orderIndex": "Tartib raqami majburiy"
+  },
+  "confirm": {
+    "delete": "Ushbu mavzuni o'chirishga ishonchingiz komilmi? Bu amalni bekor qilib bo'lmaydi."
+  },
+  "toast": {
+    "created": "Mavzu muvaffaqiyatli yaratildi",
+    "createFailed": "Mavzuni yaratib bo'lmadi",
+    "updated": "Mavzu muvaffaqiyatli yangilandi",
+    "updateFailed": "Mavzuni yangilab bo'lmadi",
+    "deleted": "Mavzu muvaffaqiyatli o'chirildi",
+    "deleteFailed": "Mavzuni o'chirib bo'lmadi"
+  }
+}

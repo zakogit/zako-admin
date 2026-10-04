@@ -1,5 +1,6 @@
 import { cn } from '../../utils/helpers';
 import React, { forwardRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline';
@@ -91,6 +92,7 @@ export function StatCard({ title, value, icon, color = 'bg-primary-500', subtitl
 
 interface ModalProps { open: boolean; onClose: () => void; title: string; children: React.ReactNode; size?: 'sm' | 'md' | 'lg' | 'xl'; }
 export function Modal({ open, onClose, title, children, size = 'md' }: ModalProps) {
+  const { t } = useTranslation('common');
   if (!open) return null;
   const sizes = { sm: 'max-w-sm', md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-4xl' };
   return (
@@ -99,7 +101,7 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
       <div className={cn('relative w-full bg-white dark:bg-gray-900 rounded-2xl shadow-2xl animate-slide-in', sizes[size])}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition">
+          <button onClick={onClose} aria-label={t('actions.close')} title={t('actions.close')} className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
           </button>
         </div>
@@ -114,11 +116,12 @@ export function Spinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
   return <svg className={cn('animate-spin text-primary-600', s[size])} fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>;
 }
 
-export function EmptyState({ message = 'No data found' }: { message?: string }) {
+export function EmptyState({ message }: { message?: string }) {
+  const { t } = useTranslation('common');
   return (
     <div className="flex flex-col items-center justify-center py-16 text-gray-400">
       <svg className="w-12 h-12 mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-      <p className="text-sm">{message}</p>
+      <p className="text-sm">{message ?? t('state.noData')}</p>
     </div>
   );
 }
@@ -129,7 +132,7 @@ export function Table({ headers, children, loading }: TableProps) {
     <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
       <table className="w-full text-sm">
         <thead className="bg-gray-50 dark:bg-gray-800/50">
-          <tr>{headers.map(h => <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">{h}</th>)}</tr>
+          <tr>{headers.map((h, i) => <th key={`${i}-${h}`} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">{h}</th>)}</tr>
         </thead>
         <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900">
           {loading ? (
@@ -143,15 +146,16 @@ export function Table({ headers, children, loading }: TableProps) {
 
 interface PaginationProps { page: number; total: number; limit: number; onChange: (p: number) => void; }
 export function Pagination({ page, total, limit, onChange }: PaginationProps) {
+  const { t } = useTranslation('common');
   const pages = Math.ceil(total / limit);
   if (pages <= 1) return null;
   return (
     <div className="flex items-center justify-between pt-4">
-      <p className="text-sm text-gray-500 dark:text-gray-400">Showing {Math.min((page-1)*limit+1, total)}–{Math.min(page*limit, total)} of {total}</p>
+      <p className="text-sm text-gray-500 dark:text-gray-400">{t('pagination.showing', { from: Math.min((page-1)*limit+1, total), to: Math.min(page*limit, total), total })}</p>
       <div className="flex gap-1">
-        <Button variant="outline" size="sm" onClick={() => onChange(page-1)} disabled={page <= 1}>← Prev</Button>
+        <Button variant="outline" size="sm" onClick={() => onChange(page-1)} disabled={page <= 1}>← {t('pagination.prev')}</Button>
         <span className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">{page} / {pages}</span>
-        <Button variant="outline" size="sm" onClick={() => onChange(page+1)} disabled={page >= pages}>Next →</Button>
+        <Button variant="outline" size="sm" onClick={() => onChange(page+1)} disabled={page >= pages}>{t('pagination.next')} →</Button>
       </div>
     </div>
   );
@@ -177,6 +181,7 @@ export function LazyImage({
   fallback = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"%3E%3Crect width="40" height="40" fill="%23ef4444"/%3E%3Ctext x="20" y="25" fill="white" text-anchor="middle" font-size="12"%3E✗%3C/text%3E%3C/svg%3E',
   placeholder = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"%3E%3Crect width="40" height="40" fill="%23f3f4f6"/%3E%3C/svg%3E'
 }: LazyImageProps) {
+  const { t } = useTranslation('common');
   const [isLoading, setIsLoading] = React.useState(true);
   const [hasError, setHasError] = React.useState(false);
   const [imgSrc, setImgSrc] = React.useState(placeholder);
@@ -199,7 +204,7 @@ export function LazyImage({
       )}
       {hasError && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800 text-gray-400 text-xs">
-          Error
+          {t('status.error')}
         </div>
       )}
       <img

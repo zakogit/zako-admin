@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import {
   Plus,
   Users,
@@ -16,6 +17,7 @@ import {
 import { seasonsApi } from '../../api/services';
 import { Card, Spinner } from '../../components/ui';
 import { getStaticFileUrl } from '../../utils/helpers';
+import { getIntlLocale } from '../../i18n';
 import type { BadgeType } from '../../types';
 
 /** Nishon rasmi — yuklanmasa chiroyli emoji (🏆🥈🥉🎖️) ko'rsatadi ("Error" o'rniga). */
@@ -54,6 +56,7 @@ interface Season {
 }
 
 const SeasonsPage: React.FC = () => {
+  const { t } = useTranslation('seasons');
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'seasons' | 'badges'>('seasons');
 
@@ -88,22 +91,22 @@ const SeasonsPage: React.FC = () => {
       upcoming: {
         color: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800',
         icon: Clock,
-        label: 'Rejalashtirilgan',
+        label: t('status.upcoming'),
       },
       active: {
         color: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800',
         icon: Play,
-        label: 'Faol',
+        label: t('common:status.active'),
       },
       completed: {
         color: 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600',
         icon: CheckCircle,
-        label: 'Yakunlangan',
+        label: t('common:status.completed'),
       },
       cancelled: {
         color: 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800',
         icon: XCircle,
-        label: 'Bekor qilingan',
+        label: t('common:status.cancelled'),
       },
     };
 
@@ -119,7 +122,7 @@ const SeasonsPage: React.FC = () => {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('uz-UZ', {
+    return new Date(dateString).toLocaleDateString(getIntlLocale(), {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -144,7 +147,7 @@ const SeasonsPage: React.FC = () => {
   if (error) {
     return (
       <div className="text-center py-12">
-        <p className="text-red-600 dark:text-red-400">Xatolik yuz berdi</p>
+        <p className="text-red-600 dark:text-red-400">{t('common:state.error')}</p>
       </div>
     );
   }
@@ -155,10 +158,10 @@ const SeasonsPage: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            Seasons Management
+            {t('list.title')}
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Mavsumlar va nishonlar tizimini boshqaring
+            {t('list.subtitle')}
           </p>
         </div>
         <div className="flex items-center space-x-3">
@@ -167,18 +170,18 @@ const SeasonsPage: React.FC = () => {
             onChange={(e) => setStatusFilter(e.target.value)}
             className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           >
-            <option value="">Barcha holatlar</option>
-            <option value="upcoming">Rejalashtirilgan</option>
-            <option value="active">Faol</option>
-            <option value="completed">Yakunlangan</option>
-            <option value="cancelled">Bekor qilingan</option>
+            <option value="">{t('list.allStatuses')}</option>
+            <option value="upcoming">{t('status.upcoming')}</option>
+            <option value="active">{t('common:status.active')}</option>
+            <option value="completed">{t('common:status.completed')}</option>
+            <option value="cancelled">{t('common:status.cancelled')}</option>
           </select>
           <Link
             to="/seasons/create"
             className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             <Plus className="h-4 w-4" />
-            <span>Yangi Season</span>
+            <span>{t('actions.newSeason')}</span>
           </Link>
         </div>
       </div>
@@ -195,7 +198,7 @@ const SeasonsPage: React.FC = () => {
             }`}
           >
             <Calendar className="h-5 w-5" />
-            <span>Seasons</span>
+            <span>{t('tabs.seasons')}</span>
           </button>
           <button
             onClick={() => setActiveTab('badges')}
@@ -206,7 +209,7 @@ const SeasonsPage: React.FC = () => {
             }`}
           >
             <Award className="h-5 w-5" />
-            <span>Nishonlar</span>
+            <span>{t('tabs.badges')}</span>
           </button>
         </nav>
       </div>
@@ -225,7 +228,7 @@ const SeasonsPage: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 p-5">
                   <div className="flex items-center gap-2 text-green-700 dark:text-green-300 text-xs font-semibold uppercase tracking-wide">
-                    <Play className="w-4 h-4" /> Hozirgi mavsum
+                    <Play className="w-4 h-4" /> {t('list.pipeline.current')}
                   </div>
                   {active ? (
                     <div className="mt-2">
@@ -237,16 +240,16 @@ const SeasonsPage: React.FC = () => {
                         {formatDate(active.start_date)} – {formatDate(active.end_date)}
                       </p>
                       <p className={`mt-1 text-sm font-medium ${dLeft > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                        {dLeft > 0 ? `${dLeft} kun qoldi` : 'Muddati tugadi — tez orada yakunlanadi'}
+                        {dLeft > 0 ? t('daysLeft', { count: dLeft }) : t('list.pipeline.expiredSoon')}
                       </p>
                     </div>
                   ) : (
-                    <p className="mt-2 text-sm text-gray-500">Faol mavsum yo'q</p>
+                    <p className="mt-2 text-sm text-gray-500">{t('list.pipeline.noActive')}</p>
                   )}
                 </div>
                 <div className="rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-5">
                   <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300 text-xs font-semibold uppercase tracking-wide">
-                    <Clock className="w-4 h-4" /> Keyingi mavsum
+                    <Clock className="w-4 h-4" /> {t('list.pipeline.next')}
                   </div>
                   {upcoming ? (
                     <div className="mt-2">
@@ -258,11 +261,11 @@ const SeasonsPage: React.FC = () => {
                         {formatDate(upcoming.start_date)} – {formatDate(upcoming.end_date)}
                       </p>
                       <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        Hozirgi mavsum tugagach avtomatik faollashadi
+                        {t('list.pipeline.nextHint')}
                       </p>
                     </div>
                   ) : (
-                    <p className="mt-2 text-sm text-gray-500">Navbatda mavsum yo'q</p>
+                    <p className="mt-2 text-sm text-gray-500">{t('list.pipeline.noUpcoming')}</p>
                   )}
                 </div>
               </div>
@@ -272,10 +275,10 @@ const SeasonsPage: React.FC = () => {
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {[
-              { label: 'Jami Seasons', value: seasons.length, icon: Trophy, color: 'blue' },
-              { label: 'Faol', value: seasons.filter((s) => s.status === 'active').length, icon: Play, color: 'green' },
-              { label: 'Rejalashtirilgan', value: seasons.filter((s) => s.status === 'upcoming').length, icon: Clock, color: 'yellow' },
-              { label: 'Yakunlangan', value: seasons.filter((s) => s.status === 'completed').length, icon: CheckCircle, color: 'gray' },
+              { label: t('list.stats.total'), value: seasons.length, icon: Trophy, color: 'blue' },
+              { label: t('common:status.active'), value: seasons.filter((s) => s.status === 'active').length, icon: Play, color: 'green' },
+              { label: t('status.upcoming'), value: seasons.filter((s) => s.status === 'upcoming').length, icon: Clock, color: 'yellow' },
+              { label: t('common:status.completed'), value: seasons.filter((s) => s.status === 'completed').length, icon: CheckCircle, color: 'gray' },
             ].map((stat, index) => {
               const Icon = stat.icon;
               const colorClasses: Record<string, string> = {
@@ -304,19 +307,19 @@ const SeasonsPage: React.FC = () => {
           {/* Seasons Table */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">Barcha Seasons</h2>
+              <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">{t('list.allSeasons')}</h2>
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Season</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Holat</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Sana</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ishtirokchilar</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Yaratilgan</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Amallar</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('list.table.season')}</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('common:table.status')}</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('common:table.date')}</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('list.table.participants')}</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('common:table.created')}</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('common:table.actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -346,7 +349,7 @@ const SeasonsPage: React.FC = () => {
                           </div>
                           {season.status === 'active' && (
                             <div className={`text-xs mt-1 ${daysRemaining > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                              {daysRemaining > 0 ? `${daysRemaining} kun qoldi` : 'Muddati tugagan'}
+                              {daysRemaining > 0 ? t('daysLeft', { count: daysRemaining }) : t('common:status.expired')}
                             </div>
                           )}
                         </td>
@@ -363,9 +366,9 @@ const SeasonsPage: React.FC = () => {
                           <Link
                             to={`/seasons/${season.id}`}
                             className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition"
-                            title="Barcha amallar shu yerda"
+                            title={t('list.table.detailsHint')}
                           >
-                            Batafsil
+                            {t('common:actions.details')}
                             <ChevronRight className="h-4 w-4" />
                           </Link>
                         </td>
@@ -378,15 +381,15 @@ const SeasonsPage: React.FC = () => {
               {seasons.length === 0 && (
                 <div className="text-center py-12">
                   <Trophy className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600" />
-                  <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">Seasons topilmadi</h3>
-                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Yangi season yarating</p>
+                  <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">{t('list.empty.title')}</h3>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t('list.empty.hint')}</p>
                   <div className="mt-6">
                     <Link
                       to="/seasons/create"
                       className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
                     >
                       <Plus className="h-4 w-4 mr-2" />
-                      Yangi Season
+                      {t('actions.newSeason')}
                     </Link>
                   </div>
                 </div>
@@ -400,16 +403,16 @@ const SeasonsPage: React.FC = () => {
       {activeTab === 'badges' && (
         <div className="space-y-6">
           <div>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Nishon turlari</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('badges.title')}</h2>
             <p className="text-gray-600 dark:text-gray-400">
-              Mavsum yakunida reyting bo'yicha tarqatiladigan nishonlar (top 100). Rasmlar mobil ilovada ko'rinadi.
+              {t('badges.subtitle')}
             </p>
           </div>
 
           {badgesLoading ? (
             <div className="flex justify-center py-12"><Spinner /></div>
           ) : badgeTypes.length === 0 ? (
-            <Card className="p-12 text-center text-gray-500 dark:text-gray-400">Nishon turlari topilmadi</Card>
+            <Card className="p-12 text-center text-gray-500 dark:text-gray-400">{t('badges.empty')}</Card>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {badgeTypes.map((bt) => (
@@ -418,8 +421,8 @@ const SeasonsPage: React.FC = () => {
                   <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{bt.title}</h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                     {bt.rank_max && bt.rank_max !== bt.rank_min
-                      ? `${bt.rank_min}–${bt.rank_max}-o'rin`
-                      : `${bt.rank_min}-o'rin`}
+                      ? t('rank.range', { from: bt.rank_min, to: bt.rank_max })
+                      : t('rank.single', { rank: bt.rank_min })}
                   </p>
                   {bt.description && (
                     <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">{bt.description}</p>

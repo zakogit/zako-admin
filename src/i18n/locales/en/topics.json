@@ -1,0 +1,52 @@
+{
+  "title": "Topics",
+  "filters": {
+    "allSubjects": "All subjects",
+    "searchPlaceholder": "Search topics..."
+  },
+  "actions": {
+    "add": "Add topic"
+  },
+  "empty": {
+    "list": "No topics found"
+  },
+  "stats": {
+    "total": "Total topics",
+    "active": "Active topics",
+    "inactive": "Inactive topics",
+    "avgQuestions": "Avg questions/topic"
+  },
+  "table": {
+    "questions": "Questions"
+  },
+  "count": {
+    "questions_one": "{{count}} question",
+    "questions_other": "{{count}} questions"
+  },
+  "modal": {
+    "create": "Create topic",
+    "edit": "Edit topic",
+    "delete": "Delete topic"
+  },
+  "form": {
+    "name": "Topic name",
+    "selectSubject": "Select subject",
+    "orderIndex": "Order index"
+  },
+  "validation": {
+    "name": "Topic name is required",
+    "subject": "Subject is required",
+    "orderIndex": "Order index is required"
+  },
+  "confirm": {
+    "delete": "Are you sure you want to delete this topic? This action cannot be undone."
+  },
+  "toast": {
+    "created": "Topic created successfully",
+    "createFailed": "Failed to create topic",
+    "updated": "Topic updated successfully",
+    "updateFailed": "Failed to update topic",
+    "deleted": "Topic deleted successfully",
+    "deleteFailed": "Failed to delete topic"
+  }
+}

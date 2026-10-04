@@ -1,0 +1,136 @@
+{
+  "title": "Overview",
+  "subtitle": "Real-time platform statistics",
+  "updatedAt": "updated {{time}}",
+  "kpi": {
+    "totalUsers": "Total users",
+    "onlineNow": "Online now",
+    "duelsToday": "Duels today",
+    "questionsToday": "Questions today",
+    "cardsSold": "Cards sold",
+    "newLast7d_one": "+{{count}} new · last 7 days",
+    "newLast7d_other": "+{{count}} new · last 7 days",
+    "growthVsPrev": "+{{added}} last 7d · {{growth}} vs prev 7d",
+    "registeredToday": "{{value}} registered today",
+    "liveNow": "{{value}} live right now",
+    "answeredCorrectly": "{{value}} answered correctly",
+    "totalInventory": "Total inventory"
+  },
+  "metrics": {
+    "heading": "Product metrics",
+    "caption": "Retention: cohort of the last 7 registration days · Duels & win rate: last 30 days",
+    "retention": {
+      "title": "D1 retention",
+      "cohort_one": "Cohort {{count}} user · {{returned}} came back next day",
+      "cohort_other": "Cohort {{count}} users · {{returned}} came back next day",
+      "target": "Target: D1 30–40%, D7 15–25%, D30 8–15%"
+    },
+    "dau": {
+      "title": "DAU",
+      "wauMau": "WAU {{wau}} · MAU {{mau}}",
+      "stickiness": "Stickiness DAU/MAU {{value}} (target 20%+)",
+      "vsYesterday": "{{delta}} vs yesterday ({{yesterday}})"
+    },
+    "completion": {
+      "title": "Duel completion",
+      "finishedStarted": "{{finished}} finished / {{started}} started",
+      "noDuels": "No duels yet",
+      "target": "Target: 85%+ good, below 70% is a red flag"
+    },
+    "winRate": {
+      "title": "Avg win rate",
+      "players_one": "{{count}} PvP player with 3+ duels",
+      "players_other": "{{count}} PvP players with 3+ duels",
+      "notEnough": "Not enough PvP duels (bots excluded)",
+      "band_one": "In 40–60% band: {{count}} player",
+      "band_other": "In 40–60% band: {{count}} players",
+      "healthy": "Healthy: most players between 45–55%"
+    }
+  },
+  "health": {
+    "noData": "No data",
+    "good": "Good",
+    "ok": "OK",
+    "low": "Low",
+    "veryGood": "Very good",
+    "watch": "Watch",
+    "critical": "Critical",
+    "balanced": "Balanced",
+    "unbalanced": "Unbalanced"
+  },
+  "modes": {
+    "bot": "vs Bot",
+    "random": "Random match",
+    "friend": "Friend room"
+  },
+  "difficulty": {
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard"
+  },
+  "players": "Players",
+  "trend": {
+    "title": "Activity trend",
+    "subtitle": "Daily active users, new registrations and duels",
+    "series": {
+      "dau": "DAU",
+      "newUsers": "New users",
+      "duels": "Duels"
+    }
+  },
+  "topPlayer": {
+    "title": "Top player",
+    "rating": "Rating",
+    "winRate": "Win rate",
+    "record_one": "Won {{won}} of {{count}} duel",
+    "record_other": "Won {{won}} of {{count}} duels",
+    "empty": "No players yet"
+  },
+  "xp": {
+    "title": "XP distribution",
+    "subtitle": "Players per league"
+  },
+  "byMode": {
+    "title": "Duel completion by mode",
+    "subtitle": "Finished / started · last 30 days",
+    "sub": "{{finished}} of {{started}} finished",
+    "empty": "No finished duels in the last 30 days"
+  },
+  "winDist": {
+    "title": "Win rate distribution",
+    "subtitle": "PvP players by win rate · healthy matchmaking clusters at 40–60%"
+  },
+  "questionStats": {
+    "title": "Question statistics",
+    "subtitle_one": "Most-missed questions (5+ attempts) · {{count, number}} answer analysed",
+    "subtitle_other": "Most-missed questions (5+ attempts) · {{count, number}} answers analysed",
+    "correctPct": "{{value}} correct",
+    "empty": "Not enough answers yet to rank questions"
+  },
+  "table": {
+    "question": "Question",
+    "attempts": "Attempts",
+    "wrong": "Wrong",
+    "correct": "Correct"
+  },
+  "activity": {
+    "title": "Recent activity",
+    "empty": "No recent activity",
+    "botOpponent": "Bot",
+    "types": {
+      "duelCompleted": "Duel completed",
+      "userRegistration": "User registration"
+    },
+    "details": {
+      "duel": "vs {{opponent}} in {{subject}}",
+      "newUser": "New user registered"
+    }
+  },
+  "system": {
+    "title": "System status",
+    "api": "API server",
+    "database": "Database",
+    "redis": "Redis cache",
+    "websocket": "WebSocket"
+  }
+}

@@ -1,5 +1,57 @@
 # Admin Panel Deployment Guide
 
+## CI/CD (GitHub Actions) — recommended
+
+Workflow: [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml)
+
+| Event | What runs |
+|---|---|
+| Pull request (any branch → any branch) | `npm ci` → `node scripts/check-i18n.mjs` → `npm run build` (strict `tsc -b` + Vite build) |
+| Push to `main` (repo `zakogit/zako-admin` only) | the same checks, then **deploy**: `dist/` is uploaded over SSH with `rsync` to the server and the run verifies that `https://admin.zakoapp.uz` serves the new bundle |
+| Manual run (_Actions → CI/CD → Run workflow_) on `main` | same as a push; the optional `ref` input builds and deploys an older commit/tag — this is the **rollback** |
+
+The build uses the committed `.env.production` (API at `https://api.zakoapp.uz`), so the build itself needs no secrets.
+The deploy uploads new hashed assets first, then `index.html`, and prunes assets older than 14 days, so open browser tabs keep
+working during a release.
+
+### One-time setup (repo `zakogit/zako-admin` → Settings → Secrets and variables → Actions)
+
+Create an environment named **production** (Settings → Environments; add _required reviewers_ there if every release should be
+approved by hand) and add these secrets to it (or to the repository):
+
+| Secret | Example / notes |
+|---|---|
+| `SERVER_HOST` | the VPS host or IP (same server as the backend, `vps-39075eea`) |
+| `SERVER_USER` | `ubuntu` — must be able to **write** to `ADMIN_WEB_ROOT` |
+| `SERVER_SSH_KEY` | the **private** deploy key (see below) |
+| `SERVER_PORT` | optional, defaults to `22` |
+| `SERVER_KNOWN_HOSTS` | optional but recommended: output of `ssh-keyscan -H <host>`; without it the host key is trusted on first use in every run |
+| `ADMIN_WEB_ROOT` | the directory nginx serves for `admin.zakoapp.uz` (its `root`), e.g. `/home/ubuntu/apps/zako-admin/dist`. It is `rsync --delete`d, so it must be exactly that directory and not shallower than `/a/b/c`. |
+
+> Two different roots appear in the repo docs: `/home/ubuntu/apps/zako-admin/dist` (this file) and `/var/www/zakoapp.uz/admin`
+> (`zako_backend/zakoapp.uz`). On the server run `sudo nginx -T | grep -A12 'server_name admin.zakoapp.uz'` and use the `root` shown there.
+
+Use a dedicated key for this repo:
+
+```bash
+ssh-keygen -t ed25519 -f zako-admin-deploy -N "" -C "github-actions zako-admin"
+ssh-copy-id -i zako-admin-deploy.pub ubuntu@<host>      # or append the .pub line to ~/.ssh/authorized_keys on the VPS
+# paste the content of the PRIVATE file `zako-admin-deploy` into the SERVER_SSH_KEY secret, then delete both local files
+ssh-keyscan -H <host>                                   # → SERVER_KNOWN_HOSTS
+```
+
+The deploy user needs `rsync` on the server (`sudo apt install rsync`) and write access to the web root
+(`sudo chown -R ubuntu:ubuntu <ADMIN_WEB_ROOT>` if it was created by root).
+
+### Notes
+
+- The deploy job is skipped on forks / the personal mirror (`github.repository == 'zakogit/zako-admin'`), so pushing to both remotes is safe.
+- Lint is not part of CI yet: `npm run lint` still reports the old `no-explicit-any` findings. Add it once those are cleaned up.
+- If the final "verify" step fails but the files were uploaded, nginx is serving a different directory than `ADMIN_WEB_ROOT`
+  (or a CDN is caching `index.html`).
+
+## Manual deployment (fallback)
+
 ## Prerequisites
 
 - Ubuntu VPS (vps-39075eea)

@@ -1,0 +1,97 @@
+{
+  "title": "Дуэли",
+  "duelSingular": "Дуэль",
+  "duelNumber": "Дуэль #{{id}}",
+  "empty": "Дуэли не найдены",
+  "player": {
+    "bot": "Бот",
+    "player1": "Игрок 1",
+    "player2": "Игрок 2"
+  },
+  "status": {
+    "waiting": "Ожидает",
+    "finished": "Завершено"
+  },
+  "actions": {
+    "replay": "Реплей"
+  },
+  "units": {
+    "sec": "{{value}} с",
+    "secCompact": "{{value}} с"
+  },
+  "settings": {
+    "title": "Настройки дуэлей",
+    "summary": "Время: {{times}} с · по умолчанию {{standard}} с · {{questions}} · XP +{{win}} / {{lose}} / {{draw}}",
+    "questionsCount_one": "{{count}} вопрос",
+    "questionsCount_few": "{{count}} вопроса",
+    "questionsCount_many": "{{count}} вопросов",
+    "questionsCount_other": "{{count}} вопроса",
+    "timeOptions": "Варианты времени (секунды)",
+    "timeOptionsHint": "Через запятую, в диапазоне 10–3600 с. Мобильное приложение показывает их как варианты выбора.",
+    "defaultTime": "Время по умолчанию",
+    "questionCount": "Количество вопросов (в одной дуэли)",
+    "xpNote": "Правила XP за победу / поражение / ничью настраиваются на странице <b>Лиги</b>.",
+    "saveError": "Ошибка при сохранении"
+  },
+  "filters": {
+    "allStatuses": "Все статусы",
+    "allSubjects": "Все предметы",
+    "sortNewest": "Новые → старые",
+    "sortOldest": "Старые → новые",
+    "searchPlaceholder": "Поиск дуэлей..."
+  },
+  "table": {
+    "players": "Игроки",
+    "score": "Счёт",
+    "xpChange": "Изменение XP",
+    "duration": "Длительность",
+    "vsBot": "против бота",
+    "vsPlayer": "против {{name}}",
+    "winner": "Победитель: {{name}}",
+    "draw": "Ничья"
+  },
+  "replay": {
+    "title": "Дуэль #{{id}} — реплей",
+    "aiTestDuel": "Дуэль по AI-тесту",
+    "suspiciousCount_one": "{{count}} подозрительный признак",
+    "suspiciousCount_few": "{{count}} подозрительных признака",
+    "suspiciousCount_many": "{{count}} подозрительных признаков",
+    "suspiciousCount_other": "{{count}} подозрительного признака",
+    "resultDraw": "Результат: ничья",
+    "resultWinner": "Результат: победитель <b>{{name}}</b>",
+    "resultNoWinner": "Результат: победитель не определён",
+    "byQuestion": "По вопросам ({{total}})",
+    "aiQuestionsSeparate": "Вопросы дуэли по AI-тесту хранятся отдельно",
+    "noAnswers": "Для этой дуэли ответы не записаны",
+    "footnote": "Время указано в секундах с момента создания дуэли. Подозрительные признаки: 100% правильных ответов + ответы быстрее 2 с, интервал между ответами менее 0,5 с, доля побед в PvP за 30 дней 90%+.",
+    "questionHeader": "Вопрос",
+    "questionFallback": "Вопрос #{{id}}",
+    "questionMeta": "{{difficulty}} · правильный ответ: {{answer}}",
+    "noAnswer": "нет ответа",
+    "timeUp": "Время вышло",
+    "correct": "Верно",
+    "accuracy": "Точность",
+    "avgGap": "Ср. интервал",
+    "severity": {
+      "low": "Низкая",
+      "medium": "Средняя",
+      "high": "Высокая"
+    },
+    "difficulty": {
+      "easy": "Лёгкий",
+      "medium": "Средний",
+      "hard": "Сложный"
+    }
+  },
+  "delete": {
+    "title": "Удаление дуэли",
+    "confirm": "Вы уверены, что хотите удалить эту дуэль?",
+    "matchup": "{{p1}} против {{p2}}",
+    "matchupBot": "{{p1}} против бота",
+    "matchupWaiting": "{{p1}} — ожидание соперника"
+  },
+  "toast": {
+    "deleted": "Дуэль успешно удалена",
+    "deleteFailed": "Не удалось удалить дуэль"
+  }
+}
