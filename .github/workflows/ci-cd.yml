@@ -121,7 +121,18 @@ jobs:
           DEST="$SSH_USER@$SSH_HOST"
           RSYNC="rsync -rlt --chmod=D755,F644 -e"
 
-          $SSH "$DEST" "mkdir -p '$WEB_ROOT/assets'"
+          # Second safety net against a mistyped secret: an existing, non-empty web root must already look like an
+          # admin build (index.html present) — e.g. pointing at the parent folder instead of .../dist is refused,
+          # because the sync below deletes files that are not part of the new build.
+          $SSH "$DEST" bash -s -- "$WEB_ROOT" <<'REMOTE'
+          set -eu
+          root="$1"
+          if [ -d "$root" ] && [ -n "$(ls -A "$root")" ] && [ ! -f "$root/index.html" ]; then
+            echo "Refusing to deploy: $root is not empty and has no index.html, so it does not look like the admin web root" >&2
+            exit 42
+          fi
+          mkdir -p "$root/assets"
+          REMOTE
 
           # 1) New hashed assets first. Old ones stay, so tabs that still run the previous build keep loading their lazy chunks.
           $RSYNC "$SSH" dist/assets/ "$DEST:$WEB_ROOT/assets/"
