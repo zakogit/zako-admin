@@ -77,6 +77,18 @@ export interface Question {
   options?: QuestionOption[];
 }
 
+// Kanonik savol yaratish payload'i: POST /admin/questions -> questions + question_options
+// (mobil ilova variantlarni shu jadvaldan o'qiydi; eski /admin/admin-questions JSON-options yo'li emas).
+export interface QuestionCreateInput {
+  topic_id: number;
+  subject_id: number;
+  question_text: string;
+  question_type: 'single';
+  difficulty: 'easy' | 'medium' | 'hard';
+  explanation?: string;
+  options: { option_text: string; is_correct: boolean; order_index: number }[];
+}
+
 // Subject
 export interface Subject {
   id: number;

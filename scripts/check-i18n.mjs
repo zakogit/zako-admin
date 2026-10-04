@@ -440,6 +440,27 @@ for (const f of files) scanFile(f);
   }
 }
 
+// ───────────────────────── questions JSON import: dynamic key families ─────────────────────────
+// ImportQuestionsModal resolves `import.errors.<code>` / `import.rules.<name>` at runtime, so the usual
+// literal-key check cannot see them. Every IssueCode of importQuestions.ts must have a message in all languages.
+{
+  const file = path.join(SRC, 'pages', 'questions', 'importQuestions.ts');
+  if (fs.existsSync(file) && (!nsFilter.length || nsFilter.includes('questions'))) {
+    const src = fs.readFileSync(file, 'utf8');
+    const union = src.match(/export type IssueCode =([\s\S]*?);/);
+    const codes = union ? [...union[1].matchAll(/'(\w+)'/g)].map((m) => m[1]) : [];
+    if (!codes.length) err('import-keys', 'could not read the IssueCode union from pages/questions/importQuestions.ts');
+    const need = [
+      ...codes.map((c) => `import.errors.${c}`),
+      'import.errors.topic_not_found_any',
+      ...['root', 'question', 'explanation', 'overrides', 'names', 'limits'].map((r) => `import.rules.${r}`),
+    ];
+    for (const lang of LANGS)
+      for (const key of need)
+        if (!data[lang].questions?.[key]) err('import-keys', `${lang}/questions.json: missing "${key}" (used dynamically by ImportQuestionsModal)`);
+  }
+}
+
 // ───────────────────────── report ─────────────────────────
 const section = (title, list) => {
   if (!list.length) return;

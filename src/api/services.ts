@@ -1,5 +1,5 @@
 import api from './client';
-import type { AuthState, DashboardStats, User, Question, Subject, Topic, CardType, Avatar, Region, Duel, Friendship, AuditLog, PaginatedResponse, ProductPackage, ProductPackageInput, Season, SeasonStats, BadgeType, UserBadge, LeaderboardEntry, League, Book, BookTopic, BookPage, GenerationJob, GeneratedQuestion, GenEstimate, AiStats, DraftsSummary, Article, AiTest, AiTestDetail, AiTestQuestion, AiTestStats, AiTestFilters } from '../types';
+import type { QuestionCreateInput, AuthState, DashboardStats, User, Question, Subject, Topic, CardType, Avatar, Region, Duel, Friendship, AuditLog, PaginatedResponse, ProductPackage, ProductPackageInput, Season, SeasonStats, BadgeType, UserBadge, LeaderboardEntry, League, Book, BookTopic, BookPage, GenerationJob, GeneratedQuestion, GenEstimate, AiStats, DraftsSummary, Article, AiTest, AiTestDetail, AiTestQuestion, AiTestStats, AiTestFilters } from '../types';
 
 // ── Auth ──────────────────────────────────────────────
 export const authApi = {
@@ -222,6 +222,9 @@ export const questionsApi = {
   update: (id: number, body: Partial<Question>) => api.put(`/admin/admin-questions/${id}`, body),
   delete: (id: number) => api.delete(`/admin/admin-questions/${id}`),
   bulkDelete: (ids: number[]) => api.post('/admin/admin-questions/bulk-delete', { ids }),
+  // Kanonik yaratish (questions + question_options) — JSON import shu yo'ldan foydalanadi.
+  createWithOptions: (body: QuestionCreateInput) =>
+    api.post<{ success: boolean; data: { id: number | string } }>('/admin/questions', body),
 };
 
 // ── Cards ─────────────────────────────────────────────

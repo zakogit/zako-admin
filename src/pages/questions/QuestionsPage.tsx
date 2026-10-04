@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Search, Plus, Edit, Trash2, BarChart3 } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, BarChart3, FileJson } from 'lucide-react';
 import { questionsApi, subjectsApi, topicsApi } from '../../api/services';
 import { Table, Badge, Button, Pagination, Modal, EmptyState } from '../../components/ui';
 import { formatDate } from '../../utils/helpers';
@@ -8,6 +8,7 @@ import type { Question, Subject, Topic } from '../../types';
 import toast from 'react-hot-toast';
 import { useForm, useFieldArray, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import ImportQuestionsModal from './ImportQuestionsModal';
 
 export default function QuestionsPage() {
   const { t } = useTranslation('questions');
@@ -19,6 +20,7 @@ export default function QuestionsPage() {
   const [selected, setSelected] = useState<Question | null>(null);
   const [editModal, setEditModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
+  const [importModal, setImportModal] = useState(false);
   const [formSubjectId, setFormSubjectId] = useState<string>('');
   const limit = 20;
 
@@ -250,6 +252,11 @@ export default function QuestionsPage() {
             />
           </div>
 
+          <Button variant="outline" onClick={() => setImportModal(true)} className="whitespace-nowrap">
+            <FileJson className="w-4 h-4 mr-2" />
+            {t('import.button')}
+          </Button>
+
           <Button onClick={() => openEditModal()} className="whitespace-nowrap">
             <Plus className="w-4 h-4 mr-2" />
             {t('actions.add')}
@@ -313,6 +320,16 @@ export default function QuestionsPage() {
           </>
         )}
       </div>
+
+      {/* JSON import */}
+      <ImportQuestionsModal
+        open={importModal}
+        onClose={() => setImportModal(false)}
+        onImported={() => {
+          qc.invalidateQueries({ queryKey: ['admin-questions'] });
+          qc.invalidateQueries({ queryKey: ['questions-stats'] });
+        }}
+      />
 
       {/* Edit Modal */}
       <Modal open={editModal} onClose={() => { setEditModal(false); setSelected(null); }} title={selected ? t('modal.edit') : t('modal.create')}>

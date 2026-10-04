@@ -60,6 +60,11 @@ Pass `total` and `limit` to `Pagination`; it computes the page count itself. Mut
 
 `components/ui/Badge.tsx` and `components/ui/LazyImage.tsx` are **orphaned older variants** that nothing imports (the `Badge.tsx` one takes `variant`, not `color`). The live components are the ones exported from `index.tsx`.
 
+### Questions: two write paths (use the canonical one)
+The mobile app (duels, exams, AI books) reads options from the **`question_options` table**. `POST /admin/questions` (admin.controller → `questionRepository.createWithOptions`) writes `questions` + `question_options` and is the canonical path. The older `/admin/admin-questions` create/update (what the **Add/Edit question** modal on `/questions` still calls via `questionsApi.create/update`) writes a `correct_answer` + JSON `options` column that no migration defines on `questions`, so options created that way are invisible to the app (and the insert may fail outright). New code must use `questionsApi.createWithOptions`.
+
+**JSON import** (`/questions` → *JSON import*): `pages/questions/importQuestions.ts` is pure (no React/axios) — parse, strict validation of the whole document (all issues reported with question number + path; fan/topic resolved by name or id; duplicates inside the file and against the topic's existing questions), a concurrent runner that stops after the first failure and reports what is left, and `buildExample()` (its subject/topic names deliberately don't exist so an untouched example can never be imported). `ImportQuestionsModal.tsx` is the UI. Content standard enforced: `question_type` always `single`, exactly 4 options, exactly one correct (same as the AI generation prompt). Every `IssueCode` needs a message under `questions:import.errors.<code>` in all 3 languages — `check-i18n.mjs` verifies that.
+
 ### Styling / state conventions
 - Dark mode is class-based; `uiStore.toggleDarkMode` toggles `document.documentElement.classList` and `App.tsx` re-applies it on load. Every color needs a `dark:` counterpart.
 - `cn()` in `utils/helpers.ts` = `tailwind-merge` + `clsx`. Custom palette is `primary-*` (indigo). `.scrollbar-thin` and `animate-fade-in` / `animate-slide-in` are project utilities.
