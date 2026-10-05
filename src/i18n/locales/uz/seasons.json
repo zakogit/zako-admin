@@ -75,9 +75,9 @@
     },
     "leaderboard": {
       "title": "Reyting jadvali",
-      "empty": "Hali reyting ma'lumotlari yo'q (duellar o'ynalgach to'ladi)",
+      "empty": "Hali reyting ma'lumotlari yo'q (XP yig'ilgach to'ladi)",
       "rank": "O'rin",
-      "points": "Ochkolar"
+      "points": "Mavsumiy XP"
     },
     "badges": {
       "title": "Taqsimlangan nishonlar",

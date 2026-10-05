@@ -290,16 +290,18 @@ export interface UserBadge {
   earned_at: string;
 }
 
+// Mavsum reytingi: GET /admin/seasons/:id/leaderboard. Hosila XP (user_daily_xp, kuniga cap bilan) bo'yicha
+// tartiblangan; "rank"/"total_points" yo'q — o'rin = ro'yxatdagi tartib raqami (xp DESC, id ASC).
 export interface LeaderboardEntry {
-  user_id: number;
+  id: string; // users.id (bigint -> string)
   username: string;
   first_name?: string;
   last_name?: string;
   avatar?: string;
-  total_points: number;
-  days_completed: number;
-  achievements_count: number;
-  rank_position: number;
+  gender?: string;
+  region_name?: string;
+  xp: number;
+  rating: number;
 }
 
 export interface League {

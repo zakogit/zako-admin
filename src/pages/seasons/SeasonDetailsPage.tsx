@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { seasonsApi } from '../../api/services';
 import { Card, Spinner, EmptyState, Badge, Button, Modal, Input } from '../../components/ui';
 import { getIntlLocale } from '../../i18n';
+import { formatNumber, getStaticFileUrl } from '../../utils/helpers';
 import type { Season, SeasonStats, UserBadge, LeaderboardEntry, BadgeType } from '../../types';
 
 const SeasonDetailsPage: React.FC = () => {
@@ -378,29 +379,41 @@ const SeasonDetailsPage: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900">
-                      {leaderboard.map((entry) => (
-                        <tr key={entry.user_id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                          <td className="px-4 py-3">
-                            <span className={`font-bold ${
-                              entry.rank_position === 1 ? 'text-amber-500' : entry.rank_position <= 3 ? 'text-gray-500 dark:text-gray-300' : 'text-gray-900 dark:text-gray-100'
-                            }`}>
-                              #{entry.rank_position}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-3">
-                              {entry.avatar && <img src={entry.avatar} alt="" className="w-8 h-8 rounded-full" />}
-                              <div>
-                                <p className="font-medium text-gray-900 dark:text-gray-100">
-                                  {entry.first_name} {entry.last_name}
-                                </p>
-                                <p className="text-gray-500 dark:text-gray-400">@{entry.username}</p>
+                      {leaderboard.map((entry, index) => {
+                        const rank = index + 1;
+                        return (
+                          <tr key={entry.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                            <td className="px-4 py-3">
+                              <span className={`font-bold ${
+                                rank === 1 ? 'text-amber-500' : rank <= 3 ? 'text-gray-500 dark:text-gray-300' : 'text-gray-900 dark:text-gray-100'
+                              }`}>
+                                #{rank}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex items-center gap-3">
+                                {entry.avatar && (
+                                  <img
+                                    src={getStaticFileUrl(entry.avatar)}
+                                    alt=""
+                                    className="w-8 h-8 rounded-full object-cover"
+                                    onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
+                                  />
+                                )}
+                                <div>
+                                  <p className="font-medium text-gray-900 dark:text-gray-100">
+                                    {entry.first_name} {entry.last_name}
+                                  </p>
+                                  <p className="text-gray-500 dark:text-gray-400">
+                                    @{entry.username}{entry.region_name ? ` · ${entry.region_name}` : ''}
+                                  </p>
+                                </div>
                               </div>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">{entry.total_points}</td>
-                        </tr>
-                      ))}
+                            </td>
+                            <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">{formatNumber(entry.xp)}</td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>

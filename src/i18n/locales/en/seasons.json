@@ -75,9 +75,9 @@
     },
     "leaderboard": {
       "title": "Leaderboard",
-      "empty": "No leaderboard data yet (it fills up once duels are played)",
+      "empty": "No leaderboard data yet (it fills up as players earn XP)",
       "rank": "Rank",
-      "points": "Points"
+      "points": "Season XP"
     },
     "badges": {
       "title": "Distributed badges",
