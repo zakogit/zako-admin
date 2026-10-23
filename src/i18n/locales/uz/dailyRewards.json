@@ -1,6 +1,6 @@
 {
   "title": "Kunlik sovg'alar",
-  "subtitle": "30 kunlik spravochnik takrorlanib kalendar kunlariga ta'sir qiladi. Oddiy sovg'a — faqat tanga; premium — tanga/avatar/karta. Ikkalasi ham {{xp}} XP sharti bilan olinadi.",
+  "subtitle": "30 kunlik spravochnik takrorlanib kalendar kunlariga ta'sir qiladi. Oddiy sovg'a — faqat tanga; premium — tanga/olmos/karta. Ikkalasi ham {{xp}} XP sharti bilan olinadi.",
   "tier": {
     "regular": "Oddiy",
     "regularOption": "Oddiy (Simple)"
@@ -10,11 +10,9 @@
     "coins_one": "{{count}} tanga",
     "coins_other": "{{count}} tanga",
     "avatar": "Avatar E#{{male}}/A#{{female}}",
-    "card": "Karta #{{id}} ×{{amount}}"
-  },
-  "picker": {
-    "empty": "Avatar topilmadi",
-    "premiumTitle": "#{{id}} · premium"
+    "card": "Karta #{{id}} ×{{amount}}",
+    "diamonds_one": "{{count}} olmos",
+    "diamonds_other": "{{count}} olmos"
   },
   "settings": {
     "premium": "Premium sozlamalari",
@@ -44,19 +42,20 @@
     "categories": {
       "coins": "Tangalar",
       "card": "Kartalar",
-      "avatar": "Avatarlar"
+      "diamonds": "Olmoslar"
     },
     "premiumOnly": "Faqat Premium",
     "coinAmount": "Tanga miqdori",
-    "maleAvatar": "Erkaklar avatari *",
-    "femaleAvatar": "Ayollar avatari *",
     "selectCard": "Kartani tanlang",
     "selectPlaceholder": "— tanlang —",
     "name": "Sovg'a nomi (ixtiyoriy)",
     "namePlaceholder": "Masalan: 50 Tanga",
     "descriptionLabel": "Tavsif (ixtiyoriy)",
     "descriptionPlaceholder": "Sovg'a haqida qisqacha...",
-    "activeHint": "Faol (o'chirilsa bu kun/tier sovg'asi berilmaydi)"
+    "activeHint": "Faol (o'chirilsa bu kun/tier sovg'asi berilmaydi)",
+    "diamondAmount": "Olmos miqdori",
+    "replaceAvatar": "Avatar sovg'alari o'rniga olmos yoki boshqa kategoriya tanlang va miqdorini kiriting.",
+    "invalidAmount": "Miqdor 1 dan 2147483647 gacha butun son bo'lishi kerak."
   },
   "premiumForm": {
     "price": "Narx ({{currency}})",
@@ -82,8 +81,6 @@
     "overrideSaved": "Kun sovg'asi o'zgartirildi",
     "resetToTemplate": "Shablonga qaytarildi",
     "templateDeleted": "Sovg'a o'chirildi",
-    "selectMaleAvatar": "Erkaklar avatarini tanlang",
-    "selectFemaleAvatar": "Ayollar avatarini tanlang",
     "premiumSaved": "Premium sozlamalari saqlandi",
     "discountRemoved": "Chegirma olib tashlandi",
     "calendarSaved": "Kalendar sozlamalari saqlandi"

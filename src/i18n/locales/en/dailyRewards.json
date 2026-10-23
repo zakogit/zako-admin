@@ -1,6 +1,6 @@
 {
   "title": "Daily rewards",
-  "subtitle": "The 30-day template repeats cyclically and applies to calendar days. The regular reward is coins only; premium can be coins, an avatar or a card. Both require {{xp}} XP to claim.",
+  "subtitle": "The 30-day template repeats cyclically and applies to calendar days. The regular reward is coins only; premium can be coins, diamonds or cards. Both require {{xp}} XP to claim.",
   "tier": {
     "regular": "Regular",
     "regularOption": "Regular (Simple)"
@@ -10,11 +10,9 @@
     "coins_one": "{{count}} coin",
     "coins_other": "{{count}} coins",
     "avatar": "Avatar M#{{male}}/F#{{female}}",
-    "card": "Card #{{id}} ×{{amount}}"
-  },
-  "picker": {
-    "empty": "No avatars found",
-    "premiumTitle": "#{{id}} · premium"
+    "card": "Card #{{id}} ×{{amount}}",
+    "diamonds_one": "{{count}} diamond",
+    "diamonds_other": "{{count}} diamonds"
   },
   "settings": {
     "premium": "Premium settings",
@@ -44,19 +42,20 @@
     "categories": {
       "coins": "Coins",
       "card": "Cards",
-      "avatar": "Avatars"
+      "diamonds": "Diamonds"
     },
     "premiumOnly": "Premium only",
     "coinAmount": "Coin amount",
-    "maleAvatar": "Male avatar *",
-    "femaleAvatar": "Female avatar *",
     "selectCard": "Select card",
     "selectPlaceholder": "— select —",
     "name": "Reward name (optional)",
     "namePlaceholder": "e.g. 50 Coins",
     "descriptionLabel": "Description (optional)",
     "descriptionPlaceholder": "A short note about the reward...",
-    "activeHint": "Active (if turned off, this day/tier reward will not be given)"
+    "activeHint": "Active (if turned off, this day/tier reward will not be given)",
+    "diamondAmount": "Diamond amount",
+    "replaceAvatar": "Replace this avatar reward by selecting diamonds or another category and entering the amount.",
+    "invalidAmount": "The amount must be a whole number between 1 and 2147483647."
   },
   "premiumForm": {
     "price": "Price ({{currency}})",
@@ -82,8 +81,6 @@
     "overrideSaved": "Day reward changed",
     "resetToTemplate": "Reset to template",
     "templateDeleted": "Reward deleted",
-    "selectMaleAvatar": "Select the male avatar",
-    "selectFemaleAvatar": "Select the female avatar",
     "premiumSaved": "Premium settings saved",
     "discountRemoved": "Discount removed",
     "calendarSaved": "Calendar settings saved"

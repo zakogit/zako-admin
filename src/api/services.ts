@@ -597,7 +597,7 @@ export interface DailyRewardSlot {
   day_number?: number;
   reward_date?: string;
   is_premium: boolean;
-  reward_type: 'coins' | 'avatar' | 'card';
+  reward_type: 'coins' | 'diamonds' | 'avatar' | 'card';
   amount: number;
   ref_id: number | null;
   title: string | null;
@@ -634,7 +634,7 @@ export const dailyRewardsApi = {
   upsertTemplate: (body: {
     day_number: number;
     is_premium: boolean;
-    reward_type: 'coins' | 'avatar' | 'card';
+    reward_type: 'coins' | 'diamonds' | 'avatar' | 'card';
     amount?: number;
     ref_id?: number | null;
     title?: string | null;
@@ -653,7 +653,7 @@ export const dailyRewardsApi = {
   upsertOverride: (body: {
     reward_date: string;
     is_premium: boolean;
-    reward_type: 'coins' | 'avatar' | 'card';
+    reward_type: 'coins' | 'diamonds' | 'avatar' | 'card';
     amount?: number;
     ref_id?: number | null;
     title?: string | null;

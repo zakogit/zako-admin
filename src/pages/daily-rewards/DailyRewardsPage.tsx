@@ -2,15 +2,15 @@ import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useTranslation, Trans } from 'react-i18next';
-import { dailyRewardsApi, avatarsApi, cardsApi } from '../../api/services';
+import { dailyRewardsApi, cardsApi } from '../../api/services';
 import type { DailyRewardSlot, PremiumConfig } from '../../api/services';
-import type { Avatar } from '../../types';
 import { Button, Card, Input, Select, Modal, Spinner, Badge } from '../../components/ui';
-import { cn, getStaticFileUrl } from '../../utils/helpers';
+import { cn } from '../../utils/helpers';
 import {
   Gift,
   Crown,
   Coins,
+  Diamond,
   Image as ImageIcon,
   Layers,
   Calendar as CalIcon,
@@ -18,7 +18,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 
-type RewardType = 'coins' | 'avatar' | 'card';
+type RewardType = DailyRewardSlot['reward_type'];
 type Tier = 'regular' | 'premium';
 
 interface EditorState {
@@ -48,58 +48,10 @@ const emptyEditor: EditorState = {
 };
 
 function TypeIcon({ type }: { type?: RewardType }) {
+  if (type === 'diamonds') return <Diamond className="w-3.5 h-3.5" />;
   if (type === 'avatar') return <ImageIcon className="w-3.5 h-3.5" />;
   if (type === 'card') return <Layers className="w-3.5 h-3.5" />;
   return <Coins className="w-3.5 h-3.5" />;
-}
-
-/** Rasmli avatar tanlagich — thumbnaillar gridi (native select ID o'rniga). */
-function AvatarPicker({
-  label,
-  avatars,
-  value,
-  onChange,
-}: {
-  label: string;
-  avatars: Avatar[];
-  value: number | null;
-  onChange: (id: number) => void;
-}) {
-  const { t } = useTranslation('dailyRewards');
-  return (
-    <div className="space-y-1.5">
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{label}</label>
-      <div className="max-h-44 overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700 p-2 grid grid-cols-4 gap-2 bg-gray-50/50 dark:bg-gray-800/30">
-        {avatars.length === 0 && (
-          <p className="col-span-4 text-xs text-gray-400 py-3 text-center">{t('picker.empty')}</p>
-        )}
-        {avatars.map((a) => (
-          <button
-            key={a.id}
-            type="button"
-            onClick={() => onChange(a.id)}
-            title={a.is_premium ? t('picker.premiumTitle', { id: a.id }) : `#${a.id}`}
-            className={cn(
-              'relative aspect-square rounded-lg overflow-hidden border-2 transition',
-              value === a.id
-                ? 'border-primary-500 ring-2 ring-primary-300'
-                : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'
-            )}
-          >
-            <img src={getStaticFileUrl(a.url)} alt={`#${a.id}`} className="w-full h-full object-cover" />
-            {a.is_premium && (
-              <span className="absolute top-0.5 right-0.5 text-[8px]">👑</span>
-            )}
-            {value === a.id && (
-              <span className="absolute inset-0 bg-primary-500/20 flex items-center justify-center text-primary-700 dark:text-primary-200 text-xs font-bold">
-                ✓
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
 }
 
 export default function DailyRewardsPage() {
@@ -123,10 +75,6 @@ export default function DailyRewardsPage() {
   const premiumQ = useQuery({
     queryKey: ['premium-config'],
     queryFn: () => dailyRewardsApi.getPremiumConfig().then((r) => r.data.data),
-  });
-  const avatarsQ = useQuery({
-    queryKey: ['dr-avatars'],
-    queryFn: () => avatarsApi.getAll({ limit: 1000 }).then((r) => r.data.data.data),
   });
   const cardsQ = useQuery({
     queryKey: ['dr-cards'],
@@ -213,9 +161,9 @@ export default function DailyRewardsPage() {
     const base = {
       is_premium: editor.tier === 'premium',
       reward_type: editor.reward_type,
-      // avatar: ref_id = erkaklar, amount = ayollar avatari; card: amount = soni; coins: amount = tanga
+      // Currency rewards use amount only; cards also use ref_id.
       amount: editor.amount,
-      ref_id: editor.reward_type === 'coins' ? null : editor.ref_id,
+      ref_id: editor.reward_type === 'coins' || editor.reward_type === 'diamonds' ? null : editor.ref_id,
       title: editor.title.trim() || null,
       description: editor.description.trim() || null,
       is_active: editor.is_active,
@@ -225,14 +173,12 @@ export default function DailyRewardsPage() {
       return;
     }
     if (editor.reward_type === 'avatar') {
-      if (!editor.ref_id) {
-        toast.error(t('toast.selectMaleAvatar'));
-        return;
-      }
-      if (!editor.amount) {
-        toast.error(t('toast.selectFemaleAvatar'));
-        return;
-      }
+      toast.error(t('editor.replaceAvatar'));
+      return;
+    }
+    if (!Number.isInteger(editor.amount) || editor.amount < 1 || editor.amount > 2147483647) {
+      toast.error(t('editor.invalidAmount'));
+      return;
     }
     if (editor.mode === 'template') {
       saveTemplate.mutate({ ...base, day_number: editor.day_number! });
@@ -247,12 +193,8 @@ export default function DailyRewardsPage() {
     setCalStart(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`);
   };
 
-  const avatars = avatarsQ.data || [];
   // Kartalarda alohida "premium" belgisi yo'q — barcha aktiv kartalar sovg'a sifatida beriladi.
   const cards = (cardsQ.data || []).filter((c) => c.is_active !== false);
-  // Kunlik premium sovg'ada faqat PREMIUM avatarlar beriladi.
-  const maleAvatars = avatars.filter((a) => a.is_premium && (a.gender === 'male' || a.gender === 'both'));
-  const femaleAvatars = avatars.filter((a) => a.is_premium && (a.gender === 'female' || a.gender === 'both'));
   const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD (mahalliy)
 
   const slotLabel = (slot: DailyRewardSlot | null | undefined): string => {
@@ -260,6 +202,7 @@ export default function DailyRewardsPage() {
     let label: string;
     if (slot.title) label = slot.title;
     else if (slot.reward_type === 'coins') label = t('slot.coins', { count: slot.amount ?? 0 });
+    else if (slot.reward_type === 'diamonds') label = t('slot.diamonds', { count: slot.amount ?? 0 });
     else if (slot.reward_type === 'avatar') label = t('slot.avatar', { male: slot.ref_id, female: slot.amount });
     else label = t('slot.card', { id: slot.ref_id, amount: slot.amount || 1 });
     return slot.is_active ? label : t('slot.inactive', { label });
@@ -515,6 +458,8 @@ export default function DailyRewardsPage() {
                   ...editor,
                   tier,
                   reward_type: tier === 'regular' ? 'coins' : editor.reward_type,
+                  amount: tier === 'regular' && editor.reward_type !== 'coins' ? 50 : editor.amount,
+                  ref_id: tier === 'regular' ? null : editor.ref_id,
                 });
               }}
             >
@@ -530,7 +475,7 @@ export default function DailyRewardsPage() {
               {([
                 { type: 'coins', label: t('editor.categories.coins'), icon: <Coins className="w-6 h-6" />, premiumOnly: false },
                 { type: 'card', label: t('editor.categories.card'), icon: <Layers className="w-6 h-6" />, premiumOnly: true },
-                { type: 'avatar', label: t('editor.categories.avatar'), icon: <ImageIcon className="w-6 h-6" />, premiumOnly: true },
+                { type: 'diamonds', label: t('editor.categories.diamonds'), icon: <Diamond className="w-6 h-6" />, premiumOnly: true },
               ] as { type: RewardType; label: string; icon: React.ReactNode; premiumOnly: boolean }[]).map((c) => {
                 const disabled = c.premiumOnly && editor.tier !== 'premium';
                 const selected = editor.reward_type === c.type;
@@ -544,7 +489,7 @@ export default function DailyRewardsPage() {
                         ...editor,
                         reward_type: c.type,
                         ref_id: null,
-                        amount: c.type === 'coins' ? 50 : c.type === 'card' ? 1 : 0,
+                        amount: c.type === 'coins' ? 50 : 1,
                       })
                     }
                     className={cn(
@@ -567,31 +512,22 @@ export default function DailyRewardsPage() {
           </div>
 
           {/* Kategoriyaga qarab maydonlar */}
-          {editor.reward_type === 'coins' && (
+          {(editor.reward_type === 'coins' || editor.reward_type === 'diamonds') && (
             <Input
               type="number"
-              label={t('editor.coinAmount')}
+              label={editor.reward_type === 'diamonds' ? t('editor.diamondAmount') : t('editor.coinAmount')}
               value={editor.amount}
               min={1}
+              max={2147483647}
+              step={1}
               onChange={(e) => setEditor({ ...editor, amount: Number(e.target.value) })}
             />
           )}
 
           {editor.reward_type === 'avatar' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <AvatarPicker
-                label={t('editor.maleAvatar')}
-                avatars={maleAvatars}
-                value={editor.ref_id}
-                onChange={(id) => setEditor({ ...editor, ref_id: id })}
-              />
-              <AvatarPicker
-                label={t('editor.femaleAvatar')}
-                avatars={femaleAvatars}
-                value={editor.amount || null}
-                onChange={(id) => setEditor({ ...editor, amount: id })}
-              />
-            </div>
+            <p className="text-sm text-amber-600 dark:text-amber-400" role="status">
+              {t('editor.replaceAvatar')}
+            </p>
           )}
 
           {editor.reward_type === 'card' && (
@@ -613,6 +549,8 @@ export default function DailyRewardsPage() {
                 label={t('common:table.count')}
                 value={editor.amount}
                 min={1}
+                max={2147483647}
+                step={1}
                 onChange={(e) => setEditor({ ...editor, amount: Number(e.target.value) })}
               />
             </div>
