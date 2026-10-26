@@ -92,7 +92,42 @@
     },
     "userIds": "User IDs (comma-separated)",
     "userIdsExample": "Example: 1, 2, 3, 4",
-    "templates": "Templates:"
+    "templates": "Templates:",
+    "action": {
+      "label": "Button (optional)",
+      "typeNone": "No button",
+      "typeRoute": "📱 In-app screen",
+      "typeUrl": "🔗 External link (website, Telegram)",
+      "textLabel": "Button text",
+      "textPlaceholder": "e.g. Go to the store",
+      "routeLabel": "Screen to open",
+      "routePlaceholder": "Select a screen",
+      "urlLabel": "Link (URL)",
+      "hint": "The button appears below the text when the user opens the message",
+      "routes": {
+        "home": "Home",
+        "exercise": "Practice",
+        "all_topics": "All topics",
+        "treasure": "Treasury",
+        "leaderboard": "Leaderboard",
+        "profile": "Profile",
+        "store": "Store",
+        "coin_store": "Coin store",
+        "diamond_store": "Diamond store",
+        "zako_pass": "Zako Pass",
+        "ai_test_create": "Create AI test",
+        "ai_test_list": "My AI tests",
+        "cards": "Cards",
+        "friends": "Friends",
+        "chat": "Chat"
+      },
+      "errors": {
+        "textRequired": "Enter the button text",
+        "textTooLong": "Button text must be at most {{max}} characters",
+        "routeRequired": "Select an app screen for the button",
+        "urlInvalid": "The link must be a valid URL starting with https://"
+      }
+    }
   },
   "templates": {
     "title": "Notification templates",

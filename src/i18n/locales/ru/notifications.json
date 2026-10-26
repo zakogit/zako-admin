@@ -96,7 +96,42 @@
     },
     "userIds": "ID пользователей (через запятую)",
     "userIdsExample": "Например: 1, 2, 3, 4",
-    "templates": "Шаблоны:"
+    "templates": "Шаблоны:",
+    "action": {
+      "label": "Кнопка (необязательно)",
+      "typeNone": "Без кнопки",
+      "typeRoute": "📱 Экран приложения",
+      "typeUrl": "🔗 Внешняя ссылка (сайт, Telegram)",
+      "textLabel": "Текст кнопки",
+      "textPlaceholder": "Например: Перейти в магазин",
+      "routeLabel": "Открываемый экран",
+      "routePlaceholder": "Выберите экран",
+      "urlLabel": "Ссылка (URL)",
+      "hint": "Кнопка появится под текстом, когда пользователь откроет сообщение",
+      "routes": {
+        "home": "Главная",
+        "exercise": "Тренировка",
+        "all_topics": "Все темы",
+        "treasure": "Сокровищница",
+        "leaderboard": "Рейтинг",
+        "profile": "Профиль",
+        "store": "Магазин",
+        "coin_store": "Магазин монет",
+        "diamond_store": "Магазин алмазов",
+        "zako_pass": "Zako Pass",
+        "ai_test_create": "Создать AI-тест",
+        "ai_test_list": "Мои AI-тесты",
+        "cards": "Карточки",
+        "friends": "Друзья",
+        "chat": "Чат"
+      },
+      "errors": {
+        "textRequired": "Введите текст кнопки",
+        "textTooLong": "Текст кнопки не должен превышать {{max}} символов",
+        "routeRequired": "Выберите экран приложения для кнопки",
+        "urlInvalid": "Ссылка должна быть корректным URL, начинающимся с https://"
+      }
+    }
   },
   "templates": {
     "title": "Шаблоны уведомлений",

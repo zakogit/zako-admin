@@ -92,7 +92,42 @@
     },
     "userIds": "Foydalanuvchi ID'lari (vergul bilan ajrating)",
     "userIdsExample": "Masalan: 1, 2, 3, 4",
-    "templates": "Shablonlar:"
+    "templates": "Shablonlar:",
+    "action": {
+      "label": "Tugma (ixtiyoriy)",
+      "typeNone": "Tugmasiz",
+      "typeRoute": "📱 Ilova ichidagi sahifa",
+      "typeUrl": "🔗 Tashqi havola (sayt, Telegram)",
+      "textLabel": "Tugma matni",
+      "textPlaceholder": "Masalan: Do'konga o'tish",
+      "routeLabel": "Ochiladigan sahifa",
+      "routePlaceholder": "Sahifani tanlang",
+      "urlLabel": "Havola (URL)",
+      "hint": "Foydalanuvchi xabarni ochganda matn ostida shu tugma ko'rinadi",
+      "routes": {
+        "home": "Bosh sahifa",
+        "exercise": "Mashg'ulot",
+        "all_topics": "Barcha mavzular",
+        "treasure": "Xazna",
+        "leaderboard": "Reyting",
+        "profile": "Profil",
+        "store": "Do'kon",
+        "coin_store": "Tanga do'koni",
+        "diamond_store": "Olmos do'koni",
+        "zako_pass": "Zako Pass",
+        "ai_test_create": "AI test yaratish",
+        "ai_test_list": "Mening AI testlarim",
+        "cards": "Kartalar",
+        "friends": "Do'stlar",
+        "chat": "Chat"
+      },
+      "errors": {
+        "textRequired": "Tugma matnini kiriting",
+        "textTooLong": "Tugma matni {{max}} belgidan oshmasin",
+        "routeRequired": "Tugma uchun ilova sahifasini tanlang",
+        "urlInvalid": "Havola https:// bilan boshlanadigan to'g'ri URL bo'lsin"
+      }
+    }
   },
   "templates": {
     "title": "Bildirishnoma shablonlari",

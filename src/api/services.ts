@@ -376,6 +376,7 @@ export const notificationsApi = {
     target_users?: number[];
     data?: any;
     image_url?: string | null;
+    action?: { label: string; type: 'route' | 'url'; value: string } | null;
   }) => api.post('/admin/notifications', body),
   broadcast: (body: {
     title: string;

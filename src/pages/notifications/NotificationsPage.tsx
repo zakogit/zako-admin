@@ -15,6 +15,7 @@ import {
   Send,
   Settings,
   Image as ImageIcon,
+  MousePointerClick,
   X
 } from 'lucide-react';
 import { notificationsApi } from '../../api/services';
@@ -23,6 +24,7 @@ import { useForm } from 'react-hook-form';
 import { formatDate, formatNumber, getStaticFileUrl } from '../../utils/helpers';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
+import { ACTION_LABEL_MAX, NOTIFICATION_ACTION_ROUTES, buildNotificationAction } from './notificationActions';
 
 interface Notification {
   id: number;
@@ -142,6 +144,7 @@ export default function NotificationsPage() {
 
   // Watch target_type to show/hide specific user inputs
   const watchedTargetType = watch('target_type');
+  const watchedActionType = watch('action_type');
 
   // Helper function to fill form from template
   const useTemplate = (template: any) => {
@@ -162,6 +165,11 @@ export default function NotificationsPage() {
       toast.error(t('toast.userIdsRequired'));
       return;
     }
+    const { action, error: actionError } = buildNotificationAction(d);
+    if (actionError) {
+      toast.error(t(`form.action.errors.${actionError}`, { max: ACTION_LABEL_MAX }));
+      return;
+    }
     createMutation.mutate({
       title: d.title,
       message: d.message,
@@ -170,6 +178,7 @@ export default function NotificationsPage() {
       target_users: targetUsers,
       data: {},
       image_url: imageUrl,
+      action,
     } as any);
   };
 
@@ -622,6 +631,54 @@ export default function NotificationsPage() {
                 {uploadImageMutation.isPending ? t('common:state.loading') : t('form.pickImage')}
                 <input type="file" accept="image/*" className="hidden" onChange={handleImagePick} disabled={uploadImageMutation.isPending} />
               </label>
+            )}
+          </div>
+
+          {/* Tugma (ixtiyoriy) — mobilda xabar ichida, matn ostida ko'rinadi. Tanlanmasa tugma chiqmaydi. */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('form.action.label')}</label>
+            <select
+              {...regCreate('action_type')}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">{t('form.action.typeNone')}</option>
+              <option value="route">{t('form.action.typeRoute')}</option>
+              <option value="url">{t('form.action.typeUrl')}</option>
+            </select>
+            {(watchedActionType === 'route' || watchedActionType === 'url') && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                <Input
+                  label={t('form.action.textLabel')}
+                  placeholder={t('form.action.textPlaceholder')}
+                  maxLength={ACTION_LABEL_MAX}
+                  {...regCreate('action_label')}
+                />
+                {watchedActionType === 'route' ? (
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('form.action.routeLabel')}</label>
+                    <select
+                      {...regCreate('action_route')}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">{t('form.action.routePlaceholder')}</option>
+                      {NOTIFICATION_ACTION_ROUTES.map((r) => (
+                        <option key={r} value={r}>{t(`form.action.routes.${r}`)}</option>
+                      ))}
+                    </select>
+                  </div>
+                ) : (
+                  <Input
+                    label={t('form.action.urlLabel')}
+                    type="url"
+                    placeholder="https://t.me/ZAKO_app" // i18n-ignore
+                    {...regCreate('action_url')}
+                  />
+                )}
+                <p className="md:col-span-2 flex items-center gap-1.5 text-xs text-gray-500">
+                  <MousePointerClick className="w-3.5 h-3.5" />
+                  {t('form.action.hint')}
+                </p>
+              </div>
             )}
           </div>
 
