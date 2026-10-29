@@ -773,11 +773,59 @@ export interface AppVersionConfig {
   update_message: string;
 }
 
+export type AppPlatform = 'android' | 'ios';
+
+export interface StoreVersionInfo {
+  version: string;
+  released_at: string | null;
+  store_url: string;
+}
+
+export interface PlatformReleaseStatus {
+  latest: string;
+  min: string;
+  /** True when the gate is armed and min >= latest — older builds are blocked. */
+  required: boolean;
+  store_url: string;
+  published_at: string | null;
+  published_by: string | null;
+  /** Live store listing (iOS only; null for Android or when the lookup failed). */
+  store: StoreVersionInfo | null;
+  store_error: string | null;
+  adoption: {
+    window_days: number;
+    total: number;
+    on_latest: number;
+    below_min: number;
+    buckets: Array<{ version: string; count: number }>;
+  };
+}
+
+export interface AppReleaseStatus {
+  force_update_enabled: boolean;
+  message: string;
+  platforms: Record<AppPlatform, PlatformReleaseStatus>;
+}
+
+export interface PublishReleaseBody {
+  platform: AppPlatform;
+  version: string;
+  required: boolean;
+  message?: string;
+  skip_store_check?: boolean;
+}
+
 export const appApi = {
   getVersionConfig: () =>
     api.get<{ success: boolean; data: AppVersionConfig }>('/admin/app/version'),
   updateVersionConfig: (body: Partial<AppVersionConfig>) =>
     api.put<{ success: boolean; message: string; data: AppVersionConfig }>('/admin/app/version', body),
+  getReleaseStatus: () =>
+    api.get<{ success: boolean; data: AppReleaseStatus }>('/admin/app/version/status'),
+  lookupAppStore: () =>
+    api.get<{ success: boolean; data: StoreVersionInfo }>('/admin/app/version/store/ios'),
+  publishRelease: (body: PublishReleaseBody) =>
+    api.post<{ success: boolean; message: string; data: AppReleaseStatus }>('/admin/app/version/publish', body),
 };
 
 // ── Admin accounts (admin_users) ─────────────────────────

@@ -1,25 +1,66 @@
 {
   "title": "App version",
-  "subtitle": "Force-update settings",
+  "subtitle": "Publish a new version and see the current state",
+  "status": {
+    "required": "Required",
+    "optional": "Optional",
+    "gateOff": "Force update is off",
+    "current": "Current version",
+    "minNote": "Required minimum: {{min}}",
+    "publishedAt": "sent {{date}}",
+    "publishedBy": "by {{name}}",
+    "storeLabel": "App Store",
+    "storeMatch": "Matches",
+    "storeAhead": "App Store already has {{version}} — not published yet",
+    "storeBehind": "App Store still shows {{version}}",
+    "storeUnavailable": "Couldn't check the App Store: {{error}}",
+    "androidStoreNote": "The Play Market version isn't checked automatically"
+  },
+  "adoption": {
+    "title": "Active devices (last {{days}} days)",
+    "onLatest": "On latest",
+    "outdated": "Outdated, still allowed",
+    "blocked": "Blocked",
+    "empty": "No data yet",
+    "devices": "{{n}} devices"
+  },
+  "publish": {
+    "title": "Publish a new version",
+    "version": "Version",
+    "fetchFromStore": "Get from App Store",
+    "required": "Required",
+    "requiredHint": "Apps older than this version are blocked until they update.",
+    "optionalHint": "Users see a dismissible \"New version available\" dialog.",
+    "androidWarning": "Before making it required, check that this version is live on the Play Market for everyone.",
+    "submit": "Publish",
+    "confirmRequired": "Publish {{platform}} {{version}} as a REQUIRED update?\n\nUsers on older versions can't use the app until they update.",
+    "confirmOptional": "Publish {{platform}} {{version}} as an optional update?",
+    "confirmStoreBehind": "{{message}}\n\nMake it required anyway? Users who can't update yet will be locked out.",
+    "invalidVersion": "Version format: 1.2.0",
+    "success": "Published"
+  },
+  "settings": {
+    "title": "Advanced settings",
+    "killSwitchHint": "When off, nobody is blocked. Use it to instantly undo a required version published by mistake."
+  },
   "enable": {
-    "title": "Enable force update",
-    "hint": "When enabled, apps below the minimum version are blocked and an update dialog is shown."
+    "title": "Force update enabled",
+    "hint": "When enabled, apps below the required version are blocked and an update dialog is shown."
   },
   "message": {
     "label": "Update message",
     "placeholder": "A new version of the app is available. Please update the app to continue."
   },
   "fields": {
-    "minVersion": "Minimum version (required)",
-    "latestVersion": "Latest version",
     "storeUrlAndroid": "Store link (Play Market)",
     "storeUrlIos": "Store link (App Store)"
   },
   "warnings": {
-    "iosStoreEmpty": "The iOS store link is empty — during a forced update, users won't be able to open the App Store.",
-    "inert": "The minimum and latest versions are the same — nobody is below the minimum, so the forced update will never trigger. Raise the minimum version when a new version is released."
+    "iosStoreEmpty": "The iOS store link is empty — users can't open the App Store and the version can't be fetched from it."
   },
   "toast": {
-    "saveError": "Failed to save"
+    "saveError": "Failed to save",
+    "publishError": "Failed to publish",
+    "lookupError": "Couldn't fetch the App Store version"
   }
 }

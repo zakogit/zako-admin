@@ -1,25 +1,66 @@
 {
   "title": "Ilova versiyasi",
-  "subtitle": "Majburiy yangilanish (force-update) sozlamalari",
+  "subtitle": "Yangi versiyani e'lon qilish va joriy holat",
+  "status": {
+    "required": "Majburiy",
+    "optional": "Ixtiyoriy",
+    "gateOff": "Majburiy yangilanish o'chirilgan",
+    "current": "Joriy versiya",
+    "minNote": "Majburiy chegara: {{min}}",
+    "publishedAt": "{{date}} da yuborilgan",
+    "publishedBy": "{{name}} tomonidan",
+    "storeLabel": "App Store",
+    "storeMatch": "Mos",
+    "storeAhead": "App Store'da {{version}} chiqqan — hali e'lon qilinmagan",
+    "storeBehind": "App Store'da hali {{version}}",
+    "storeUnavailable": "App Store tekshirib bo'lmadi: {{error}}",
+    "androidStoreNote": "Play Market versiyasi avtomatik tekshirilmaydi"
+  },
+  "adoption": {
+    "title": "Faol qurilmalar (so'nggi {{days}} kun)",
+    "onLatest": "Oxirgi versiyada",
+    "outdated": "Eski, lekin ruxsat",
+    "blocked": "Bloklangan",
+    "empty": "Hali ma'lumot yo'q",
+    "devices": "{{n}} ta qurilma"
+  },
+  "publish": {
+    "title": "Yangi versiyani yuborish",
+    "version": "Versiya",
+    "fetchFromStore": "App Store'dan olish",
+    "required": "Majburiy",
+    "requiredHint": "Bu versiyadan eski ilovalar yangilanmaguncha bloklanadi.",
+    "optionalHint": "Foydalanuvchilarga yopsa bo'ladigan \"Yangi versiya bor\" oynasi chiqadi.",
+    "androidWarning": "Majburiy qilishdan oldin Play Market'da shu versiya hamma uchun chiqqanini tekshiring.",
+    "submit": "Yuborish",
+    "confirmRequired": "{{platform}} {{version}} MAJBURIY qilib yuborilsinmi?\n\nEski versiyadagi foydalanuvchilar yangilamaguncha ilovadan foydalana olmaydi.",
+    "confirmOptional": "{{platform}} {{version}} ixtiyoriy yangilanish sifatida yuborilsinmi?",
+    "confirmStoreBehind": "{{message}}\n\nBaribir majburiy qilib yuborilsinmi? Yangilay olmagan foydalanuvchilar bloklanib qoladi.",
+    "invalidVersion": "Versiya formati: 1.2.0",
+    "success": "Yuborildi"
+  },
+  "settings": {
+    "title": "Qo'shimcha sozlamalar",
+    "killSwitchHint": "O'chirilsa, hech kim bloklanmaydi. Xato e'lon qilingan majburiy versiyani darhol bekor qilish uchun."
+  },
   "enable": {
-    "title": "Majburiy yangilanishni yoqish",
-    "hint": "Yoqilganda, minimal versiyadan past ilovalar bloklanadi va yangilanish oynasi ko'rsatiladi."
+    "title": "Majburiy yangilanish yoqilgan",
+    "hint": "Yoqilganda, majburiy versiyadan past ilovalar bloklanadi va yangilanish oynasi ko'rsatiladi."
   },
   "message": {
     "label": "Yangilanish xabari",
     "placeholder": "Ilovaning yangi versiyasi chiqdi. Davom etish uchun ilovani yangilang."
   },
   "fields": {
-    "minVersion": "Minimal versiya (majburiy)",
-    "latestVersion": "Oxirgi versiya",
     "storeUrlAndroid": "Store havolasi (Play Market)",
     "storeUrlIos": "Store havolasi (App Store)"
   },
   "warnings": {
-    "iosStoreEmpty": "iOS Store havolasi bo'sh — majburiy yangilanishda foydalanuvchi App Store'ga o'ta olmaydi.",
-    "inert": "Minimal va oxirgi versiya bir xil — hech kim minimaldan past emas, shuning uchun majburiy yangilanish ishlamaydi. Yangi versiya chiqqanda minimal versiyani ko'taring."
+    "iosStoreEmpty": "iOS Store havolasi bo'sh — foydalanuvchi App Store'ga o'ta olmaydi va versiyani App Store'dan olib bo'lmaydi."
   },
   "toast": {
-    "saveError": "Saqlashda xatolik"
+    "saveError": "Saqlashda xatolik",
+    "publishError": "Yuborishda xatolik",
+    "lookupError": "App Store versiyasini olib bo'lmadi"
   }
 }
